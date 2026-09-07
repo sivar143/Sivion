@@ -1,0 +1,6 @@
+package com.sivion.api.crm.service;
+import com.sivion.api.crm.domain.*; import com.sivion.api.crm.repo.*; import org.junit.jupiter.api.Test; import static org.mockito.Mockito.*; import static org.junit.jupiter.api.Assertions.*; import java.util.*;
+class CrmServiceTest {
+ @Test void createsLeadWithTenantAndNumber(){CustomerRepository c=mock(CustomerRepository.class); ContactRepository ct=mock(ContactRepository.class); LeadRepository l=mock(LeadRepository.class); OpportunityRepository o=mock(OpportunityRepository.class); ActivityRepository a=mock(ActivityRepository.class); when(l.save(any())).thenAnswer(i->i.getArgument(0)); CrmService s=new CrmService(c,ct,l,o,a); Lead lead=new Lead(); lead.setName("Test Lead"); Lead saved=s.saveLead(1,lead); assertEquals(1,saved.getTenantId()); assertEquals("Test Lead",saved.getName()); assertTrue(saved.getLeadNumber().startsWith("LEAD-")); verify(l).save(lead); }
+ @Test void rejectsContactForWrongTenant(){CustomerRepository c=mock(CustomerRepository.class); when(c.findById(99L)).thenReturn(Optional.empty()); CrmService s=new CrmService(c,mock(ContactRepository.class),mock(LeadRepository.class),mock(OpportunityRepository.class),mock(ActivityRepository.class)); Contact x=new Contact(); x.setCustomerId(99L); assertThrows(NoSuchElementException.class,()->s.saveContact(1,x));}
+}
