@@ -1,0 +1,1 @@
+package com.sivion.api.crm.repo; import com.sivion.api.crm.domain.Lead; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface LeadRepository extends JpaRepository<Lead,Long>{List<Lead> findByTenantIdOrderByCreatedAtDesc(Long tenantId); List<Lead> findByTenantIdAndStatusOrderByCreatedAtDesc(Long tenantId,String status);}

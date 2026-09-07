@@ -1,3 +1,6 @@
 import { bootstrapApplication } from '@angular/platform-browser';
+import { provideHttpClient } from '@angular/common/http';
+import { provideAppInitializer, inject } from '@angular/core';
 import { AppComponent } from './app/app.component';
-bootstrapApplication(AppComponent).catch(err => console.error(err));
+import { AuthService } from './app/auth.service';
+bootstrapApplication(AppComponent,{providers:[provideHttpClient(),provideAppInitializer(()=>inject(AuthService).init())]}).catch(err=>console.error(err));
