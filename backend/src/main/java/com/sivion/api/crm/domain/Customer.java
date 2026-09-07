@@ -1,6 +1,9 @@
 package com.sivion.api.crm.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 
 @Entity
@@ -8,11 +11,11 @@ import java.time.Instant;
 public class Customer {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
     @Column(name="tenant_id", nullable=false) private Long tenantId;
-    @Column(nullable=false, length=50) private String code;
-    @Column(nullable=false, length=200) private String name;
-    @Column(length=255) private String email;
-    @Column(length=40) private String phone;
-    @Column(length=20, nullable=false) private String status = "ACTIVE";
+    @NotBlank @Size(max=50) @Column(nullable=false, length=50) private String code;
+    @NotBlank @Size(max=200) @Column(nullable=false, length=200) private String name;
+    @Email @Size(max=255) @Column(length=255) private String email;
+    @Size(max=40) @Column(length=40) private String phone;
+    @NotBlank @Size(max=20) @Column(length=20, nullable=false) private String status = "ACTIVE";
     @Column(name="created_at", nullable=false) private Instant createdAt;
     @Column(name="updated_at", nullable=false) private Instant updatedAt;
     @PrePersist void prePersist(){ createdAt=Instant.now(); updatedAt=createdAt; }
