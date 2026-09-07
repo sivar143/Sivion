@@ -1,7 +1,10 @@
 package com.sivion.api.crm.service;
 
+import com.sivion.api.config.CacheConfig;
 import com.sivion.api.crm.domain.*;
 import com.sivion.api.crm.repo.*;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -32,6 +35,7 @@ public class CrmService {
         this.activities = activities;
     }
 
+    @Cacheable(cacheNames = CacheConfig.CUSTOMER_SEARCH_CACHE, key = "#tenantId + ':' + (#q == null ? '' : #q.trim().toLowerCase())")
     public List<Customer> customers(long tenantId, String q) {
         requireTenant(tenantId);
         return q == null || q.isBlank()
@@ -39,6 +43,7 @@ public class CrmService {
                 : customers.findByTenantIdAndNameContainingIgnoreCaseOrderByNameAsc(tenantId, q.trim());
     }
 
+    @Cacheable(cacheNames = CacheConfig.CUSTOMER_CACHE, key = "#tenantId + ':' + #id")
     public Customer customer(long tenantId, long id) {
         requireTenant(tenantId);
         return customers.findById(id)
@@ -46,6 +51,7 @@ public class CrmService {
                 .orElseThrow(() -> new NoSuchElementException("Customer not found"));
     }
 
+    @CacheEvict(cacheNames = {CacheConfig.CUSTOMER_CACHE, CacheConfig.CUSTOMER_SEARCH_CACHE}, allEntries = true)
     public Customer saveCustomer(long tenantId, Customer customer) {
         requireTenant(tenantId);
         validateCustomer(customer);
@@ -57,6 +63,7 @@ public class CrmService {
         return customers.save(customer);
     }
 
+    @CacheEvict(cacheNames = {CacheConfig.CUSTOMER_CACHE, CacheConfig.CUSTOMER_SEARCH_CACHE}, allEntries = true)
     public Customer updateCustomer(long tenantId, long id, Customer input) {
         Customer existing = customer(tenantId, id);
         validateCustomer(input);
