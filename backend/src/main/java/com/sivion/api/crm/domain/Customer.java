@@ -11,7 +11,7 @@ import java.time.Instant;
 public class Customer {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
     @Column(name="tenant_id", nullable=false) private Long tenantId;
-    @NotBlank @Size(max=50) @Column(nullable=false, length=50) private String code;
+    @Size(max=50) @Column(nullable=false, length=50) private String code;
     @NotBlank @Size(max=200) @Column(nullable=false, length=200) private String name;
     @Email @Size(max=255) @Column(length=255) private String email;
     @Size(max=40) @Column(length=40) private String phone;
