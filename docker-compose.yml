@@ -57,7 +57,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: sivion
       SPRING_DATA_REDIS_HOST: valkey
       SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/sivion
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8081/realms/sivion
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/sivion/protocol/openid-connect/certs
     ports:
       - "8080:8080"
     depends_on:
