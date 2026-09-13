@@ -1,9 +1,5 @@
 package com.sivion.api.integration;
-
-import org.springframework.amqp.core.*;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
+import org.springframework.amqp.core.*; import org.springframework.context.annotation.Bean; import org.springframework.context.annotation.Configuration;
 @Configuration public class RabbitTopology {
  public static final String EXCHANGE="sivion.events";
  @Bean TopicExchange sivionEvents(){return new TopicExchange(EXCHANGE,true,false);}
@@ -14,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
  @Bean Queue salesReservationFailuresQueue(){return QueueBuilder.durable("sivion.sales.reservation-failures").build();}
  @Bean Binding salesReservationFailuresBinding(Queue salesReservationFailuresQueue,TopicExchange sivionEvents){return BindingBuilder.bind(salesReservationFailuresQueue).to(sivionEvents).with("inventory.order.reservation-failed");}
  @Bean Queue financeDispatchQueue(){return QueueBuilder.durable("sivion.finance.dispatches").build();}
- @Bean Binding financeDispatchBinding(Queue financeDispatchQueue,TopicExchange sivionEvents){return BindingBuilder.bind(financeDispatchQueue).to(sivionEvents).with("inventory.order.dispatched");}
+ @Bean Binding financeDispatchBinding(Queue financeDispatchQueue,TopicExchange sivionEvents){return BindingBuilder.bind(financeDispatchQueue).to(sivionEvents).with("sales.order.dispatched");}
  @Bean Queue salesDispatchQueue(){return QueueBuilder.durable("sivion.sales.dispatches").build();}
  @Bean Binding salesDispatchBinding(Queue salesDispatchQueue,TopicExchange sivionEvents){return BindingBuilder.bind(salesDispatchQueue).to(sivionEvents).with("inventory.order.dispatched");}
 }
