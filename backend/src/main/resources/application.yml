@@ -7,7 +7,7 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:sivion}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     open-in-view: false
   data:
     redis:
@@ -20,16 +20,13 @@ spring:
         jwt:
           issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI:http://localhost:8081/realms/sivion}
           jwk-set-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI:http://localhost:8081/realms/sivion/protocol/openid-connect/certs}
-
 server:
   port: 8080
-
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics
-
 springdoc:
   api-docs:
     path: /v3/api-docs
