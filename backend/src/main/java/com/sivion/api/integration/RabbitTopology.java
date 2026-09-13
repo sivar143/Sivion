@@ -10,7 +10,8 @@ public class RabbitTopology {
 
     @Bean TopicExchange sivionEvents() { return new TopicExchange(EXCHANGE, true, false); }
     @Bean Queue inventoryOrdersQueue() { return QueueBuilder.durable("sivion.inventory.sales-orders").build(); }
-    @Bean Binding inventoryOrdersBinding(Queue inventoryOrdersQueue, TopicExchange sivionEvents) { return BindingBuilder.bind(inventoryOrdersQueue).to(sivionEvents).with("sales.order.confirmed"); }
+    @Bean Binding inventoryOrdersConfirmedBinding(Queue inventoryOrdersQueue, TopicExchange sivionEvents) { return BindingBuilder.bind(inventoryOrdersQueue).to(sivionEvents).with("sales.order.confirmed"); }
+    @Bean Binding inventoryOrdersCancelledBinding(Queue inventoryOrdersQueue, TopicExchange sivionEvents) { return BindingBuilder.bind(inventoryOrdersQueue).to(sivionEvents).with("sales.order.cancelled"); }
     @Bean Queue salesReservationsQueue() { return QueueBuilder.durable("sivion.sales.reservations").build(); }
     @Bean Binding salesReservationsBinding(Queue salesReservationsQueue, TopicExchange sivionEvents) { return BindingBuilder.bind(salesReservationsQueue).to(sivionEvents).with("inventory.order.reserved"); }
     @Bean Queue salesReservationFailuresQueue() { return QueueBuilder.durable("sivion.sales.reservation-failures").build(); }
