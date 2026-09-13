@@ -8,7 +8,7 @@
     {"name":"MANAGER"},{"name":"EMPLOYEE"},
     {"name":"INVENTORY_MANAGER"},{"name":"INVENTORY_USER"},
     {"name":"WAREHOUSE_MANAGER"},{"name":"WAREHOUSE_USER"},
-    {"name":"PROCUREMENT_MANAGER"},{"name":"FINANCE_USER"},{"name":"MARKETING_USER"}
+    {"name":"PROCUREMENT_MANAGER"},{"name":"FINANCE_MANAGER"},{"name":"FINANCE_USER"},{"name":"MARKETING_USER"}
   ]},
   "users":[{"username":"admin","enabled":true,"email":"admin@sivion.local","firstName":"Sivion","lastName":"Administrator","credentials":[{"type":"password","value":"admin","temporary":false}],"realmRoles":["ADMIN"]}]
 }
