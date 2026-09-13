@@ -1,0 +1,1 @@
+package com.sivion.api.finance.repo; import com.sivion.api.finance.domain.Expense; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface ExpenseRepository extends JpaRepository<Expense,Long>{List<Expense> findByTenantIdOrderByExpenseDateDesc(Long t);}
