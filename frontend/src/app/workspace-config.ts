@@ -1,107 +1,18 @@
 export type WorkspaceId = 'admin' | 'sales-manager' | 'sales-user' | 'inventory-manager' | 'inventory-user' | 'hr-admin' | 'hr-user' | 'manager' | 'employee' | 'procurement' | 'finance' | 'marketing';
-
-export interface WorkspaceItem {
-  id: string;
-  label: string;
-  description: string;
-  permission?: string;
-}
-
-export interface WorkspaceDefinition {
-  id: WorkspaceId;
-  label: string;
-  role: string;
-  items: WorkspaceItem[];
-}
-
+export interface WorkspaceItem {id:string;label:string;description:string;permission?:string;}
+export interface WorkspaceDefinition {id:WorkspaceId;label:string;role:string;items:WorkspaceItem[];}
 export const WORKSPACES: Record<WorkspaceId, WorkspaceDefinition> = {
-  admin: {
-    id: 'admin', label: 'Administration', role: 'ADMIN',
-    items: [
-      { id: 'overview', label: 'Overview', description: 'Platform command center' },
-      { id: 'marketing', label: 'Marketing', description: 'Campaigns, marketing leads and analytics' },
-      { id: 'sales', label: 'Sales', description: 'Customers, leads, opportunities and pipeline' },
-      { id: 'employees', label: 'Employees', description: 'People, organization, attendance and performance' },
-      { id: 'inventory', label: 'Inventory', description: 'Materials, stock, dispatch and history' },
-      { id: 'procurement', label: 'Procurement', description: 'Suppliers, purchasing and goods received' },
-      { id: 'finance', label: 'Finance', description: 'Invoices, payments, expenses and reports' },
-      { id: 'administration', label: 'Administration', description: 'Users, roles, permissions and configuration' },
-    ],
-  },
-  'sales-manager': {
-    id: 'sales-manager', label: 'Sales Management', role: 'SALES_MANAGER',
-    items: [
-      { id: 'overview', label: 'Dashboard', description: 'Sales command center' },
-      { id: 'team', label: 'My Team', description: 'Team workload and performance' },
-      { id: 'customers', label: 'Customers', description: 'Customer accounts' },
-      { id: 'leads', label: 'Leads', description: 'Prospects and qualification' },
-      { id: 'opportunities', label: 'Opportunities', description: 'Revenue pipeline' },
-      { id: 'activities', label: 'Activities', description: 'Customer activities and follow-ups' },
-      { id: 'meetings', label: 'Meetings', description: 'Sales meetings' },
-      { id: 'goals', label: 'Goals', description: 'Team sales goals' },
-      { id: 'performance', label: 'Performance', description: 'Team performance' },
-      { id: 'reports', label: 'Reports', description: 'Sales reporting' },
-    ],
-  },
-  'sales-user': {
-    id: 'sales-user', label: 'Sales', role: 'SALES_USER',
-    items: [
-      { id: 'overview', label: 'Dashboard', description: 'My sales workspace' },
-      { id: 'customers', label: 'Customers', description: 'Customer accounts' },
-      { id: 'leads', label: 'Leads', description: 'My prospects' },
-      { id: 'opportunities', label: 'Opportunities', description: 'My pipeline' },
-      { id: 'activities', label: 'Activities', description: 'Follow-ups and tasks' },
-      { id: 'meetings', label: 'Meetings', description: 'Customer meetings' },
-      { id: 'goals', label: 'My Goals', description: 'Personal sales goals' },
-    ],
-  },
-  'inventory-manager': {
-    id: 'inventory-manager', label: 'Inventory Management', role: 'INVENTORY_MANAGER',
-    items: [
-      { id: 'overview', label: 'Dashboard', description: 'Inventory command center' },
-      { id: 'materials', label: 'Materials', description: 'Material master data' },
-      { id: 'inventory', label: 'Inventory', description: 'Current stock' },
-      { id: 'stock-in', label: 'Stock In', description: 'Receive materials' },
-      { id: 'adjustments', label: 'Stock Adjustments', description: 'Correct stock with an audit trail' },
-      { id: 'dispatch', label: 'Dispatch', description: 'Dispatch materials to customers' },
-      { id: 'customers', label: 'Customers', description: 'Customer delivery destinations' },
-      { id: 'dispatch-history', label: 'Dispatch History', description: 'Completed dispatches' },
-      { id: 'reports', label: 'Reports', description: 'Inventory reports' },
-    ],
-  },
-  'inventory-user': {
-    id: 'inventory-user', label: 'Inventory', role: 'INVENTORY_USER',
-    items: [
-      { id: 'overview', label: 'Dashboard', description: 'Inventory workspace' },
-      { id: 'inventory', label: 'Inventory', description: 'Current stock' },
-      { id: 'materials', label: 'Materials', description: 'Material list' },
-      { id: 'dispatch', label: 'Dispatch', description: 'Dispatch materials' },
-      { id: 'dispatch-history', label: 'Dispatch History', description: 'Completed dispatches' },
-    ],
-  },
-  'hr-admin': { id: 'hr-admin', label: 'HR Administration', role: 'HR_ADMIN', items: [
-    { id: 'overview', label: 'Dashboard', description: 'HR command center' }, { id: 'employees', label: 'Employees', description: 'Employee directory' }, { id: 'organization', label: 'Organization', description: 'Departments and hierarchy' }, { id: 'attendance', label: 'Attendance', description: 'Attendance management' }, { id: 'leaves', label: 'Leave Management', description: 'Leave requests and policies' }, { id: 'holidays', label: 'Holidays', description: 'Holiday calendar' }, { id: 'meetings', label: 'Meetings', description: 'Organization meetings' }, { id: 'goals', label: 'Goals', description: 'Employee goals' }, { id: 'performance', label: 'Performance', description: 'Performance management' }, { id: 'knowledge', label: 'Knowledge Development', description: 'Learning and development' }, { id: 'documents', label: 'Employee Documents', description: 'Employee records' }, { id: 'reports', label: 'Reports', description: 'HR reporting' },
-  ]},
-  'hr-user': { id: 'hr-user', label: 'HR', role: 'HR_USER', items: [
-    { id: 'overview', label: 'Dashboard', description: 'HR workspace' }, { id: 'employees', label: 'Employees', description: 'Employee directory' }, { id: 'organization', label: 'Organization', description: 'Departments and hierarchy' }, { id: 'attendance', label: 'Attendance', description: 'Attendance management' }, { id: 'leaves', label: 'Leave Management', description: 'Leave administration' }, { id: 'meetings', label: 'Meetings', description: 'Organization meetings' }, { id: 'goals', label: 'Goals', description: 'Employee goals' }, { id: 'performance', label: 'Performance', description: 'Performance management' }, { id: 'knowledge', label: 'Knowledge Development', description: 'Learning and development' }, { id: 'documents', label: 'Employee Documents', description: 'Employee records' }, { id: 'reports', label: 'Reports', description: 'HR reporting' },
-  ]},
-  manager: { id: 'manager', label: 'Manager', role: 'MANAGER', items: [
-    { id: 'overview', label: 'Dashboard', description: 'Manager command center' }, { id: 'team', label: 'My Team', description: 'Direct reports' }, { id: 'attendance', label: 'Attendance', description: 'Team attendance' }, { id: 'leaves', label: 'Leaves', description: 'Team leave requests' }, { id: 'meetings', label: 'Meetings', description: 'Team meetings' }, { id: 'goals', label: 'Goals', description: 'Team goals' }, { id: 'performance', label: 'Performance', description: 'Team performance' }, { id: 'knowledge', label: 'Knowledge Development', description: 'Team development' },
-  ]},
-  employee: { id: 'employee', label: 'My Workspace', role: 'EMPLOYEE', items: [
-    { id: 'overview', label: 'Dashboard', description: 'Personal command center' }, { id: 'profile', label: 'My Profile', description: 'Personal information' }, { id: 'attendance', label: 'My Attendance', description: 'Attendance history' }, { id: 'leaves', label: 'My Leaves', description: 'Leave requests' }, { id: 'meetings', label: 'My Meetings', description: 'Meetings' }, { id: 'goals', label: 'My Goals', description: 'Personal goals' }, { id: 'performance', label: 'My Performance', description: 'Performance reviews' }, { id: 'knowledge', label: 'Knowledge Development', description: 'Learning and development' },
-  ]},
-  procurement: { id: 'procurement', label: 'Procurement', role: 'PROCUREMENT_MANAGER', items: [
-    { id: 'overview', label: 'Dashboard', description: 'Procurement command center' }, { id: 'suppliers', label: 'Suppliers', description: 'Supplier management' }, { id: 'requests', label: 'Purchase Requests', description: 'Purchase requests' }, { id: 'orders', label: 'Purchase Orders', description: 'Purchase orders' }, { id: 'goods-received', label: 'Goods Received', description: 'Receiving' }, { id: 'reports', label: 'Reports', description: 'Procurement reporting' },
-  ]},
-  finance: { id: 'finance', label: 'Finance', role: 'FINANCE_USER', items: [
-    { id: 'overview', label: 'Dashboard', description: 'Finance command center' }, { id: 'invoices', label: 'Invoices', description: 'Customer invoices' }, { id: 'payments', label: 'Payments', description: 'Payment tracking' }, { id: 'expenses', label: 'Expenses', description: 'Business expenses' }, { id: 'payroll', label: 'Payroll', description: 'Payroll and payslips' }, { id: 'reports', label: 'Reports', description: 'Financial reporting' },
-  ]},
-  marketing: { id: 'marketing', label: 'Marketing', role: 'MARKETING_USER', items: [
-    { id: 'overview', label: 'Dashboard', description: 'Marketing command center' }, { id: 'campaigns', label: 'Campaigns', description: 'Marketing campaigns' }, { id: 'leads', label: 'Marketing Leads', description: 'Marketing prospects' }, { id: 'activities', label: 'Activities', description: 'Marketing activities' }, { id: 'analytics', label: 'Analytics', description: 'Campaign analytics' },
-  ]},
+ admin:{id:'admin',label:'Administration',role:'ADMIN',items:[{id:'overview',label:'Overview',description:'Platform command center'},{id:'marketing',label:'Marketing',description:'Campaigns, marketing leads and analytics'},{id:'sales',label:'Sales',description:'Customers, leads, opportunities and pipeline'},{id:'employees',label:'Employees',description:'People, organization, attendance and performance'},{id:'inventory',label:'Inventory',description:'Materials, stock, dispatch and history'},{id:'procurement',label:'Procurement',description:'Suppliers, purchasing and goods received'},{id:'finance',label:'Finance',description:'Invoices, payments, expenses and reports'},{id:'administration',label:'Administration',description:'Users, roles, permissions and configuration'}]},
+ 'sales-manager':{id:'sales-manager',label:'Sales Management',role:'SALES_MANAGER',items:[{id:'overview',label:'Dashboard',description:'Sales command center'},{id:'team',label:'My Team',description:'Team workload and performance'},{id:'customers',label:'Customers',description:'Customer accounts'},{id:'leads',label:'Leads',description:'Prospects and qualification'},{id:'opportunities',label:'Opportunities',description:'Revenue pipeline'},{id:'activities',label:'Activities',description:'Customer activities and follow-ups'},{id:'meetings',label:'Meetings',description:'Sales meetings'},{id:'goals',label:'Goals',description:'Team sales goals'},{id:'performance',label:'Performance',description:'Team performance'},{id:'reports',label:'Reports',description:'Sales reporting'}]},
+ 'sales-user':{id:'sales-user',label:'Sales',role:'SALES_USER',items:[{id:'overview',label:'Dashboard',description:'My sales workspace'},{id:'customers',label:'Customers',description:'Customer accounts'},{id:'leads',label:'Leads',description:'My prospects'},{id:'opportunities',label:'Opportunities',description:'My pipeline'},{id:'activities',label:'Activities',description:'Follow-ups and tasks'},{id:'meetings',label:'Meetings',description:'Customer meetings'},{id:'goals',label:'My Goals',description:'Personal sales goals'}]},
+ 'inventory-manager':{id:'inventory-manager',label:'Inventory Management',role:'INVENTORY_MANAGER',items:[{id:'overview',label:'Dashboard',description:'Inventory command center'},{id:'materials',label:'Materials',description:'Material master data'},{id:'inventory',label:'Inventory',description:'Current stock'},{id:'stock-in',label:'Stock In',description:'Receive materials'},{id:'adjustments',label:'Stock Adjustments',description:'Correct stock with an audit trail'},{id:'dispatch',label:'Dispatch',description:'Dispatch materials to customers'},{id:'customers',label:'Customers',description:'Customer delivery destinations'},{id:'dispatch-history',label:'Dispatch History',description:'Completed dispatches'},{id:'reports',label:'Reports',description:'Inventory reports'}]},
+ 'inventory-user':{id:'inventory-user',label:'Inventory',role:'INVENTORY_USER',items:[{id:'overview',label:'Dashboard',description:'Inventory workspace'},{id:'inventory',label:'Inventory',description:'Current stock'},{id:'materials',label:'Materials',description:'Material list'},{id:'dispatch',label:'Dispatch',description:'Dispatch materials'},{id:'dispatch-history',label:'Dispatch History',description:'Completed dispatches'}]},
+ 'hr-admin':{id:'hr-admin',label:'HR Administration',role:'HR_ADMIN',items:[{id:'overview',label:'Dashboard',description:'HR command center'},{id:'employees',label:'Employees',description:'Employee directory'},{id:'organization',label:'Organization',description:'Departments and hierarchy'},{id:'attendance',label:'Attendance',description:'Attendance management'},{id:'leaves',label:'Leave Management',description:'Leave requests and policies'},{id:'holidays',label:'Holidays',description:'Holiday calendar'},{id:'meetings',label:'Meetings',description:'Organization meetings'},{id:'goals',label:'Goals',description:'Employee goals'},{id:'performance',label:'Performance',description:'Performance management'},{id:'knowledge',label:'Knowledge Development',description:'Learning and development'},{id:'documents',label:'Employee Documents',description:'Employee records'},{id:'reports',label:'Reports',description:'HR reporting'}]},
+ 'hr-user':{id:'hr-user',label:'HR',role:'HR_USER',items:[{id:'overview',label:'Dashboard',description:'HR workspace'},{id:'employees',label:'Employees',description:'Employee directory'},{id:'organization',label:'Organization',description:'Departments and hierarchy'},{id:'attendance',label:'Attendance',description:'Attendance management'},{id:'leaves',label:'Leave Management',description:'Leave administration'},{id:'meetings',label:'Meetings',description:'Organization meetings'},{id:'goals',label:'Goals',description:'Employee goals'},{id:'performance',label:'Performance',description:'Performance management'},{id:'knowledge',label:'Knowledge Development',description:'Learning and development'},{id:'documents',label:'Employee Documents',description:'Employee records'},{id:'reports',label:'Reports',description:'HR reporting'}]},
+ manager:{id:'manager',label:'Manager',role:'MANAGER',items:[{id:'overview',label:'Dashboard',description:'Manager command center'},{id:'team',label:'My Team',description:'Direct reports'},{id:'attendance',label:'Attendance',description:'Team attendance'},{id:'leaves',label:'Leaves',description:'Team leave requests'},{id:'meetings',label:'Meetings',description:'Team meetings'},{id:'goals',label:'Goals',description:'Team goals'},{id:'performance',label:'Performance',description:'Team performance'},{id:'knowledge',label:'Knowledge Development',description:'Team development'}]},
+ employee:{id:'employee',label:'My Workspace',role:'EMPLOYEE',items:[{id:'overview',label:'Dashboard',description:'Personal command center'},{id:'profile',label:'My Profile',description:'Personal information'},{id:'attendance',label:'My Attendance',description:'Attendance history'},{id:'leaves',label:'My Leaves',description:'Leave requests'},{id:'meetings',label:'My Meetings',description:'Meetings'},{id:'goals',label:'My Goals',description:'Personal goals'},{id:'performance',label:'My Performance',description:'Performance reviews'},{id:'knowledge',label:'Knowledge Development',description:'Learning and development'}]},
+ procurement:{id:'procurement',label:'Procurement',role:'PROCUREMENT_MANAGER',items:[{id:'overview',label:'Dashboard',description:'Procurement command center'},{id:'suppliers',label:'Suppliers',description:'Supplier management'},{id:'requests',label:'Purchase Requests',description:'Purchase requests'},{id:'orders',label:'Purchase Orders',description:'Purchase orders'},{id:'goods-received',label:'Goods Received',description:'Receiving'},{id:'reports',label:'Reports',description:'Procurement reporting'}]},
+ finance:{id:'finance',label:'Finance',role:'FINANCE_USER',items:[{id:'overview',label:'Dashboard',description:'Finance command center'},{id:'invoices',label:'Invoices',description:'Customer invoices'},{id:'payments',label:'Payments',description:'Payment tracking'},{id:'expenses',label:'Expenses',description:'Business expenses'},{id:'payroll',label:'Payroll',description:'Payroll and payslips'},{id:'reports',label:'Reports',description:'Financial reporting'}]},
+ marketing:{id:'marketing',label:'Marketing',role:'MARKETING_USER',items:[{id:'overview',label:'Dashboard',description:'Marketing command center'},{id:'campaigns',label:'Campaigns',description:'Marketing campaigns'},{id:'leads',label:'Marketing Leads',description:'Marketing prospects'},{id:'activities',label:'Activities',description:'Marketing activities'},{id:'analytics',label:'Analytics',description:'Campaign analytics'}]}
 };
-
-export const ROLE_TO_WORKSPACE: Record<string, WorkspaceId> = {
-  ADMIN: 'admin', SALES_MANAGER: 'sales-manager', SALES_USER: 'sales-user', INVENTORY_MANAGER: 'inventory-manager', INVENTORY_USER: 'inventory-user', HR_ADMIN: 'hr-admin', HR_USER: 'hr-user', MANAGER: 'manager', EMPLOYEE: 'employee', PROCUREMENT_MANAGER: 'procurement', FINANCE_USER: 'finance', MARKETING_USER: 'marketing',
-};
+export const ROLE_TO_WORKSPACE: Record<string, WorkspaceId> = {ADMIN:'admin',SALES_MANAGER:'sales-manager',SALES_USER:'sales-user',INVENTORY_MANAGER:'inventory-manager',INVENTORY_USER:'inventory-user',HR_ADMIN:'hr-admin',HR_USER:'hr-user',MANAGER:'manager',EMPLOYEE:'employee',PROCUREMENT_MANAGER:'procurement',FINANCE_MANAGER:'finance',FINANCE_USER:'finance',MARKETING_USER:'marketing'};
