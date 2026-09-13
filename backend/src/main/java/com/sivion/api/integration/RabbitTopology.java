@@ -10,7 +10,9 @@ import org.springframework.amqp.core.*; import org.springframework.context.annot
  @Bean Queue salesReservationFailuresQueue(){return QueueBuilder.durable("sivion.sales.reservation-failures").build();}
  @Bean Binding salesReservationFailuresBinding(Queue salesReservationFailuresQueue,TopicExchange sivionEvents){return BindingBuilder.bind(salesReservationFailuresQueue).to(sivionEvents).with("inventory.order.reservation-failed");}
  @Bean Queue financeDispatchQueue(){return QueueBuilder.durable("sivion.finance.dispatches").build();}
- @Bean Binding financeDispatchBinding(Queue financeDispatchQueue,TopicExchange sivionEvents){return BindingBuilder.bind(financeDispatchQueue).to(sivionEvents).with("sales.order.dispatched");}
+ @Bean Binding financeDispatchBinding(Queue financeDispatchQueue,TopicExchange sivionEvents){return BindingBuilder.bind(financeDispatchQueue).to(sivionEvents).with("inventory.order.dispatched");}
  @Bean Queue salesDispatchQueue(){return QueueBuilder.durable("sivion.sales.dispatches").build();}
  @Bean Binding salesDispatchBinding(Queue salesDispatchQueue,TopicExchange sivionEvents){return BindingBuilder.bind(salesDispatchQueue).to(sivionEvents).with("inventory.order.dispatched");}
+ @Bean Queue inventoryGoodsReceivedQueue(){return QueueBuilder.durable("sivion.inventory.goods-received").build();}
+ @Bean Binding inventoryGoodsReceivedBinding(Queue inventoryGoodsReceivedQueue,TopicExchange sivionEvents){return BindingBuilder.bind(inventoryGoodsReceivedQueue).to(sivionEvents).with("procurement.goods-received");}
 }
