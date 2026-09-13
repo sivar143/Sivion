@@ -1,31 +1,15 @@
 package com.sivion.api.inventory.web;
-
-import com.sivion.api.inventory.service.InventoryService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import java.math.BigDecimal;
-import java.util.*;
-
-@RestController
-@RequestMapping("/api/v1/inventory")
-public class InventoryController {
- private final InventoryService service;
- public InventoryController(InventoryService service){this.service=service;}
+import com.sivion.api.inventory.service.InventoryService; import jakarta.validation.Valid; import jakarta.validation.constraints.*; import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.*; import java.math.BigDecimal; import java.util.*;
+@RestController @RequestMapping("/api/v1/inventory") public class InventoryController {
+ private final InventoryService service; public InventoryController(InventoryService service){this.service=service;}
  @GetMapping("/warehouses") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','WAREHOUSE_USER','INVENTORY_MANAGER','INVENTORY_USER')") public List<InventoryService.WarehouseView> warehouses(){return service.warehouses();}
  @PostMapping("/warehouses") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','INVENTORY_MANAGER')") public InventoryService.WarehouseView createWarehouse(@Valid @RequestBody WarehouseRequest r){return service.createWarehouse(new InventoryService.WarehouseRequest(r.code(),r.name()));}
  @GetMapping("/materials") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','WAREHOUSE_USER','INVENTORY_MANAGER','INVENTORY_USER')") public List<InventoryService.MaterialView> materials(@RequestParam(required=false) Long warehouseId){return warehouseId==null?service.materials():service.materials(warehouseId);}
- @PostMapping("/materials") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','INVENTORY_MANAGER','INVENTORY_USER')") public InventoryService.MaterialView create(@Valid @RequestBody MaterialRequest r){return service.create(new InventoryService.MaterialRequest(r.sku(),r.name(),r.description(),r.unit(),r.initialQuantity(),r.reorderLevel()));}
+ @PostMapping("/materials") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','INVENTORY_MANAGER','INVENTORY_USER')") public InventoryService.MaterialView create(@Valid @RequestBody MaterialRequest r){return service.create(new InventoryService.MaterialRequest(r.sku(),r.name(),r.description(),r.unit(),r.initialQuantity(),r.reorderLevel(),r.warehouseId()));}
  @PostMapping("/stock-in") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','INVENTORY_MANAGER','INVENTORY_USER')") public void stockIn(@Valid @RequestBody StockRequest r){service.stock(r.productId(),r.warehouseId(),r.quantity(),"STOCK_IN",r.reference());}
  @PostMapping("/adjustments") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','INVENTORY_MANAGER')") public void adjust(@Valid @RequestBody AdjustmentRequest r){service.adjust(r.productId(),r.warehouseId(),r.quantity(),r.reference());}
  @PostMapping("/dispatches") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','INVENTORY_MANAGER','INVENTORY_USER')") public InventoryService.DispatchView dispatch(@Valid @RequestBody DispatchRequest r){return service.dispatch(new InventoryService.DispatchRequest(r.customerId(),r.referenceNumber(),r.deliveryAddress(),r.notes(),r.items().stream().map(i->new InventoryService.ItemRequest(i.productId(),i.warehouseId(),i.quantity())).toList()));}
  @GetMapping("/dispatches") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','WAREHOUSE_USER','INVENTORY_MANAGER','INVENTORY_USER')") public List<InventoryService.DispatchView> history(){return service.history();}
  @GetMapping("/transactions") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','WAREHOUSE_USER','INVENTORY_MANAGER','INVENTORY_USER')") public List<InventoryService.TransactionView> transactions(){return service.transactions();}
- public record WarehouseRequest(@NotBlank String code,@NotBlank String name){}
- public record MaterialRequest(@NotBlank String sku,@NotBlank String name,String description,@NotBlank String unit,@PositiveOrZero BigDecimal initialQuantity,@PositiveOrZero BigDecimal reorderLevel){}
- public record StockRequest(@NotNull Long productId,@NotNull Long warehouseId,@NotNull @Positive BigDecimal quantity,String reference){}
- public record AdjustmentRequest(@NotNull Long productId,@NotNull Long warehouseId,@NotNull BigDecimal quantity,String reference){}
- public record ItemRequest(@NotNull Long productId,@NotNull Long warehouseId,@NotNull @Positive BigDecimal quantity){}
- public record DispatchRequest(@NotNull Long customerId,@NotBlank String referenceNumber,String deliveryAddress,String notes,@NotEmpty List<@Valid ItemRequest> items){}
+ public record WarehouseRequest(@NotBlank String code,@NotBlank String name){} public record MaterialRequest(@NotBlank String sku,@NotBlank String name,String description,@NotBlank String unit,@PositiveOrZero BigDecimal initialQuantity,@PositiveOrZero BigDecimal reorderLevel,Long warehouseId){} public record StockRequest(@NotNull Long productId,@NotNull Long warehouseId,@NotNull @Positive BigDecimal quantity,String reference){} public record AdjustmentRequest(@NotNull Long productId,@NotNull Long warehouseId,@NotNull BigDecimal quantity,String reference){} public record ItemRequest(@NotNull Long productId,@NotNull Long warehouseId,@NotNull @Positive BigDecimal quantity){} public record DispatchRequest(@NotNull Long customerId,@NotBlank String referenceNumber,String deliveryAddress,String notes,@NotEmpty List<@Valid ItemRequest> items){}
 }
