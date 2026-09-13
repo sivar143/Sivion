@@ -1,66 +1,15 @@
 package com.sivion.api.finance.service;
 
-import com.sivion.api.finance.domain.*;
-import com.sivion.api.finance.repo.*;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.*;
-
-@Service
-public class FinanceService {
-    private static final long TENANT=1L;
-    private final InvoiceRepository invoices;
-    private final PaymentRepository payments;
-    private final ExpenseRepository expenses;
-    public FinanceService(InvoiceRepository i,PaymentRepository p,ExpenseRepository e){invoices=i;payments=p;expenses=e;}
-
-    public List<InvoiceView> invoices(){return invoices.findByTenantIdOrderByInvoiceDateDesc(TENANT).stream().map(this::map).toList();}
-
-    @Transactional
-    public InvoiceView invoice(InvoiceRequest r){
-        if(r.customerId()==null) throw new IllegalArgumentException("Customer is required");
-        if(r.amount()==null||r.amount().signum()<=0) throw new IllegalArgumentException("Invoice amount must be greater than zero");
-        Invoice i=new Invoice(); i.setTenantId(TENANT); i.setInvoiceNumber("INV-"+UUID.randomUUID().toString().substring(0,8).toUpperCase()); i.setCustomerId(r.customerId()); i.setAmount(r.amount()); i.setStatus("ISSUED");
-        return map(invoices.save(i));
-    }
-
-    public List<PaymentView> payments(){return payments.findByTenantIdOrderByPaidAtDesc(TENANT).stream().map(this::map).toList();}
-
-    @Transactional
-    public PaymentView payment(PaymentRequest r){
-        if(r.invoiceId()==null) throw new IllegalArgumentException("Invoice is required");
-        Invoice i=invoices.findByIdAndTenantId(r.invoiceId(),TENANT).orElseThrow(()->new NoSuchElementException("Invoice not found"));
-        if(r.amount()==null||r.amount().signum()<=0) throw new IllegalArgumentException("Payment amount must be greater than zero");
-        if("CANCELLED".equals(i.getStatus())||"PAID".equals(i.getStatus())) throw new IllegalArgumentException("Invoice is already closed");
-        BigDecimal received=payments.findByTenantIdAndInvoiceIdOrderByPaidAtDesc(TENANT,i.getId()).stream().map(Payment::getAmount).reduce(BigDecimal.ZERO,BigDecimal::add);
-        if(received.add(r.amount()).compareTo(i.getAmount())>0) throw new IllegalArgumentException("Payment exceeds outstanding invoice amount");
-        Payment p=new Payment(); p.setTenantId(TENANT); p.setPaymentNumber("PAY-"+UUID.randomUUID().toString().substring(0,8).toUpperCase()); p.setInvoiceId(i.getId()); p.setAmount(r.amount()); p.setMethod(r.method()==null||r.method().isBlank()?"OTHER":r.method());
-        Payment saved=payments.save(p);
-        BigDecimal total=received.add(r.amount()); i.setStatus(total.compareTo(i.getAmount())==0?"PAID":"PARTIALLY_PAID"); invoices.save(i);
-        return map(saved);
-    }
-
-    public List<ExpenseView> expenses(){return expenses.findByTenantIdOrderByExpenseDateDesc(TENANT).stream().map(this::map).toList();}
-
-    @Transactional
-    public ExpenseView expense(ExpenseRequest r){
-        if(r.category()==null||r.category().isBlank()) throw new IllegalArgumentException("Expense category is required");
-        if(r.description()==null||r.description().isBlank()) throw new IllegalArgumentException("Expense description is required");
-        if(r.amount()==null||r.amount().signum()<=0) throw new IllegalArgumentException("Expense amount must be greater than zero");
-        Expense e=new Expense(); e.setTenantId(TENANT); e.setExpenseNumber("EXP-"+UUID.randomUUID().toString().substring(0,8).toUpperCase()); e.setCategory(r.category()); e.setDescription(r.description()); e.setAmount(r.amount()); e.setStatus("SUBMITTED");
-        return map(expenses.save(e));
-    }
-
-    private InvoiceView map(Invoice x){return new InvoiceView(x.getId(),x.getInvoiceNumber(),x.getCustomerId(),x.getAmount(),x.getStatus(),x.getInvoiceDate());}
-    private PaymentView map(Payment x){return new PaymentView(x.getId(),x.getPaymentNumber(),x.getInvoiceId(),x.getAmount(),x.getMethod(),x.getPaidAt());}
-    private ExpenseView map(Expense x){return new ExpenseView(x.getId(),x.getExpenseNumber(),x.getCategory(),x.getDescription(),x.getAmount(),x.getStatus(),x.getExpenseDate());}
-
-    public record InvoiceRequest(Long customerId,BigDecimal amount){}
-    public record InvoiceView(Long id,String invoiceNumber,Long customerId,BigDecimal amount,String status,Instant invoiceDate){}
-    public record PaymentRequest(Long invoiceId,BigDecimal amount,String method){}
-    public record PaymentView(Long id,String paymentNumber,Long invoiceId,BigDecimal amount,String method,Instant paidAt){}
-    public record ExpenseRequest(String category,String description,BigDecimal amount){}
-    public record ExpenseView(Long id,String expenseNumber,String category,String description,BigDecimal amount,String status,Instant expenseDate){}
+import com.sivion.api.finance.domain.*; import com.sivion.api.finance.repo.*; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.math.BigDecimal; import java.time.Instant; import java.util.*;
+@Service public class FinanceService {
+ private static final long TENANT=1L; private final InvoiceRepository invoices; private final PaymentRepository payments; private final ExpenseRepository expenses;
+ public FinanceService(InvoiceRepository i,PaymentRepository p,ExpenseRepository e){invoices=i;payments=p;expenses=e;}
+ public List<InvoiceView> invoices(){return invoices.findByTenantIdOrderByInvoiceDateDesc(TENANT).stream().map(this::map).toList();}
+ @Transactional public InvoiceView invoice(InvoiceRequest r){if(r.customerId()==null)throw new IllegalArgumentException("Customer is required");if(r.amount()==null||r.amount().signum()<=0)throw new IllegalArgumentException("Invoice amount must be greater than zero");Invoice i=new Invoice();i.setTenantId(TENANT);i.setInvoiceNumber("INV-"+UUID.randomUUID().toString().substring(0,8).toUpperCase());i.setCustomerId(r.customerId());i.setAmount(r.amount());i.setStatus("ISSUED");return map(invoices.save(i));}
+ public List<PaymentView> payments(){return payments.findByTenantIdOrderByPaidAtDesc(TENANT).stream().map(this::map).toList();}
+ @Transactional public PaymentView payment(PaymentRequest r){if(r.invoiceId()==null)throw new IllegalArgumentException("Invoice is required");Invoice i=invoices.findForUpdate(r.invoiceId(),TENANT).orElseThrow(()->new NoSuchElementException("Invoice not found"));if(r.amount()==null||r.amount().signum()<=0)throw new IllegalArgumentException("Payment amount must be greater than zero");if("CANCELLED".equals(i.getStatus())||"PAID".equals(i.getStatus()))throw new IllegalArgumentException("Invoice is already closed");BigDecimal received=payments.findByTenantIdAndInvoiceIdOrderByPaidAtDesc(TENANT,i.getId()).stream().map(Payment::getAmount).reduce(BigDecimal.ZERO,BigDecimal::add);if(received.add(r.amount()).compareTo(i.getAmount())>0)throw new IllegalArgumentException("Payment exceeds outstanding invoice amount");Payment p=new Payment();p.setTenantId(TENANT);p.setPaymentNumber("PAY-"+UUID.randomUUID().toString().substring(0,8).toUpperCase());p.setInvoiceId(i.getId());p.setAmount(r.amount());p.setMethod(r.method()==null||r.method().isBlank()?"OTHER":r.method().trim());Payment saved=payments.save(p);BigDecimal total=received.add(r.amount());i.setStatus(total.compareTo(i.getAmount())==0?"PAID":"PARTIALLY_PAID");invoices.save(i);return map(saved);}
+ public List<ExpenseView> expenses(){return expenses.findByTenantIdOrderByExpenseDateDesc(TENANT).stream().map(this::map).toList();}
+ @Transactional public ExpenseView expense(ExpenseRequest r){if(r.category()==null||r.category().isBlank())throw new IllegalArgumentException("Expense category is required");if(r.description()==null||r.description().isBlank())throw new IllegalArgumentException("Expense description is required");if(r.amount()==null||r.amount().signum()<=0)throw new IllegalArgumentException("Expense amount must be greater than zero");Expense e=new Expense();e.setTenantId(TENANT);e.setExpenseNumber("EXP-"+UUID.randomUUID().toString().substring(0,8).toUpperCase());e.setCategory(r.category().trim());e.setDescription(r.description().trim());e.setAmount(r.amount());e.setStatus("SUBMITTED");return map(expenses.save(e));}
+ private InvoiceView map(Invoice x){return new InvoiceView(x.getId(),x.getInvoiceNumber(),x.getCustomerId(),x.getAmount(),x.getStatus(),x.getInvoiceDate());} private PaymentView map(Payment x){return new PaymentView(x.getId(),x.getPaymentNumber(),x.getInvoiceId(),x.getAmount(),x.getMethod(),x.getPaidAt());} private ExpenseView map(Expense x){return new ExpenseView(x.getId(),x.getExpenseNumber(),x.getCategory(),x.getDescription(),x.getAmount(),x.getStatus(),x.getExpenseDate());}
+ public record InvoiceRequest(Long customerId,BigDecimal amount){} public record InvoiceView(Long id,String invoiceNumber,Long customerId,BigDecimal amount,String status,Instant invoiceDate){} public record PaymentRequest(Long invoiceId,BigDecimal amount,String method){} public record PaymentView(Long id,String paymentNumber,Long invoiceId,BigDecimal amount,String method,Instant paidAt){} public record ExpenseRequest(String category,String description,BigDecimal amount){} public record ExpenseView(Long id,String expenseNumber,String category,String description,BigDecimal amount,String status,Instant expenseDate){}
 }
