@@ -15,7 +15,7 @@ export class AuthService {
 
   async token(): Promise<string> {
     if(!this.ready) await this.init();
-    const refreshed=await this.keycloak.updateToken(30);
+    await this.keycloak.updateToken(30);
     if(!this.keycloak.token) throw new Error('Authentication token is unavailable');
     return this.keycloak.token;
   }
