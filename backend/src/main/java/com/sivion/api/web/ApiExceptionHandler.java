@@ -23,6 +23,11 @@ public class ApiExceptionHandler {
         return response(HttpStatus.BAD_REQUEST, "BAD_REQUEST", ex.getMessage());
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    ResponseEntity<Map<String, Object>> conflict(IllegalStateException ex) {
+        return response(HttpStatus.CONFLICT, "INVALID_STATE", ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<Map<String, Object>> validation(MethodArgumentNotValidException ex) {
         Map<String, String> fields = new LinkedHashMap<>();
@@ -33,7 +38,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    ResponseEntity<Map<String, Object>> conflict(DataIntegrityViolationException ex) {
+    ResponseEntity<Map<String, Object>> dataConflict(DataIntegrityViolationException ex) {
         return response(HttpStatus.CONFLICT, "DATA_CONFLICT", "The requested change conflicts with existing data");
     }
 
