@@ -9,7 +9,7 @@ import java.util.Map;
  private final SalesOrderService sales;
  public SalesOrderInventoryListener(SalesOrderService sales){this.sales=sales;}
  @RabbitListener(queues="sivion.sales.reservations") public void reserved(Map<String,Object> event){sales.markReserved(number(event.get("salesOrderId")));}
- @RabbitListener(queues="sivion.sales.reservation-failures") public void failed(Map<String,Object> event){/* Order remains CONFIRMED; operational UI can retry confirmation after stock is replenished. */}
- @RabbitListener(queues="sivion.finance.dispatches") public void dispatched(Map<String,Object> event){sales.markDispatched(number(event.get("salesOrderId")));}
+ @RabbitListener(queues="sivion.sales.reservation-failures") public void failed(Map<String,Object> event){/* Order remains CONFIRMED so stock can be replenished and the reservation retried. */}
+ @RabbitListener(queues="sivion.sales.dispatches") public void dispatched(Map<String,Object> event){sales.markDispatched(number(event.get("salesOrderId")));}
  private Long number(Object v){return v==null?null:Long.valueOf(String.valueOf(v));}
 }
