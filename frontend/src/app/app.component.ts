@@ -1,12 +1,156 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common'; import { FormsModule } from '@angular/forms'; import { CrmApi, Customer, Lead, Opportunity } from './crm-api.service'; import { AuthService } from './auth.service';
-@Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule],template:`<div class="app-shell"><aside><div class="brand">SIVION</div><div class="muted">Business platform</div><nav><button [class.active]="tab==='overview'" (click)="tab='overview'">Overview</button><button [class.active]="tab==='customers'" (click)="tab='customers'">Customers</button><button [class.active]="tab==='leads'" (click)="tab='leads'">Leads</button><button [class.active]="tab==='opportunities'" (click)="tab='opportunities'">Opportunities</button></nav><button class="logout" (click)="auth.logout()">Sign out</button></aside><main><header><div><span class="eyebrow">CRM</span><h1>{{title}}</h1><p>Manage relationships, pipeline and customer activity.</p></div><span class="user">{{auth.username}}</span></header>
-<section *ngIf="tab==='overview'" class="cards"><article><span>Customers</span><strong>{{customers.length}}</strong><small>Active accounts</small></article><article><span>Open leads</span><strong>{{openLeads}}</strong><small>Across all sources</small></article><article><span>Pipeline</span><strong>₹{{pipeline | number:'1.0-0'}}</strong><small>Weighted opportunities</small></article><article><span>Win rate</span><strong>{{winRate}}%</strong><small>Closed opportunities</small></article><div class="panel wide"><h2>CRM workspace</h2><p>Customer accounts, prospect capture and opportunity management are now API-backed and tenant-scoped.</p><div class="actions"><button (click)="tab='customers'">Manage customers</button><button (click)="tab='leads'">Capture a lead</button><button (click)="tab='opportunities'">View pipeline</button></div></div></section>
-<section *ngIf="tab==='customers'" class="panel"><div class="toolbar"><div><h2>Customers</h2><p>Accounts and organizations your business sells to.</p></div><button (click)="newCustomer=true">+ New customer</button></div><input class="search" placeholder="Search customers..." [(ngModel)]="customerQuery" (ngModelChange)="loadCustomers()"><table><thead><tr><th>Code</th><th>Customer</th><th>Email</th><th>Phone</th><th>Status</th></tr></thead><tbody><tr *ngFor="let c of customers"><td>{{c.code}}</td><td><b>{{c.name}}</b></td><td>{{c.email || '—'}}</td><td>{{c.phone || '—'}}</td><td><span class="pill">{{c.status}}</span></td></tr></tbody></table><div class="empty" *ngIf="!customers.length">No customers found.</div></section>
-<section *ngIf="tab==='customers' && newCustomer" class="modal"><form (ngSubmit)="saveCustomer()"><h2>New customer</h2><input required placeholder="Customer name" [(ngModel)]="customerDraft.name" name="name"><input placeholder="Code (optional)" [(ngModel)]="customerDraft.code" name="code"><input type="email" placeholder="Email" [(ngModel)]="customerDraft.email" name="email"><input placeholder="Phone" [(ngModel)]="customerDraft.phone" name="phone"><select [(ngModel)]="customerDraft.status" name="status"><option>ACTIVE</option><option>INACTIVE</option></select><div class="actions"><button type="button" (click)="newCustomer=false">Cancel</button><button type="submit">Create customer</button></div></form></section>
-<section *ngIf="tab==='leads'" class="panel"><div class="toolbar"><div><h2>Leads</h2><p>Prospects before they become qualified opportunities.</p></div><button (click)="newLead=true">+ New lead</button></div><div class="kanban"><div *ngFor="let s of leadStatuses" class="stage"><h3>{{s}}</h3><article *ngFor="let l of leadsFor(s)"><b>{{l.name}}</b><span>{{l.companyName || 'Individual'}}</span><small>{{l.source}} · {{l.rating}}</small></article></div></div></section>
-<section *ngIf="tab==='leads' && newLead" class="modal"><form (ngSubmit)="saveLead()"><h2>New lead</h2><input required placeholder="Lead name" [(ngModel)]="leadDraft.name" name="name"><input placeholder="Company" [(ngModel)]="leadDraft.companyName" name="company"><input type="email" placeholder="Email" [(ngModel)]="leadDraft.email" name="email"><input placeholder="Phone" [(ngModel)]="leadDraft.phone" name="phone"><select [(ngModel)]="leadDraft.source" name="source"><option>WEBSITE</option><option>REFERRAL</option><option>EMAIL</option><option>PHONE</option><option>CAMPAIGN</option><option>OTHER</option></select><select [(ngModel)]="leadDraft.rating" name="rating"><option>HOT</option><option>WARM</option><option>COLD</option></select><div class="actions"><button type="button" (click)="newLead=false">Cancel</button><button type="submit">Create lead</button></div></form></section>
-<section *ngIf="tab==='opportunities'" class="panel"><div class="toolbar"><div><h2>Opportunity pipeline</h2><p>Track qualified revenue from discovery to close.</p></div><button (click)="newOpp=true">+ New opportunity</button></div><div class="kanban"><div *ngFor="let s of oppStages" class="stage"><h3>{{s}}</h3><article *ngFor="let o of oppsFor(s)"><b>{{o.name}}</b><span>₹{{o.amount || 0 | number:'1.0-0'}}</span><small>{{o.probability || 0}}% probability</small></article></div></div></section>
-<section *ngIf="tab==='opportunities' && newOpp" class="modal"><form (ngSubmit)="saveOpp()"><h2>New opportunity</h2><input required placeholder="Opportunity name" [(ngModel)]="oppDraft.name" name="name"><input type="number" placeholder="Amount" [(ngModel)]="oppDraft.amount" name="amount"><input type="number" min="0" max="100" placeholder="Probability %" [(ngModel)]="oppDraft.probability" name="probability"><select [(ngModel)]="oppDraft.stage" name="stage"><option *ngFor="let s of oppStages">{{s}}</option></select><select [(ngModel)]="oppDraft.customerId" name="customerId"><option [ngValue]="undefined">No customer linked</option><option *ngFor="let c of customers" [ngValue]="c.id">{{c.name}}</option></select><div class="actions"><button type="button" (click)="newOpp=false">Cancel</button><button type="submit">Create opportunity</button></div></form></section></main></div>`})
-export class AppComponent implements OnInit { api=inject(CrmApi); auth=inject(AuthService); tab='overview'; customers:Customer[]=[]; leads:Lead[]=[]; opportunities:Opportunity[]=[]; customerQuery=''; newCustomer=false; newLead=false; newOpp=false; customerDraft:Customer={code:'',name:'',status:'ACTIVE'}; leadDraft:Lead={name:'',source:'WEBSITE',status:'NEW',rating:'WARM'}; oppDraft:Opportunity={name:'',stage:'QUALIFICATION',probability:20}; leadStatuses=['NEW','CONTACTED','QUALIFIED','CONVERTED']; oppStages=['QUALIFICATION','NEEDS_ANALYSIS','PROPOSAL','NEGOTIATION','CLOSED_WON','CLOSED_LOST'];
- async ngOnInit(){await this.loadCustomers();await this.loadLeads();await this.loadOpps();} get title(){return ({overview:'Command center',customers:'Customers',leads:'Leads',opportunities:'Opportunities'} as any)[this.tab];} get openLeads(){return this.leads.filter(x=>!['CONVERTED','CLOSED'].includes(x.status)).length;} get pipeline(){return this.opportunities.filter(x=>!['CLOSED_LOST','CLOSED_WON'].includes(x.stage)).reduce((a,x)=>a+(x.amount||0)*(x.probability||0)/100,0);} get winRate(){const c=this.opportunities.filter(x=>['CLOSED_WON','CLOSED_LOST'].includes(x.stage));return c.length?Math.round(c.filter(x=>x.stage==='CLOSED_WON').length*100/c.length):0;} leadsFor(s:string){return this.leads.filter(x=>x.status===s);} oppsFor(s:string){return this.opportunities.filter(x=>x.stage===s);} async loadCustomers(){this.customers=await this.api.customers(this.customerQuery);} async loadLeads(){this.leads=await this.api.leads();} async loadOpps(){this.opportunities=await this.api.opportunities();} async saveCustomer(){await this.api.createCustomer(this.customerDraft);this.newCustomer=false;this.customerDraft={code:'',name:'',status:'ACTIVE'};await this.loadCustomers();} async saveLead(){await this.api.createLead(this.leadDraft);this.newLead=false;this.leadDraft={name:'',source:'WEBSITE',status:'NEW',rating:'WARM'};await this.loadLeads();} async saveOpp(){await this.api.createOpportunity(this.oppDraft);this.newOpp=false;this.oppDraft={name:'',stage:'QUALIFICATION',probability:20};await this.loadOpps();}}
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { CrmApi, Customer, Lead, Opportunity } from './crm-api.service';
+import { AuthService } from './auth.service';
+import { ROLE_TO_WORKSPACE, WORKSPACES, WorkspaceDefinition } from './workspace-config';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="app-shell">
+      <aside>
+        <div class="brand">SIVION</div>
+        <div class="muted">Business platform</div>
+
+        <div class="workspace-label">{{ workspace.label }}</div>
+        <nav>
+          <button *ngFor="let item of workspace.items" [class.active]="activeItem === item.id" (click)="select(item.id)">
+            {{ item.label }}
+          </button>
+        </nav>
+
+        <div class="role-box">
+          <small>ROLE</small>
+          <strong>{{ workspace.role }}</strong>
+        </div>
+        <button class="logout" (click)="auth.logout()">Sign out</button>
+      </aside>
+
+      <main>
+        <header>
+          <div>
+            <span class="eyebrow">{{ workspace.label | uppercase }}</span>
+            <h1>{{ currentItem?.label }}</h1>
+            <p>{{ currentItem?.description }}</p>
+          </div>
+          <span class="user">{{ auth.username }}</span>
+        </header>
+
+        <!-- Platform/admin overview -->
+        <section *ngIf="activeItem === 'overview'" class="cards">
+          <article><span>Customers</span><strong>{{ customers.length }}</strong><small>Active CRM accounts</small></article>
+          <article><span>Open leads</span><strong>{{ openLeads }}</strong><small>Prospects in progress</small></article>
+          <article><span>Pipeline</span><strong>₹{{ pipeline | number:'1.0-0' }}</strong><small>Weighted opportunities</small></article>
+          <article><span>Win rate</span><strong>{{ winRate }}%</strong><small>Closed opportunities</small></article>
+          <div class="panel wide">
+            <h2>{{ workspace.label }}</h2>
+            <p>This workspace is generated from the authenticated Keycloak role. Sivion will expose only the capabilities assigned to the current user's role and data scope.</p>
+            <div class="module-grid" *ngIf="workspace.role === 'ADMIN'">
+              <button *ngFor="let item of workspace.items.slice(1)" class="module-card" (click)="select(item.id)">
+                <strong>{{ item.label }}</strong><span>{{ item.description }}</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Sales CRM -->
+        <ng-container *ngIf="isCrmItem">
+          <section *ngIf="activeItem === 'customers'" class="panel">
+            <div class="toolbar"><div><h2>Customers</h2><p>Accounts and organizations your business sells to.</p></div><button (click)="newCustomer=true">+ New customer</button></div>
+            <input class="search" placeholder="Search customers..." [(ngModel)]="customerQuery" (ngModelChange)="loadCustomers()">
+            <table><thead><tr><th>Code</th><th>Customer</th><th>Email</th><th>Phone</th><th>Status</th></tr></thead>
+              <tbody><tr *ngFor="let c of customers"><td>{{c.code}}</td><td><b>{{c.name}}</b></td><td>{{c.email || '—'}}</td><td>{{c.phone || '—'}}</td><td><span class="pill">{{c.status}}</span></td></tr></tbody>
+            </table><div class="empty" *ngIf="!customers.length">No customers found.</div>
+          </section>
+
+          <section *ngIf="activeItem === 'leads'" class="panel">
+            <div class="toolbar"><div><h2>Leads</h2><p>Prospects before they become qualified opportunities.</p></div><button (click)="newLead=true">+ New lead</button></div>
+            <div class="kanban"><div *ngFor="let s of leadStatuses" class="stage"><h3>{{s}}</h3><article *ngFor="let l of leadsFor(s)"><b>{{l.name}}</b><span>{{l.companyName || 'Individual'}}</span><small>{{l.source}} · {{l.rating}}</small></article></div></div>
+          </section>
+
+          <section *ngIf="activeItem === 'opportunities'" class="panel">
+            <div class="toolbar"><div><h2>Opportunity pipeline</h2><p>Track qualified revenue from discovery to close.</p></div><button (click)="newOpp=true">+ New opportunity</button></div>
+            <div class="kanban"><div *ngFor="let s of oppStages" class="stage"><h3>{{s}}</h3><article *ngFor="let o of oppsFor(s)"><b>{{o.name}}</b><span>₹{{o.amount || 0 | number:'1.0-0'}}</span><small>{{o.probability || 0}}% probability</small></article></div></div>
+          </section>
+
+          <section *ngIf="activeItem === 'activities' || activeItem === 'meetings' || activeItem === 'goals' || activeItem === 'performance' || activeItem === 'team' || activeItem === 'reports'" class="panel">
+            <h2>{{ currentItem?.label }}</h2>
+            <p>{{ currentItem?.description }}</p>
+            <div class="feature-list"><div><strong>Role-aware access</strong><span>Only users assigned to {{ workspace.role }} receive this workspace.</span></div><div><strong>Scope-aware data</strong><span>The backend will enforce ownership, team, region and organization scopes as each module is implemented.</span></div><div><strong>Audit-ready workflow</strong><span>Business actions will be persisted and published as integration events where cross-module processing is required.</span></div></div>
+          </section>
+        </ng-container>
+
+        <!-- Non-CRM workspace capabilities -->
+        <section *ngIf="!isCrmItem && activeItem !== 'overview'" class="panel">
+          <h2>{{ currentItem?.label }}</h2>
+          <p>{{ currentItem?.description }}</p>
+          <div class="feature-list">
+            <div><strong>Workspace assigned</strong><span>This capability is visible because the authenticated user has the <b>{{ workspace.role }}</b> role.</span></div>
+            <div><strong>Business module</strong><span>Sivion will keep the module boundary independent so its API, authorization, data model and events can evolve without coupling unrelated modules.</span></div>
+            <div><strong>Next implementation layer</strong><span>Build the module's entities, APIs, permissions, scope rules and audit trail behind this workspace instead of creating a generic page visible to every user.</span></div>
+          </div>
+        </section>
+
+        <!-- Customer modal -->
+        <section *ngIf="activeItem === 'customers' && newCustomer" class="modal"><form (ngSubmit)="saveCustomer()"><h2>New customer</h2><input required placeholder="Customer name" [(ngModel)]="customerDraft.name" name="name"><input placeholder="Code (optional)" [(ngModel)]="customerDraft.code" name="code"><input type="email" placeholder="Email" [(ngModel)]="customerDraft.email" name="email"><input placeholder="Phone" [(ngModel)]="customerDraft.phone" name="phone"><select [(ngModel)]="customerDraft.status" name="status"><option>ACTIVE</option><option>INACTIVE</option></select><div class="actions"><button type="button" (click)="newCustomer=false">Cancel</button><button type="submit">Create customer</button></div></form></section>
+
+        <!-- Lead modal -->
+        <section *ngIf="activeItem === 'leads' && newLead" class="modal"><form (ngSubmit)="saveLead()"><h2>New lead</h2><input required placeholder="Lead name" [(ngModel)]="leadDraft.name" name="name"><input placeholder="Company" [(ngModel)]="leadDraft.companyName" name="company"><input type="email" placeholder="Email" [(ngModel)]="leadDraft.email" name="email"><input placeholder="Phone" [(ngModel)]="leadDraft.phone" name="phone"><select [(ngModel)]="leadDraft.source" name="source"><option>WEBSITE</option><option>REFERRAL</option><option>EMAIL</option><option>PHONE</option><option>CAMPAIGN</option><option>OTHER</option></select><select [(ngModel)]="leadDraft.rating" name="rating"><option>HOT</option><option>WARM</option><option>COLD</option></select><div class="actions"><button type="button" (click)="newLead=false">Cancel</button><button type="submit">Create lead</button></div></form></section>
+
+        <!-- Opportunity modal -->
+        <section *ngIf="activeItem === 'opportunities' && newOpp" class="modal"><form (ngSubmit)="saveOpp()"><h2>New opportunity</h2><input required placeholder="Opportunity name" [(ngModel)]="oppDraft.name" name="name"><input type="number" placeholder="Amount" [(ngModel)]="oppDraft.amount" name="amount"><input type="number" min="0" max="100" placeholder="Probability %" [(ngModel)]="oppDraft.probability" name="probability"><select [(ngModel)]="oppDraft.stage" name="stage"><option *ngFor="let s of oppStages">{{s}}</option></select><select [(ngModel)]="oppDraft.customerId" name="customerId"><option [ngValue]="undefined">No customer linked</option><option *ngFor="let c of customers" [ngValue]="c.id">{{c.name}}</option></select><div class="actions"><button type="button" (click)="newOpp=false">Cancel</button><button type="submit">Create opportunity</button></div></form></section>
+      </main>
+    </div>
+  `,
+})
+export class AppComponent implements OnInit {
+  api = inject(CrmApi);
+  auth = inject(AuthService);
+  activeItem = 'overview';
+  workspace: WorkspaceDefinition = WORKSPACES.admin;
+  customers: Customer[] = [];
+  leads: Lead[] = [];
+  opportunities: Opportunity[] = [];
+  customerQuery = '';
+  newCustomer = false;
+  newLead = false;
+  newOpp = false;
+  customerDraft: Customer = {code:'',name:'',status:'ACTIVE'};
+  leadDraft: Lead = {name:'',source:'WEBSITE',status:'NEW',rating:'WARM'};
+  oppDraft: Opportunity = {name:'',stage:'QUALIFICATION',probability:20};
+  leadStatuses = ['NEW','CONTACTED','QUALIFIED','CONVERTED'];
+  oppStages = ['QUALIFICATION','NEEDS_ANALYSIS','PROPOSAL','NEGOTIATION','CLOSED_WON','CLOSED_LOST'];
+
+  async ngOnInit() {
+    const workspaceId = this.resolveWorkspace();
+    this.workspace = WORKSPACES[workspaceId];
+    this.activeItem = this.workspace.items[0]?.id ?? 'overview';
+    await Promise.all([this.loadCustomers(), this.loadLeads(), this.loadOpps()]);
+  }
+
+  private resolveWorkspace() {
+    for (const role of this.auth.roles) {
+      if (ROLE_TO_WORKSPACE[role]) return ROLE_TO_WORKSPACE[role];
+    }
+    return 'employee' as const;
+  }
+
+  get currentItem() { return this.workspace.items.find(x => x.id === this.activeItem); }
+  get isCrmItem() { return ['customers','leads','opportunities','activities','meetings','goals','performance','team','reports'].includes(this.activeItem); }
+  get openLeads() { return this.leads.filter(x => !['CONVERTED','CLOSED'].includes(x.status)).length; }
+  get pipeline() { return this.opportunities.filter(x => !['CLOSED_LOST','CLOSED_WON'].includes(x.stage)).reduce((a,x) => a + (x.amount || 0) * (x.probability || 0) / 100, 0); }
+  get winRate() { const c = this.opportunities.filter(x => ['CLOSED_WON','CLOSED_LOST'].includes(x.stage)); return c.length ? Math.round(c.filter(x => x.stage === 'CLOSED_WON').length * 100 / c.length) : 0; }
+
+  select(id: string) { this.activeItem = id; this.newCustomer = this.newLead = this.newOpp = false; }
+  leadsFor(s: string) { return this.leads.filter(x => x.status === s); }
+  oppsFor(s: string) { return this.opportunities.filter(x => x.stage === s); }
+  async loadCustomers() { this.customers = await this.api.customers(this.customerQuery); }
+  async loadLeads() { this.leads = await this.api.leads(); }
+  async loadOpps() { this.opportunities = await this.api.opportunities(); }
+  async saveCustomer() { await this.api.createCustomer(this.customerDraft); this.newCustomer=false; this.customerDraft={code:'',name:'',status:'ACTIVE'}; await this.loadCustomers(); }
+  async saveLead() { await this.api.createLead(this.leadDraft); this.newLead=false; this.leadDraft={name:'',source:'WEBSITE',status:'NEW',rating:'WARM'}; await this.loadLeads(); }
+  async saveOpp() { await this.api.createOpportunity(this.oppDraft); this.newOpp=false; this.oppDraft={name:'',stage:'QUALIFICATION',probability:20}; await this.loadOpps(); }
+}
