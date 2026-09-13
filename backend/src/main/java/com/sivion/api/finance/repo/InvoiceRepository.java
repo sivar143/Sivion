@@ -1,0 +1,1 @@
+package com.sivion.api.finance.repo; import com.sivion.api.finance.domain.Invoice; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface InvoiceRepository extends JpaRepository<Invoice,Long>{List<Invoice> findByTenantIdOrderByInvoiceDateDesc(Long t);Optional<Invoice> findByIdAndTenantId(Long id,Long t);}
