@@ -9,8 +9,10 @@ public class GoodsReceipt {
  @Column(name="tenant_id",nullable=false) private Long tenantId;
  @Column(nullable=false) private String receiptNumber;
  @Column(nullable=false) private Long purchaseOrderId;
+ @Column(nullable=false) private Long productId;
+ @Column(nullable=false) private Long warehouseId;
  @Column(nullable=false) private BigDecimal quantity=BigDecimal.ZERO;
  @Column(nullable=false) private String status="RECEIVED";
  @Column(nullable=false) private Instant receivedAt=Instant.now();
- public Long getId(){return id;} public Long getTenantId(){return tenantId;} public void setTenantId(Long v){tenantId=v;} public String getReceiptNumber(){return receiptNumber;} public void setReceiptNumber(String v){receiptNumber=v;} public Long getPurchaseOrderId(){return purchaseOrderId;} public void setPurchaseOrderId(Long v){purchaseOrderId=v;} public BigDecimal getQuantity(){return quantity;} public void setQuantity(BigDecimal v){quantity=v;} public String getStatus(){return status;} public void setStatus(String v){status=v;} public Instant getReceivedAt(){return receivedAt;}
+ public Long getId(){return id;} public Long getTenantId(){return tenantId;} public void setTenantId(Long v){tenantId=v;} public String getReceiptNumber(){return receiptNumber;} public void setReceiptNumber(String v){receiptNumber=v;} public Long getPurchaseOrderId(){return purchaseOrderId;} public void setPurchaseOrderId(Long v){purchaseOrderId=v;} public Long getProductId(){return productId;} public void setProductId(Long v){productId=v;} public Long getWarehouseId(){return warehouseId;} public void setWarehouseId(Long v){warehouseId=v;} public BigDecimal getQuantity(){return quantity;} public void setQuantity(BigDecimal v){quantity=v;} public String getStatus(){return status;} public void setStatus(String v){status=v;} public Instant getReceivedAt(){return receivedAt;} public void setReceivedAt(Instant v){receivedAt=v;}
 }
