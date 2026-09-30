@@ -45,3 +45,5 @@ jobs:
         run: docker compose -f docker-compose.local.yml config
       - name: Validate default compose configuration
         run: docker compose -f docker-compose.yml config
+      - name: Build application images
+        run: docker compose -f docker-compose.yml build backend frontend
