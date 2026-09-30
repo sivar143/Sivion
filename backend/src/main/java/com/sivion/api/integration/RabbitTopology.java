@@ -19,9 +19,7 @@ public class RabbitTopology {
                 .build();
     }
 
-    private Queue deadLetterQueue(String routingKey) {
-        return QueueBuilder.durable(routingKey).build();
-    }
+    private Queue deadLetterQueue(String name) { return QueueBuilder.durable(name).build(); }
 
     @Bean Queue inventoryOrdersQueue() { return eventQueue("sivion.inventory.sales-orders", "sivion.inventory.sales-orders.dlq"); }
     @Bean Binding inventoryOrdersConfirmedBinding(Queue inventoryOrdersQueue, TopicExchange sivionEvents) { return BindingBuilder.bind(inventoryOrdersQueue).to(sivionEvents).with("sales.order.confirmed"); }
