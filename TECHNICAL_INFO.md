@@ -42,7 +42,7 @@ Sivion/
 ### Backend
 
 - Java 25
-- Spring Boot 4.x
+- Spring Boot 4.0.8
 - Spring Web
 - Spring Validation
 - Spring Data JPA / Hibernate
@@ -59,7 +59,7 @@ Sivion/
 - MySQL 8.4
 - Valkey 8
 - RabbitMQ 4
-- Keycloak 26.x
+- Keycloak 26.7.4
 - Nginx
 - Docker / Docker Compose
 - Kubernetes-ready infrastructure direction
@@ -355,7 +355,7 @@ Inventory stock transaction
 - External references such as sales order IDs and goods receipt IDs should be used as idempotency keys where appropriate.
 - Never assume that a message is delivered exactly once.
 - A consumer should not acknowledge a message as successfully processed when a required state change has definitely failed.
-- Retry/DLQ policies should be configured before production deployment.
+- Retry and dead-letter queues are configured for the current RabbitMQ consumers. Failed event deliveries are retried before being routed to durable per-consumer DLQs; production operations must monitor and replay DLQ messages deliberately.
 
 ## 10. Inventory consistency rules
 
@@ -545,7 +545,7 @@ Priority areas are:
 7. HR functionality already present in the repository.
 8. Angular state management, error handling, and role/workspace behavior.
 9. Docker/configuration consistency.
-10. Automated tests and CI reliability.
+10. Automated tests, container build validation, and CI reliability.
 
 Do not start new business modules merely to increase the apparent feature count while these areas contain correctness or reliability issues.
 
