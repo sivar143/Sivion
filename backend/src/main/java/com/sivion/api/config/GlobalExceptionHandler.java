@@ -1,6 +1,7 @@
 package com.sivion.api.config;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError conflict(IllegalStateException ex) {
         return error(HttpStatus.CONFLICT, safeMessage(ex));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError dataConflict() {
+        return error(HttpStatus.CONFLICT, "The requested change conflicts with existing data.");
     }
 
     @ExceptionHandler(Exception.class)
