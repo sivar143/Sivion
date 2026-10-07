@@ -723,7 +723,6 @@ docker compose -f docker-compose.yml config
 Build the application images:
 
 ```bash
-# Backend and frontend are run manually in local development.
 ```
 
 A successful build confirms that the Dockerfiles and application build stages can be processed by Docker.
@@ -907,7 +906,6 @@ Run the relevant validation:
 
 ```bash
 docker compose -f docker-compose.local.yml config
-# Backend and frontend are run manually in local development.
 ```
 
 For backend changes:
