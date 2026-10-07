@@ -127,288 +127,379 @@ The frontend uses Node.js 24.x and npm 11.x.
 
 ---
 
-## 5. Recommended local setup
+## 5. Recommended fast local development setup
 
-For normal Windows/Linux development, use:
+The local Compose file intentionally starts **only infrastructure**. It does not start or build the backend/frontend containers.
 
-```bash
-docker compose -f docker-compose.local.yml up -d --build
-```
+### Docker-managed services
 
-This builds the current backend and frontend images and starts the complete local stack.
+- MySQL 8.4
+- Valkey 8
+- RabbitMQ 4
+- Keycloak 26.7.4
 
-Before starting it, validate the Compose file:
+### Manually managed services
 
-```bash
+- Spring Boot backend on port 8080
+- Angular development server on port 4200
+
+This means you can change Java or Angular code without rebuilding the entire Docker stack.
+
+### Step 1 — Start infrastructure once
+
+From the repository root:
+
+~~~bash
 docker compose -f docker-compose.local.yml config
-```
-
-If the command completes without a Compose configuration error, start the stack.
-
-Check service status:
-
-```bash
+docker compose -f docker-compose.local.yml up -d
 docker compose -f docker-compose.local.yml ps
-```
+~~~
+
+Expected local Compose services:
+
+~~~text
+mysql
+valkey
+rabbitmq
+keycloak
+~~~
+
+You should not see backend or frontend.
+
+Leave these infrastructure containers running during development.
+
+### Step 2 — Start the backend manually
+
+Open a second terminal:
+
+~~~bash
+cd backend
+mvn -B verify
+mvn spring-boot:run
+~~~
+
+The backend is available at:
+
+~~~text
+http://localhost:8080
+~~~
+
+Health check:
+
+~~~text
+http://localhost:8080/actuator/health
+~~~
+
+On Windows PowerShell:
+
+~~~powershell
+Invoke-WebRequest http://localhost:8080/actuator/health
+~~~
+
+The backend connects to host-exposed infrastructure:
+
+~~~text
+MySQL:    localhost:3307
+Valkey:   localhost:6379
+RabbitMQ: localhost:5672
+Keycloak: localhost:8081
+~~~
+
+### Step 3 — Start the frontend manually
+
+Open a third terminal:
+
+~~~bash
+cd frontend
+npm install
+npm start
+~~~
+
+Open:
+
+~~~text
+http://localhost:4200
+~~~
+
+Angular is already configured to proxy /api to:
+
+~~~text
+http://localhost:8080
+~~~
+
+### Step 4 — Develop normally
+
+For frontend-only changes, Angular automatically rebuilds/reloads.
+
+For backend-only changes, stop the Spring Boot process with Ctrl+C and run:
+
+~~~bash
+mvn spring-boot:run
+~~~
+
+There is no Docker image rebuild and no need to restart MySQL, Valkey, RabbitMQ, or Keycloak.
+
+### Step 5 — Stop development
+
+Stop the backend and frontend with Ctrl+C.
+
+Stop infrastructure only when you are finished:
+
+~~~bash
+docker compose -f docker-compose.local.yml down
+~~~
 
 ---
 
-## 6. Local application endpoints
+## 6. Local application and infrastructure endpoints
 
-With the default ports, the stack exposes:
-
-| Service | URL / Address | Default credentials |
+| Service | Address | Default credentials |
 |---|---|---|
-| Sivion frontend | http://localhost:4200 | Keycloak login |
-| Sivion backend | http://localhost:8080 | Keycloak protected |
+| Angular frontend | http://localhost:4200 | Keycloak login |
+| Spring Boot backend | http://localhost:8080 | Keycloak protected |
 | Backend health | http://localhost:8080/actuator/health | Public health endpoint |
 | API ping | http://localhost:8080/api/v1/ping | Public endpoint |
 | Keycloak | http://localhost:8081 | admin / admin |
 | Keycloak realm | http://localhost:8081/realms/sivion | — |
 | RabbitMQ management | http://localhost:15672 | sivion / sivion |
-| MySQL | localhost:3306 | sivion / sivion |
+| MySQL | localhost:3307 | admin / admin |
 | Valkey | localhost:6379 | — |
 
-The default credentials are development defaults. Do not use these credentials in a production deployment.
+The local MySQL port is 3307, not 3306.
 
 ---
 
-## 7. Check that the stack is healthy
+## 7. Daily fast-development commands
 
-Show all containers:
+### Start infrastructure
 
-```bash
+~~~bash
+docker compose -f docker-compose.local.yml up -d
+~~~
+
+### Check infrastructure
+
+~~~bash
 docker compose -f docker-compose.local.yml ps
-```
+~~~
 
-Check application logs:
+### Backend
 
-```bash
-docker compose -f docker-compose.local.yml logs
-```
+~~~bash
+cd backend
+mvn spring-boot:run
+~~~
 
-Follow all logs:
+### Backend tests
 
-```bash
+~~~bash
+cd backend
+mvn -B verify
+~~~
+
+### Frontend
+
+~~~bash
+cd frontend
+npm start
+~~~
+
+### Frontend production build check
+
+~~~bash
+cd frontend
+npm run build
+~~~
+
+### Infrastructure logs
+
+~~~bash
 docker compose -f docker-compose.local.yml logs -f
-```
+~~~
 
-Follow only the backend:
-
-```bash
-docker compose -f docker-compose.local.yml logs -f backend
-```
-
-Follow only the frontend:
-
-```bash
-docker compose -f docker-compose.local.yml logs -f frontend
-```
-
-Follow Keycloak:
-
-```bash
-docker compose -f docker-compose.local.yml logs -f keycloak
-```
-
-Follow infrastructure services:
-
-```bash
-docker compose -f docker-compose.local.yml logs -f mysql valkey rabbitmq
-```
-
-Check the backend health endpoint:
-
-### PowerShell
-
-```powershell
-Invoke-WebRequest http://localhost:8080/actuator/health
-```
-
-### Linux/macOS/Git Bash
-
-```bash
-curl http://localhost:8080/actuator/health
-```
-
-The expected result is a successful HTTP response with the application health reported as UP.
+Backend and frontend logs are printed directly by Maven/Spring Boot and Angular CLI.
 
 ---
 
-## 8. Start, stop and restart commands
+## 8. What must be restarted after a change
 
-### Start existing containers
-
-```bash
-docker compose -f docker-compose.local.yml start
-```
-
-### Stop containers without deleting them
-
-```bash
-docker compose -f docker-compose.local.yml stop
-```
-
-### Restart the complete stack
-
-```bash
-docker compose -f docker-compose.local.yml restart
-```
-
-### Stop and remove containers/networks
-
-```bash
-docker compose -f docker-compose.local.yml down
-```
-
-### Rebuild and start
-
-Use this after changing backend/frontend source or Dockerfiles:
-
-```bash
-docker compose -f docker-compose.local.yml up -d --build
-```
-
-### Force recreation of containers
-
-```bash
-docker compose -f docker-compose.local.yml up -d --build --force-recreate
-```
+| Change | Restart required |
+|---|---|
+| Angular .ts, .html, .css | Normally no; Angular reloads automatically |
+| Angular dependency/package change | Stop/start npm start; run npm install |
+| Java/Spring source change | Restart only backend |
+| Backend Maven configuration change | Restart backend; run Maven verification if needed |
+| Database data change | Usually restart neither application nor infrastructure |
+| Database initialization from scratch | Reset MySQL volume |
+| Keycloak realm/config change | Restart only Keycloak |
+| RabbitMQ configuration change | Restart only RabbitMQ |
+| Valkey configuration change | Restart only Valkey |
 
 ---
 
-## 9. Reset the local database and infrastructure data
+## 9. Manual backend configuration
 
-The MySQL data is stored in the Docker volume `mysql-data`.
+When running the backend directly on the host, use host addresses rather than Docker service names.
 
-To stop the stack and remove persistent Compose volumes:
+### Windows PowerShell
 
-```bash
+~~~powershell
+$env:SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3307/sivion"
+$env:SPRING_DATASOURCE_USERNAME="admin"
+$env:SPRING_DATASOURCE_PASSWORD="admin"
+$env:SPRING_DATA_REDIS_HOST="localhost"
+$env:SPRING_RABBITMQ_HOST="localhost"
+$env:SPRING_RABBITMQ_USERNAME="sivion"
+$env:SPRING_RABBITMQ_PASSWORD="sivion"
+$env:SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI="http://localhost:8081/realms/sivion"
+$env:SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI="http://localhost:8081/realms/sivion/protocol/openid-connect/certs"
+mvn spring-boot:run
+~~~
+
+### Linux / macOS / Git Bash
+
+~~~bash
+export SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3307/sivion"
+export SPRING_DATASOURCE_USERNAME="admin"
+export SPRING_DATASOURCE_PASSWORD="admin"
+export SPRING_DATA_REDIS_HOST="localhost"
+export SPRING_RABBITMQ_HOST="localhost"
+export SPRING_RABBITMQ_USERNAME="sivion"
+export SPRING_RABBITMQ_PASSWORD="sivion"
+export SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI="http://localhost:8081/realms/sivion"
+export SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI="http://localhost:8081/realms/sivion/protocol/openid-connect/certs"
+mvn spring-boot:run
+~~~
+
+These variables apply only to the current terminal session.
+
+---
+
+## 10. Manual frontend configuration
+
+The Angular development server is configured to use:
+
+~~~text
+frontend/proxy.conf.json
+~~~
+
+The proxy sends:
+
+~~~text
+/api/* -> http://localhost:8080
+~~~
+
+Normal local flow:
+
+~~~text
+Browser :4200
+    |
+    | /api
+    v
+Angular proxy
+    |
+    v
+Spring Boot :8080
+    |
+    +--> MySQL :3307
+    +--> Valkey :6379
+    +--> RabbitMQ :5672
+    +--> Keycloak :8081
+~~~
+
+Do not change the local proxy target to backend:8080. backend is a Docker service name and the backend now runs directly on the host.
+
+---
+
+## 11. Build/package the backend manually
+
+For tests and validation:
+
+~~~bash
+cd backend
+mvn -B verify
+~~~
+
+For a packaged JAR:
+
+~~~bash
+mvn -B clean package
+~~~
+
+The output is under backend/target/.
+
+To run the packaged JAR:
+
+~~~bash
+java -jar target/<generated-sivion-api-jar>.jar
+~~~
+
+For normal development, prefer mvn spring-boot:run because it avoids building a JAR for every iteration.
+
+---
+
+## 12. Reset local database data
+
+The MySQL data is stored in the Docker volume mysql-data.
+
+To completely reset local MySQL:
+
+~~~bash
 docker compose -f docker-compose.local.yml down -v
-```
+docker compose -f docker-compose.local.yml up -d
+~~~
 
-Then start again:
+Warning: down -v deletes the local MySQL data.
 
-```bash
-docker compose -f docker-compose.local.yml up -d --build
-```
+After MySQL becomes healthy, restart the manually managed backend:
 
-**Warning:** `down -v` deletes the local MySQL Docker volume and therefore destroys the local database data stored in that volume.
+~~~bash
+cd backend
+mvn spring-boot:run
+~~~
 
-Use this only when a clean local database is required.
-
----
-
-## 10. Rebuild only one application service
-
-Backend:
-
-```bash
-docker compose -f docker-compose.local.yml build backend
-docker compose -f docker-compose.local.yml up -d backend
-```
-
-Frontend:
-
-```bash
-docker compose -f docker-compose.local.yml build frontend
-docker compose -f docker-compose.local.yml up -d frontend
-```
-
-Rebuild both application images:
-
-```bash
-docker compose -f docker-compose.local.yml build backend frontend
-docker compose -f docker-compose.local.yml up -d backend frontend
-```
+The initialization script is database/init.sql.
 
 ---
 
-## 11. Environment variables
-
-Docker Compose supports environment-variable overrides.
-
-The important variables include:
-
-```text
-MYSQL_DATABASE
-MYSQL_USER
-MYSQL_PASSWORD
-MYSQL_ROOT_PASSWORD
-MYSQL_PORT
-
-VALKEY_PORT
-
-RABBITMQ_DEFAULT_USER
-RABBITMQ_DEFAULT_PASS
-RABBITMQ_PORT
-RABBITMQ_MANAGEMENT_PORT
-
-KEYCLOAK_ADMIN_USERNAME
-KEYCLOAK_ADMIN_PASSWORD
-KEYCLOAK_PORT
-
-BACKEND_PORT
-FRONTEND_PORT
-```
-
-The Compose files provide development-safe defaults when these variables are not supplied.
-
-For a deployment environment, provide secure values through the environment or a deployment-specific environment file rather than committing secrets to Git.
-
-Example PowerShell session:
-
-```powershell
-$env:MYSQL_PASSWORD="change-me"
-$env:MYSQL_ROOT_PASSWORD="change-root-password"
-$env:KEYCLOAK_ADMIN_PASSWORD="change-admin-password"
-docker compose -f docker-compose.yml up -d --build
-```
-
-Example Linux shell:
-
-```bash
-export MYSQL_PASSWORD="change-me"
-export MYSQL_ROOT_PASSWORD="change-root-password"
-export KEYCLOAK_ADMIN_PASSWORD="change-admin-password"
-docker compose -f docker-compose.yml up -d --build
-```
-
-Do not commit passwords, access tokens, private keys, or other secrets to the repository.
-
----
-
-## 12. Local versus deployment Compose files
+## 13. Local versus deployment Compose files
 
 ### Local development
 
-Use:
+~~~bash
+docker compose -f docker-compose.local.yml up -d
+~~~
 
-```bash
-docker compose -f docker-compose.local.yml up -d --build
-```
+This starts only:
 
-This is the preferred command for a developer workstation.
+- MySQL
+- Valkey
+- RabbitMQ
+- Keycloak
 
-### Deployment/default Compose configuration
+Backend and frontend are started manually.
 
-Use:
+### Deployment/default stack
 
-```bash
-docker compose -f docker-compose.yml up -d --build
-```
-
-Before deployment, validate the configuration:
-
-```bash
+~~~bash
 docker compose -f docker-compose.yml config
-```
+docker compose -f docker-compose.yml up -d --build
+~~~
 
-The local and default Compose definitions currently use the same core service topology. Keep them synchronized when deployment architecture changes.
+The deployment/default Compose file still contains:
+
+- MySQL
+- Valkey
+- RabbitMQ
+- Keycloak
+- Backend
+- Frontend
+
+Do not remove backend/frontend from docker-compose.yml for this local optimization.
 
 ---
 
-## 13. Keycloak configuration
+## 14. Keycloak configuration
 
 Keycloak is started with the Sivion realm import:
 
@@ -441,7 +532,7 @@ http://localhost:8081/realms/sivion
 
 ---
 
-## 14. RabbitMQ
+## 15. RabbitMQ
 
 RabbitMQ is available at:
 
@@ -468,7 +559,7 @@ The backend connects to RabbitMQ using the Docker service name `rabbitmq`, not `
 
 ---
 
-## 15. MySQL
+## 16. MySQL
 
 Default development connection:
 
@@ -498,12 +589,12 @@ If the database must be initialized from scratch, remove the local Compose volum
 
 ```bash
 docker compose -f docker-compose.local.yml down -v
-docker compose -f docker-compose.local.yml up -d --build
+docker compose -f docker-compose.local.yml up -d
 ```
 
 ---
 
-## 16. Valkey
+## 17. Valkey
 
 Valkey provides the Redis-compatible data/cache service.
 
@@ -533,7 +624,7 @@ valkey-cli ping
 
 ---
 
-## 17. Run the backend directly without Docker
+## 18. Run the backend directly without Docker
 
 Docker Compose is the recommended way to run the complete application.
 
@@ -560,7 +651,7 @@ cd ..
 
 ---
 
-## 18. Run the frontend directly without Docker
+## 19. Run the frontend directly without Docker
 
 Install frontend dependencies:
 
@@ -591,7 +682,7 @@ When using the standalone Angular development server, ensure the backend and Key
 
 ---
 
-## 19. Backend verification
+## 20. Backend verification
 
 From the repository root:
 
@@ -605,7 +696,7 @@ This should compile the backend and execute the automated tests.
 
 ---
 
-## 20. Frontend verification
+## 21. Frontend verification
 
 From the repository root:
 
@@ -620,7 +711,7 @@ The CI pipeline uses the same dependency installation/build approach.
 
 ---
 
-## 21. Docker Compose validation
+## 22. Docker Compose validation
 
 Always validate Compose syntax/configuration before deployment:
 
@@ -632,21 +723,21 @@ docker compose -f docker-compose.yml config
 Build the application images:
 
 ```bash
-docker compose -f docker-compose.local.yml build backend frontend
+# Backend and frontend are run manually in local development.
 ```
 
 A successful build confirms that the Dockerfiles and application build stages can be processed by Docker.
 
 ---
 
-## 22. Complete local verification sequence
+## 23. Complete local verification sequence
 
 For a clean developer validation, run:
 
 ```bash
 git status
 docker compose -f docker-compose.local.yml config
-docker compose -f docker-compose.local.yml up -d --build
+docker compose -f docker-compose.local.yml up -d
 docker compose -f docker-compose.local.yml ps
 ```
 
@@ -668,7 +759,7 @@ docker compose -f docker-compose.local.yml logs --tail=200
 
 ---
 
-## 23. Production/deployment validation
+## 24. Production/deployment validation
 
 Do not use development passwords or `start-dev` Keycloak configuration as a production security configuration.
 
@@ -711,7 +802,7 @@ docker compose -f docker-compose.yml logs --tail=200
 
 ---
 
-## 24. Useful Docker troubleshooting commands
+## 25. Useful Docker troubleshooting commands
 
 List Sivion containers:
 
@@ -774,7 +865,7 @@ ss -ltnp
 
 ---
 
-## 25. Full clean rebuild
+## 26. Full clean rebuild
 
 When application containers behave unexpectedly:
 
@@ -796,7 +887,7 @@ Use `--no-cache` only when necessary because it makes builds substantially slowe
 
 ---
 
-## 26. Git workflow for development
+## 27. Git workflow for development
 
 Before starting work:
 
@@ -816,7 +907,7 @@ Run the relevant validation:
 
 ```bash
 docker compose -f docker-compose.local.yml config
-docker compose -f docker-compose.local.yml build backend frontend
+# Backend and frontend are run manually in local development.
 ```
 
 For backend changes:
@@ -840,7 +931,7 @@ Commit only after the relevant checks pass.
 
 ---
 
-## 27. CI validation
+## 28. CI validation
 
 GitHub Actions validates:
 
@@ -865,7 +956,7 @@ docker compose -f docker-compose.local.yml config
 
 ---
 
-## 28. Recommended everyday commands
+## 29. Recommended everyday commands
 
 ### First setup
 
@@ -873,7 +964,7 @@ docker compose -f docker-compose.local.yml config
 git clone https://github.com/sivar143/Sivion.git
 cd Sivion
 docker compose -f docker-compose.local.yml config
-docker compose -f docker-compose.local.yml up -d --build
+docker compose -f docker-compose.local.yml up -d
 docker compose -f docker-compose.local.yml ps
 ```
 
@@ -887,7 +978,7 @@ docker compose -f docker-compose.local.yml up -d
 ### Rebuild after code changes
 
 ```bash
-docker compose -f docker-compose.local.yml up -d --build
+docker compose -f docker-compose.local.yml up -d
 ```
 
 ### View logs
@@ -906,12 +997,12 @@ docker compose -f docker-compose.local.yml down
 
 ```bash
 docker compose -f docker-compose.local.yml down -v
-docker compose -f docker-compose.local.yml up -d --build
+docker compose -f docker-compose.local.yml up -d
 ```
 
 ---
 
-## 29. Important notes
+## 30. Important notes
 
 - Use `docker-compose.local.yml` for normal local development.
 - Use `docker-compose.yml` for deployment/default Compose validation.
