@@ -38,6 +38,8 @@ Recommended/current project toolchain:
 
 The project is containerized, so Docker Desktop is the primary requirement for running the complete application stack.
 
+The backend base configuration retains deployment/default settings. Local host development uses the dedicated Spring `local` profile in `backend/src/main/resources/application-local.yml`.
+
 ### Linux
 
 Install:
@@ -175,7 +177,7 @@ Open a second terminal:
 ~~~bash
 cd backend
 mvn -B verify
-mvn spring-boot:run
+mvn spring-boot:run -Dspring-boot.run.profiles=local
 ~~~
 
 The backend is available at:
