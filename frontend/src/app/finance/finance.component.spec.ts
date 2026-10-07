@@ -1,0 +1,6 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FinanceComponent } from './finance.component';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../auth.service';
+import { CrmApi } from '../crm-api.service';
+describe('FinanceComponent', () => { let fixture: ComponentFixture<FinanceComponent>; let component: FinanceComponent; beforeEach(async () => { await TestBed.configureTestingModule({imports:[FinanceComponent],providers:[{provide:HttpClient,useValue:{}},{provide:AuthService,useValue:{token:async()=> 'test-token'}},{provide:CrmApi,useValue:{customers:async()=>[]}}]}).compileComponents(); fixture=TestBed.createComponent(FinanceComponent); component=fixture.componentInstance; }); it('should create',()=>expect(component).toBeTruthy()); it('should calculate invoice, payment and outstanding totals',()=>{component.invoices=[{amount:100},{amount:250}];component.payments=[{amount:75}];expect(component.invoiceTotal).toBe(350);expect(component.paymentTotal).toBe(75);expect(component.outstanding).toBe(275);}); it('should return only unpaid invoices',()=>{component.invoices=[{status:'PAID'},{status:'ISSUED'}] as any[];expect(component.unpaidInvoices.length).toBe(1);});});
