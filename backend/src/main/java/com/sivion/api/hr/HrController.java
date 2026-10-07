@@ -7,6 +7,9 @@ public class HrController {
  @GetMapping("/dashboard") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')") public Map<String,Object> dashboard(){return Map.of("activeEmployees",service.activeEmployees(),"employees",service.employees().size(),"departments",service.departments().size());}
  @GetMapping("/employees") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER')") public List<Employee> employees(){return service.employees();}
  @PostMapping("/employees") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Employee createEmployee(@RequestBody Employee e){return service.createEmployee(e);}
+ @GetMapping("/designations") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER')") public List<Designation> designations(){return service.designations();}
+ @PostMapping("/designations") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Designation createDesignation(@RequestBody Designation d){return service.createDesignation(d);}
+ @PutMapping("/designations/{id}") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Designation updateDesignation(@PathVariable Long id,@RequestBody Designation d){return service.updateDesignation(id,d);}
  @GetMapping("/departments") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER')") public List<Department> departments(){return service.departments();}
  @PostMapping("/departments") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Department createDepartment(@RequestBody Department d){return service.createDepartment(d);}
  @PutMapping("/departments/{id}") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Department updateDepartment(@PathVariable Long id,@RequestBody Department d){return service.updateDepartment(id,d);}
