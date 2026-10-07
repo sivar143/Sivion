@@ -192,6 +192,154 @@ When a feature is changed, its component test must be reviewed or extended.
 
 Do not remove tests merely to make a build pass.
 
+
+## 6.1 Service Testing
+
+Every frontend service under `src/app/services/` must have a corresponding individual test file:
+
+```
+<service>.service.ts
+<service>.service.spec.ts
+```
+
+Service tests must cover, as applicable:
+
+- service creation and dependency injection
+- HTTP endpoint URL construction
+- HTTP method and request payload
+- request headers and authentication behavior
+- successful responses
+- HTTP/error responses
+- CRUD operations
+- important business rules and transformations
+- edge cases and regression scenarios
+- dependent services mocked where appropriate
+
+For HTTP services, use Angular HTTP testing utilities rather than making real backend requests.
+
+Service specifications must not be removed or weakened merely to make a build or test run pass.
+
+## 6.2 Coding, Naming and Formatting Standards
+
+These rules are mandatory for all new and modified frontend code.
+
+### Naming
+
+Use `camelCase` consistently for:
+
+- frontend folder names
+- variables
+- properties
+- function and method names
+- service instances
+- local constants
+
+Examples:
+
+```
+finance/
+salesOrder/
+customerCallCenter/
+
+customerName
+selectedDepartment
+organizationId
+
+loadCustomers()
+openNewDesignation()
+saveOrganization()
+```
+
+TypeScript language constructs that conventionally require `PascalCase` remain `PascalCase`, including classes, interfaces, enums, and type aliases:
+
+```
+interface Customer {}
+class SalesOrder {}
+type WorkspaceId = string;
+```
+
+File names must follow the established Angular naming convention, for example `sales-order.component.ts` and `sales-order-api.service.ts`. The naming rule applies to the identifiers and directory names inside the established file naming convention; do not invent inconsistent filename styles.
+
+### TypeScript
+
+- Use strict typing; avoid `any` unless there is a documented technical reason.
+- Prefer interfaces/types for API contracts.
+- Use explicit, meaningful names.
+- Avoid duplicated business logic.
+- Keep methods focused and reasonably small.
+- Keep API communication in services rather than directly in components.
+- Follow the existing Angular dependency-injection pattern.
+- Keep imports clean and consistently ordered/formatted.
+- Do not leave dead code, commented-out implementation, or temporary debugging statements in completed changes.
+
+### HTML / Angular Templates
+
+- Keep templates in their dedicated `.html` files.
+- Use consistent indentation throughout the complete template.
+- Keep Angular bindings and attributes consistently formatted.
+- Avoid unnecessarily complex template expressions.
+- Do not place TypeScript in HTML.
+- Preserve semantic and accessible markup where applicable.
+
+### CSS / SCSS
+
+- Use consistent indentation and formatting.
+- Keep selectors and declarations consistently structured.
+- Avoid unnecessary duplication.
+- Avoid `!important` unless technically justified.
+- Keep component-specific styles with the appropriate component and global styles in the designated global stylesheet.
+
+### Mandatory Formatting Gate
+
+Before any frontend change is considered complete, formatting must be applied to every modified applicable file, including:
+
+- `.ts`
+- `.html`
+- `.scss`
+- `.css`
+- `.json`
+
+Formatting must produce:
+
+- consistent indentation
+- no mixed tabs/spaces
+- consistent spacing
+- consistent brace and delimiter placement
+- consistently formatted imports
+- consistently formatted Angular templates
+- no trailing whitespace
+- no unnecessary formatting inconsistencies
+
+The formatter used must be the project's configured/approved formatter. Do not manually override formatter output without a documented reason.
+
+### Required Completion Sequence
+
+Every frontend implementation must follow this sequence before commit:
+
+```
+Implement change
+    ↓
+Apply project formatter to modified files
+    ↓
+Check TypeScript
+    ↓
+Check Angular templates
+    ↓
+Check CSS/SCSS
+    ↓
+Run affected unit tests
+    ↓
+Run frontend production build
+    ↓
+Review git diff
+    ↓
+Search for stale imports/references
+    ↓
+Commit
+```
+
+If a validation step cannot be executed because of an environment limitation, report that limitation explicitly. Do not claim the step passed when it was not executed.
+
 ## 7. Template Rules
 
 - Keep HTML in `.component.html` files.
