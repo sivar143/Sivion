@@ -1,0 +1,39 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { InventoryComponent } from './inventory.component';
+import { InventoryApi } from './inventory-api.service';
+import { CrmApi } from './crm-api.service';
+
+describe('InventoryComponent', () => {
+  let fixture: ComponentFixture<InventoryComponent>;
+  let component: InventoryComponent;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [InventoryComponent],
+      providers: [
+        { provide: InventoryApi, useValue: {} },
+        { provide: CrmApi, useValue: { customers: async () => [] } }
+      ]
+    }).compileComponents();
+    fixture = TestBed.createComponent(InventoryComponent);
+    component = fixture.componentInstance;
+  });
+
+  it('should create', () => expect(component).toBeTruthy());
+  it('should calculate total and low stock counts', () => {
+    component.materials = [
+      { quantity: 10, reorderLevel: 5 } as any,
+      { quantity: 2, reorderLevel: 5 } as any,
+      { quantity: 0, reorderLevel: 0 } as any
+    ];
+    expect(component.totalStock).toBe(12);
+    expect(component.lowStock).toBe(2);
+  });
+  it('should add and remove dispatch lines', () => {
+    const initial = component.dispatchLines.length;
+    component.addLine();
+    expect(component.dispatchLines.length).toBe(initial + 1);
+    component.removeLine(component.dispatchLines.length - 1);
+    expect(component.dispatchLines.length).toBe(initial);
+  });
+});
