@@ -54,7 +54,7 @@ go to backend:
 cd backend
 
 to run backend :
-mvn spring-boot:run
+mvn spring-boot:run -Dspring-boot.run.profiles=local for local deployemnts
 
 to verify the backend :
 mvn -B verify
