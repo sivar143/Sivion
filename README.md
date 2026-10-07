@@ -36,3 +36,34 @@ Do not use -v if the existing database contains data you need.
 
 docker compose -f docker-compose.local.yml down -v
 docker compose -f docker-compose.local.yml up --build -d
+
+for local development use this :
+
+docker compose -f docker-compose.local.yml up -d
+
+then:
+
+mysql
+valkey
+rabbitmq
+keycloak
+
+containers will run then:
+
+go to backend:
+cd backend
+
+to run backend :
+mvn spring-boot:run
+
+to verify the backend :
+mvn -B verify
+
+to deploy the frontend :
+cd frontend
+
+to install all the required frontend liberieries:
+npm install
+
+to run the frontend:
+npm start
