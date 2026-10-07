@@ -7,9 +7,9 @@ Sivion is a modular B2B business management platform combining CRM, product cata
 - Angular web application
 - Java 25 / Spring Boot backend
 - MySQL 8.4
-- Redis 8
+- Valkey 8
 - RabbitMQ 4
-- Keycloak for identity and RBAC
+- Keycloak 26.7.4 for identity and RBAC
 - Nginx reverse proxy
 - Docker Compose for local development
 - Kubernetes-ready deployment manifests
@@ -31,3 +31,8 @@ See `docs/getting-started.md`.
 - Transactional writes with domain events
 - Auditable business operations
 - Secure-by-default configuration
+
+Do not use -v if the existing database contains data you need.
+
+docker compose -f docker-compose.local.yml down -v
+docker compose -f docker-compose.local.yml up --build -d
