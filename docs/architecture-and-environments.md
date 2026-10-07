@@ -19,7 +19,7 @@ RabbitMQ is used for asynchronous domain/integration events. Consumers must be i
 Use Docker Compose:
 
 ```bash
-docker compose -f docker-compose.local.yml up --build -d
+docker compose -f docker-compose.local.yml up --build
 ```
 
 Local services:
@@ -28,10 +28,10 @@ Local services:
 - API: `http://localhost:8080`
 - Keycloak: `http://localhost:8081`
 - RabbitMQ management: `http://localhost:15672`
-- MySQL: `localhost:3307` (container port remains `3306`)
-- Valkey: `localhost:6379`
+- MySQL: `localhost:3306`
+- Redis: `localhost:6379`
 
-Local credentials are intentionally simple: MySQL database `sivion`, user `admin`, password `admin`; Keycloak admin `admin` / `admin`. These credentials must never be reused in non-local environments.
+Local credentials are intentionally simple and must never be reused in non-local environments.
 
 ## Test environment
 
