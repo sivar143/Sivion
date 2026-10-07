@@ -1,8 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CrmApi, Customer, Contact, Lead, Opportunity, Activity } from './crm-api.service';
-import { AuthService } from './auth.service';
+import { CrmApi, Customer, Contact, Lead, Opportunity, Activity } from './services/crm-api.service';
+import { AuthService } from './services/auth.service';
 import { ROLE_TO_WORKSPACE, WORKSPACES, WorkspaceDefinition } from './workspace-config';
 import { InventoryComponent } from './inventory/inventory.component';
 import { HrComponent } from './hr/hr.component';

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HrApi, Employee, Department, Designation, Attendance, LeaveRequest, Goal } from '../hr-api.service';
+import { HrApi, Employee, Department, Designation, Attendance, LeaveRequest, Goal } from '../services/hr-api.service';
 
 @Component({selector:'app-hr',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./hr.component.html',styles:[`
 :host .modal p[role="alert"]{margin:0 0 12px;padding:8px 10px;border-radius:4px;background:#f8d7da;color:#842029}
