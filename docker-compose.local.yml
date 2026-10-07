@@ -57,41 +57,5 @@ services:
     volumes:
       - ./infrastructure/keycloak:/opt/keycloak/data/import
 
-  backend:
-    restart: unless-stopped
-    build: ./backend
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/sivion
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: admin
-      SPRING_DATA_REDIS_HOST: valkey
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-sivion}
-      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-sivion}
-      # The token issuer is the browser-visible Keycloak URL. The JWK endpoint
-      # is internal to the Docker network so the backend can reach it directly.
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8081/realms/sivion
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/sivion/protocol/openid-connect/certs
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    ports:
-      - "${BACKEND_PORT:-8080}:8080"
-    depends_on:
-      mysql:
-        condition: service_healthy
-      valkey:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      keycloak:
-        condition: service_started
-
-  frontend:
-    restart: unless-stopped
-    build: ./frontend
-    ports:
-      - "${FRONTEND_PORT:-4200}:80"
-    depends_on:
-      - backend
-
 volumes:
   mysql-data:
