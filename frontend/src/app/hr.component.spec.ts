@@ -9,7 +9,7 @@ describe('HrComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HrComponent],
-      providers: [{ provide: HrApi, useValue: {} }]
+      providers: [{ provide: HrApi, useValue: { employees: async () => [], departments: async () => [], designations: async () => [], attendance: async () => [], leaves: async () => [], goals: async () => [] } }]
     }).compileComponents();
     fixture = TestBed.createComponent(HrComponent);
     component = fixture.componentInstance;
