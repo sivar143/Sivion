@@ -31,3 +31,8 @@ See `docs/getting-started.md`.
 - Transactional writes with domain events
 - Auditable business operations
 - Secure-by-default configuration
+
+Do not use -v if the existing database contains data you need.
+
+docker compose -f docker-compose.local.yml down -v
+docker compose -f docker-compose.local.yml up --build -d
