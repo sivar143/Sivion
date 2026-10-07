@@ -7,15 +7,40 @@ Docker Desktop and Git.
 ## Start infrastructure
 
 ```bash
-docker compose up --build
+docker compose -f docker-compose.local.yml up --build -d
 ```
 
 Services:
-- Web/API: http://localhost:8080
-- Keycloak: http://localhost:8081
+- Frontend: http://localhost:4200
+- API: http://localhost:8080
+- Keycloak: http://localhost:8081 (admin / admin)
 - RabbitMQ: http://localhost:15672 (sivion / sivion)
-- MySQL: localhost:3306 (sivion / sivion)
-- Redis: localhost:6379
+- MySQL: localhost:3307 (database sivion, admin / admin)
+- Valkey: localhost:6379
+
+## MySQL host-port mapping
+
+MySQL listens on port `3306` inside Docker and is exposed as `3307` on the host to avoid conflicts with another local MySQL instance. Container-to-container connections must continue to use `mysql:3306`.
+
+You can override the host port if required:
+
+```powershell
+$env:MYSQL_HOST_PORT="3308"
+docker compose -f docker-compose.local.yml up --build -d
+```
+
+## Existing local MySQL volume
+
+The MySQL image creates `MYSQL_USER` and `MYSQL_PASSWORD` only when the data directory is initialized for the first time. If your existing `mysql-data` volume was initialized with the previous `sivion/sivion` credentials, changing Compose variables will not change that existing user.
+
+For a disposable development database, recreate the volume:
+
+```bash
+docker compose -f docker-compose.local.yml down -v
+docker compose -f docker-compose.local.yml up --build -d
+```
+
+Do not use `down -v` if the existing database contains data you need to preserve; create the `admin` MySQL account manually first.
 
 ## API
 
