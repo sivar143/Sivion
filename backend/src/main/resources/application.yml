@@ -2,9 +2,9 @@ spring:
   application:
     name: sivion-api
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/sivion}
-    username: ${SPRING_DATASOURCE_USERNAME:admin}
-    password: ${SPRING_DATASOURCE_PASSWORD:admin}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/sivion}
+    username: ${SPRING_DATASOURCE_USERNAME:sivion}
+    password: ${SPRING_DATASOURCE_PASSWORD:sivion}
   jpa:
     hibernate:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
