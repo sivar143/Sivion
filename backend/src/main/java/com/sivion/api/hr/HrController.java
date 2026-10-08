@@ -15,7 +15,7 @@ public class HrController {
  @PostMapping("/attendance") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')") public Attendance mark(@RequestBody Attendance a){return service.markAttendance(a);}
  @GetMapping("/leaves") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')") public List<LeaveRequest> leaves(){return service.leaves();}
  @PostMapping("/leaves") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','MANAGER','EMPLOYEE')") public LeaveRequest leave(@RequestBody LeaveRequest l){return service.requestLeave(l);}
- @PatchMapping("/leaves/{id}") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','MANAGER')") public LeaveRequest updateLeave(@PathVariable Long id,@RequestParam String status){return service.updateLeave(id,status,null);}
+ @PatchMapping("/leaves/{id}") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER')") public LeaveRequest updateLeave(@PathVariable Long id,@RequestParam String status){return service.updateLeave(id,status,null);}
  @GetMapping("/goals") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')") public List<Goal> goals(){return service.goals();}
  @PostMapping("/goals") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','MANAGER','EMPLOYEE')") public Goal goal(@RequestBody Goal g){return service.createGoal(g);}
  @GetMapping("/designations") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER')") public List<Designation> designations(){return service.designations();}
