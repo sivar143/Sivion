@@ -86,7 +86,23 @@ import java.util.*;
         for(ReservationRequest i:items) {
             if(i.productId()==null||i.quantity()==null||i.quantity().signum()<=0)throw new IllegalArgumentException("Each reservation item requires a material and positive quantity");
         }
-        List<ReservationRequest> ordered=new ArrayList<>(items);
+        Set<String> reservationKeys = new HashSet<>();
+
+        for (ReservationRequest item : items) {
+            Long warehouseId = item.warehouseId() == null
+                    ? defaultWarehouse()
+                    : item.warehouseId();
+
+            String key = item.productId() + ":" + warehouseId;
+
+            if (!reservationKeys.add(key)) {
+                throw new IllegalArgumentException(
+                        "Duplicate material and warehouse reservation"
+                );
+            }
+        }
+
+        List<ReservationRequest> ordered = new ArrayList<>(items);
         ordered.sort(Comparator.comparing(ReservationRequest::productId));
         for(ReservationRequest i:ordered)lockProduct(i.productId());
         for(ReservationRequest i:items) {
