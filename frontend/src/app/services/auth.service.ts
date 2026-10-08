@@ -33,6 +33,7 @@ export class AuthService {
       await this.init();
     }
 
+    // Refresh shortly before expiry so API requests are not sent with a stale access token.
     await this.keycloak.updateToken(30);
 
     if (!this.keycloak.token) {
