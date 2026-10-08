@@ -132,10 +132,10 @@ The frontend uses Node.js 24.x and npm 11.x.
 For normal Windows/Linux development, use:
 
 ```bash
-docker compose -f docker-compose.local.yml up -d --build
+docker compose -f docker-compose.local.yml up -d
 ```
 
-This builds the current backend and frontend images and starts the complete local stack.
+The local Compose file starts **infrastructure only** (MySQL, Valkey, RabbitMQ and Keycloak). The backend and frontend are intentionally run manually from the host for faster development and debugging.
 
 Before starting it, validate the Compose file:
 
@@ -159,14 +159,15 @@ With the default ports, the stack exposes:
 
 | Service | URL / Address | Default credentials |
 |---|---|---|
-| Sivion frontend | http://localhost:4200 | Keycloak login |
-| Sivion backend | http://localhost:8080 | Keycloak protected |
+| Sivion frontend | http://localhost:4200 | Manually run with `npm start` |
+| Sivion backend | http://localhost:8080 | Manually run with Maven |
 | Backend health | http://localhost:8080/actuator/health | Public health endpoint |
 | API ping | http://localhost:8080/api/v1/ping | Public endpoint |
 | Keycloak | http://localhost:8081 | admin / admin |
 | Keycloak realm | http://localhost:8081/realms/sivion | — |
 | RabbitMQ management | http://localhost:15672 | sivion / sivion |
-| MySQL | localhost:3306 | sivion / sivion |
+| MySQL | localhost:3307 | admin / admin |
+| Valkey | localhost:6379 | — |
 | Valkey | localhost:6379 | — |
 
 The default credentials are development defaults. Do not use these credentials in a production deployment.
@@ -193,17 +194,7 @@ Follow all logs:
 docker compose -f docker-compose.local.yml logs -f
 ```
 
-Follow only the backend:
-
-```bash
-docker compose -f docker-compose.local.yml logs -f backend
-```
-
-Follow only the frontend:
-
-```bash
-docker compose -f docker-compose.local.yml logs -f frontend
-```
+The backend and frontend are host processes in local mode, so run their logs directly in the Maven/Angular terminals.
 
 Follow Keycloak:
 
@@ -261,18 +252,37 @@ docker compose -f docker-compose.local.yml restart
 docker compose -f docker-compose.local.yml down
 ```
 
-### Rebuild and start
-
-Use this after changing backend/frontend source or Dockerfiles:
+### Start local infrastructure
 
 ```bash
-docker compose -f docker-compose.local.yml up -d --build
+docker compose -f docker-compose.local.yml up -d
 ```
 
-### Force recreation of containers
+### Force recreation of infrastructure containers
 
 ```bash
-docker compose -f docker-compose.local.yml up -d --build --force-recreate
+docker compose -f docker-compose.local.yml up -d --force-recreate
+```
+
+### Run backend manually (Windows PowerShell)
+
+```powershell
+cd backend
+mvnw.cmd spring-boot:run
+```
+
+### Run backend manually (Linux/macOS)
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+### Run frontend manually
+
+```bash
+cd frontend
+npm start
 ```
 
 ---
@@ -290,7 +300,7 @@ docker compose -f docker-compose.local.yml down -v
 Then start again:
 
 ```bash
-docker compose -f docker-compose.local.yml up -d --build
+docker compose -f docker-compose.local.yml up -d
 ```
 
 **Warning:** `down -v` deletes the local MySQL Docker volume and therefore destroys the local database data stored in that volume.
@@ -304,22 +314,21 @@ Use this only when a clean local database is required.
 Backend:
 
 ```bash
-docker compose -f docker-compose.local.yml build backend
-docker compose -f docker-compose.local.yml up -d backend
+cd backend
+mvnw.cmd spring-boot:run
 ```
 
 Frontend:
 
 ```bash
-docker compose -f docker-compose.local.yml build frontend
-docker compose -f docker-compose.local.yml up -d frontend
+cd frontend
+npm start
 ```
 
 Rebuild both application images:
 
 ```bash
-docker compose -f docker-compose.local.yml build backend frontend
-docker compose -f docker-compose.local.yml up -d backend frontend
+Run the backend and frontend manually in their respective terminals as shown above.
 ```
 
 ---
