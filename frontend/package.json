@@ -8,12 +8,12 @@
     "test": "ng test"
   },
   "dependencies": {
-    "@angular/common": "22.1.5",
-    "@angular/compiler": "22.1.5",
-    "@angular/core": "22.1.5",
-    "@angular/forms": "22.1.5",
-    "@angular/platform-browser": "22.1.5",
-    "@angular/router": "22.1.5",
+    "@angular/common": "22.1.7",
+    "@angular/compiler": "22.1.7",
+    "@angular/core": "22.1.7",
+    "@angular/forms": "22.1.7",
+    "@angular/platform-browser": "22.1.7",
+    "@angular/router": "22.1.7",
     "keycloak-js": "26.2.4",
     "rxjs": "7.8.2",
     "tslib": "2.8.1",
@@ -22,7 +22,7 @@
   "devDependencies": {
     "@angular/build": "22.1.7",
     "@angular/cli": "22.1.7",
-    "@angular/compiler-cli": "22.1.5",
+    "@angular/compiler-cli": "22.1.7",
     "typescript": "6.0.3"
   }
 }
