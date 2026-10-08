@@ -161,7 +161,7 @@ export class FinanceComponent implements OnInit {
     }
   }
 
-  private closeModal(): void {
+  closeModal(): void {
     this.mode = '';
     this.draft = {};
   }
