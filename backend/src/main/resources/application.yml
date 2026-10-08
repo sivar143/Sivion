@@ -32,3 +32,10 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+sivion:
+  keycloak:
+    realm: ${SIVION_KEYCLOAK_REALM:sivion}
+    admin-base-url: ${SIVION_KEYCLOAK_ADMIN_BASE_URL:http://localhost:8081}
+    admin-username: ${SIVION_KEYCLOAK_ADMIN_USERNAME:admin}
+    admin-password: ${SIVION_KEYCLOAK_ADMIN_PASSWORD:admin}
