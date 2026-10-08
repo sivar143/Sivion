@@ -311,11 +311,12 @@ catch (RuntimeException ex) {
                     a.getEmployeeId(),
                     a.getAttendanceDate()
             ).map(existing -> {
-            x.setStatus(a.getStatus());
-            x.setCheckIn(a.getCheckIn());
-            x.setCheckOut(a.getCheckOut());
-            return attendance.save(x);
-        }).orElseGet(()->attendance.save(a));
+                existing.setStatus(a.getStatus());
+                existing.setCheckIn(a.getCheckIn());
+                existing.setCheckOut(a.getCheckOut());
+                return attendance.save(existing);
+            })
+            .orElseGet(() -> attendance.save(a));
     }
     public List<Attendance> attendance(LocalDate from, LocalDate to) {
         return attendance.findByTenantIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(TENANT_ID, from, to);
