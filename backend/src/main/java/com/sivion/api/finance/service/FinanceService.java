@@ -1,5 +1,6 @@
 package com.sivion.api.finance.service;
 
+import com.sivion.api.crm.repo.CustomerRepository;
 import com.sivion.api.finance.domain.Expense;
 import com.sivion.api.finance.domain.Invoice;
 import com.sivion.api.finance.domain.Payment;
@@ -20,18 +21,20 @@ public class FinanceService {
     private static final long TENANT = 1L;
 
     // Tenant scoping is applied to every finance repository operation until request-level tenant context is introduced.
-
     private final InvoiceRepository invoices;
     private final PaymentRepository payments;
     private final ExpenseRepository expenses;
+    private final CustomerRepository customers;
 
     public FinanceService(
             InvoiceRepository invoices,
             PaymentRepository payments,
-            ExpenseRepository expenses) {
+            ExpenseRepository expenses,
+            CustomerRepository customers) {
         this.invoices = invoices;
         this.payments = payments;
         this.expenses = expenses;
+        this.customers = customers;
     }
 
     public List<InvoiceView> invoices() {
@@ -50,6 +53,8 @@ public class FinanceService {
         if (request.amount() == null || request.amount().signum() <= 0) {
             throw new IllegalArgumentException("Invoice amount must be greater than zero");
         }
+
+        requireCustomer(request.customerId());
 
         Invoice invoice = new Invoice();
         invoice.setTenantId(TENANT);
@@ -152,6 +157,12 @@ public class FinanceService {
         expense.setStatus("SUBMITTED");
 
         return map(expenses.save(expense));
+    }
+
+    private void requireCustomer(Long customerId) {
+        customers.findById(customerId)
+                .filter(customer -> TENANT == customer.getTenantId())
+                .orElseThrow(() -> new NoSuchElementException("Customer not found"));
     }
 
     private InvoiceView map(Invoice invoice) {
