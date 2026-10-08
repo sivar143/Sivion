@@ -68,12 +68,14 @@ git branch --show-current
 git status
 ```
 
-For the repository-hardening/stabilization work, use:
+For the current integration development workflow, use:
 
 ```bash
-git checkout stabilization/repository-hardening-2026-09-30
-git pull origin stabilization/repository-hardening-2026-09-30
+git checkout integration
+git pull origin integration
 ```
+
+All current development changes must be made on `integration` unless a task explicitly assigns another branch.
 
 For the normal released/default project state, use the repository's `main` branch:
 
