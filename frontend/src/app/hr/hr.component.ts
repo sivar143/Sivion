@@ -1,8 +1,16 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-
-import {
+import  {
+  CommonModule
+}
+from '@angular/common';
+import  {
+  Component, Input, OnInit, inject
+}
+from '@angular/core';
+import  {
+  FormsModule
+}
+from '@angular/forms';
+import  {
   Attendance,
   Department,
   Designation,
@@ -11,10 +19,13 @@ import {
   HrApi,
   LeaveRequest,
   Payslip
-} from '../services/hr-api.service';
-import { AuthService } from '../services/auth.service';
-
-@Component({
+}
+from '../services/hr-api.service';
+import  {
+  AuthService
+}
+from '../services/auth.service';
+@Component( {
   selector: 'app-hr',
   standalone: true,
   imports: [CommonModule, FormsModule],
@@ -72,12 +83,10 @@ import { AuthService } from '../services/auth.service';
     }
   `]
 })
-export class HrComponent implements OnInit {
+export class HrComponent implements OnInit  {
   @Input() section = 'employees';
-
   api = inject(HrApi);
   auth = inject(AuthService);
-
   employees: Employee[] = [];
   departments: Department[] = [];
   designations: Designation[] = [];
@@ -85,7 +94,6 @@ export class HrComponent implements OnInit {
   leaves: LeaveRequest[] = [];
   goals: Goal[] = [];
   payslips: Payslip[] = [];
-
   employeeModal = false;
   editingEmployee = false;
   departmentModal = false;
@@ -95,127 +103,108 @@ export class HrComponent implements OnInit {
   designationModal = false;
   editingDesignation = false;
   formError = '';
-
   employeeDraft: Employee = this.emptyEmployee();
-  departmentDraft: Department = {
+  departmentDraft: Department =  {
     code: '',
     name: '',
     status: 'ACTIVE'
   };
-  designationDraft: Designation = {
+  designationDraft: Designation =  {
     code: '',
     name: '',
     status: 'ACTIVE'
   };
   payslipDraft: Payslip = this.emptyPayslip();
-
-  async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void>  {
     await this.reload();
   }
-
-  get canModifyHr(): boolean {
+  get canModifyHr(): boolean  {
     return (
-      this.auth.hasRole('ADMIN') ||
-      this.auth.hasRole('HR_ADMIN') ||
-      this.auth.hasRole('HR_USER')
+    this.auth.hasRole('ADMIN') ||
+    this.auth.hasRole('HR_ADMIN') ||
+    this.auth.hasRole('HR_USER')
     );
   }
-
-  get isAdmin(): boolean {
+  get isAdmin(): boolean  {
     return this.auth.hasRole('ADMIN');
   }
-
-  get availableRoles(): string[] {
-    if (this.isAdmin) {
+  get availableRoles(): string[]  {
+    if (this.isAdmin)  {
       return [
-        'ADMIN',
-        'HR_ADMIN',
-        'HR_USER',
-        'MANAGER',
-        'EMPLOYEE',
-        'SALES_MANAGER',
-        'SALES_USER',
-        'INVENTORY_MANAGER',
-        'INVENTORY_USER',
-        'WAREHOUSE_MANAGER',
-        'WAREHOUSE_USER',
-        'PROCUREMENT_MANAGER',
-        'FINANCE_MANAGER',
-        'FINANCE_USER',
-        'MARKETING_USER'
+      'ADMIN',
+      'HR_ADMIN',
+      'HR_USER',
+      'MANAGER',
+      'EMPLOYEE',
+      'SALES_MANAGER',
+      'SALES_USER',
+      'INVENTORY_MANAGER',
+      'INVENTORY_USER',
+      'WAREHOUSE_MANAGER',
+      'WAREHOUSE_USER',
+      'PROCUREMENT_MANAGER',
+      'FINANCE_MANAGER',
+      'FINANCE_USER',
+      'MARKETING_USER'
       ];
     }
-
     return ['HR_USER', 'MANAGER', 'EMPLOYEE'];
   }
-
-  async reload(): Promise<void> {
+  async reload(): Promise<void>  {
     [
-      this.employees,
-      this.departments,
-      this.designations,
-      this.attendance,
-      this.leaves,
-      this.goals,
-      this.payslips
+    this.employees,
+    this.departments,
+    this.designations,
+    this.attendance,
+    this.leaves,
+    this.goals,
+    this.payslips
     ] = await Promise.all([
-      this.api.employees(),
-      this.api.departments(),
-      this.api.designations(),
-      this.api.attendance(),
-      this.api.leaves(),
-      this.api.goals(),
-      this.api.payslips()
+    this.api.employees(),
+    this.api.departments(),
+    this.api.designations(),
+    this.api.attendance(),
+    this.api.leaves(),
+    this.api.goals(),
+    this.api.payslips()
     ]);
   }
-
-  get pendingLeaves(): number {
+  get pendingLeaves(): number  {
     return this.leaves.filter((leave) => leave.status === 'PENDING').length;
   }
-
-  get activeEmployees(): number {
+  get activeEmployees(): number  {
     return this.employees.filter((employee) => employee.status === 'ACTIVE').length;
   }
-
-  get sectionTitle(): string {
+  get sectionTitle(): string  {
     return this.section[0].toUpperCase() + this.section.slice(1);
   }
-
-  get availableParents(): Department[] {
+  get availableParents(): Department[]  {
     const currentId = this.departmentDraft.id;
-
     return this.departments.filter((department) => department.id !== currentId);
   }
-
-  departmentName(id?: number): string {
-    if (!id) {
+  departmentName(id?: number): string  {
+    if (!id)  {
       return '—';
     }
-
     const department = this.departments.find((item) => item.id === id);
     return department?.name ?? `Department #${id}`;
   }
-
-  employeeName(id: number): string {
+  employeeName(id: number): string  {
     const employee = this.employees.find((item) => item.id === id);
-
     return employee
-      ? `${employee.firstName} ${employee.lastName}`
-      : `Employee #${id}`;
+    ? `${employee.firstName} ${employee.lastName}`
+    : `Employee #${id}`;
   }
-
-  employeesInDepartment(id?: number): number {
+  employeesInDepartment(id?: number): number  {
     return this.employees.filter((employee) => employee.departmentId === id).length;
   }
-
-  openNewEmployee(): void {
+  openNewEmployee(): void  {
     this.employeeDraft = this.emptyEmployee();
     this.employeeModal = true;
     this.formError = '';
   }
-
-  openEditEmployee(employee: Employee): void {
-    this.employeeDraft = {
+  openEditEmployee(employee: Employee): void  {
+    this.employeeDraft =  {
       ...employee,
       password: '',
       temporaryPassword: false
@@ -224,35 +213,32 @@ export class HrComponent implements OnInit {
     this.employeeModal = true;
     this.formError = '';
   }
-
-  closeEmployeeModal(): void {
+  closeEmployeeModal(): void  {
     this.employeeModal = false;
     this.editingEmployee = false;
     this.formError = '';
   }
-
-  async saveEmployee(): Promise<void> {
+  async saveEmployee(): Promise<void>  {
     this.formError = '';
-
-    try {
-      if (this.editingEmployee && this.employeeDraft.id) {
+    try  {
+      if (this.editingEmployee && this.employeeDraft.id)  {
         await this.api.updateEmployee(this.employeeDraft.id, this.employeeDraft);
-      } else {
+      }
+      else  {
         await this.api.createEmployee(this.employeeDraft);
       }
-
       this.closeEmployeeModal();
       await this.reload();
-    } catch (error: any) {
+    }
+    catch (error: any)  {
       this.formError =
-        error?.error?.error ??
-        error?.message ??
-        'Unable to save staff account.';
+      error?.error?.error ??
+      error?.message ??
+      'Unable to save staff account.';
     }
   }
-
-  openNewDepartment(): void {
-    this.departmentDraft = {
+  openNewDepartment(): void  {
+    this.departmentDraft =  {
       code: '',
       name: '',
       status: 'ACTIVE'
@@ -261,55 +247,52 @@ export class HrComponent implements OnInit {
     this.formError = '';
     this.departmentModal = true;
   }
-
-  openEditDepartment(department: Department): void {
-    this.departmentDraft = { ...department };
+  openEditDepartment(department: Department): void  {
+    this.departmentDraft =  {
+      ...department
+    };
     this.editingDepartment = true;
     this.formError = '';
     this.departmentModal = true;
   }
-
-  closeDepartmentModal(): void {
+  closeDepartmentModal(): void  {
     this.departmentModal = false;
     this.editingDepartment = false;
     this.formError = '';
   }
-
-  async saveDepartment(): Promise<void> {
+  async saveDepartment(): Promise<void>  {
     this.formError = '';
-
-    try {
-      if (this.editingDepartment) {
+    try  {
+      if (this.editingDepartment)  {
         await this.api.updateDepartment(this.departmentDraft);
-      } else {
+      }
+      else  {
         await this.api.createDepartment(this.departmentDraft);
       }
-
       this.closeDepartmentModal();
       await this.reload();
-    } catch (error: any) {
+    }
+    catch (error: any)  {
       this.formError =
-        error?.error?.error ??
-        error?.message ??
-        'Unable to save department.';
+      error?.error?.error ??
+      error?.message ??
+      'Unable to save department.';
     }
   }
-
-  async updateLeave(leave: LeaveRequest, status: string): Promise<void> {
-    if (!leave.id) {
+  async updateLeave(leave: LeaveRequest, status: string): Promise<void>  {
+    if (!leave.id)  {
       return;
     }
-
-    try {
+    try  {
       await this.api.updateLeave(leave.id, status);
       await this.reload();
-    } catch (error: any) {
+    }
+    catch (error: any)  {
       this.formError = 'Unable to update leave request.';
     }
   }
-
-  openNewDesignation(): void {
-    this.designationDraft = {
+  openNewDesignation(): void  {
+    this.designationDraft =  {
       code: '',
       name: '',
       status: 'ACTIVE'
@@ -318,82 +301,78 @@ export class HrComponent implements OnInit {
     this.designationModal = true;
     this.formError = '';
   }
-
-  openEditDesignation(designation: Designation): void {
-    this.designationDraft = { ...designation };
+  openEditDesignation(designation: Designation): void  {
+    this.designationDraft =  {
+      ...designation
+    };
     this.editingDesignation = true;
     this.designationModal = true;
     this.formError = '';
   }
-
-  closeDesignationModal(): void {
+  closeDesignationModal(): void  {
     this.designationModal = false;
     this.editingDesignation = false;
     this.formError = '';
   }
-
-  async saveDesignation(): Promise<void> {
+  async saveDesignation(): Promise<void>  {
     this.formError = '';
-
-    try {
-      if (this.editingDesignation && this.designationDraft.id) {
+    try  {
+      if (this.editingDesignation && this.designationDraft.id)  {
         await this.api.updateDesignation(this.designationDraft);
-      } else {
+      }
+      else  {
         await this.api.createDesignation(this.designationDraft);
       }
-
       this.closeDesignationModal();
       await this.reload();
-    } catch (error: any) {
+    }
+    catch (error: any)  {
       this.formError =
-        error?.error?.error ??
-        error?.message ??
-        'Unable to save designation.';
+      error?.error?.error ??
+      error?.message ??
+      'Unable to save designation.';
     }
   }
-
-  openNewPayslip(): void {
+  openNewPayslip(): void  {
     this.payslipDraft = this.emptyPayslip();
     this.payslipModal = true;
     this.editingPayslip = false;
     this.formError = '';
   }
-
-  openEditPayslip(payslip: Payslip): void {
-    this.payslipDraft = { ...payslip };
+  openEditPayslip(payslip: Payslip): void  {
+    this.payslipDraft =  {
+      ...payslip
+    };
     this.payslipModal = true;
     this.editingPayslip = true;
     this.formError = '';
   }
-
-  closePayslipModal(): void {
+  closePayslipModal(): void  {
     this.payslipModal = false;
     this.editingPayslip = false;
     this.formError = '';
   }
-
-  async savePayslip(): Promise<void> {
+  async savePayslip(): Promise<void>  {
     this.formError = '';
-
-    try {
-      if (this.editingPayslip && this.payslipDraft.id) {
+    try  {
+      if (this.editingPayslip && this.payslipDraft.id)  {
         await this.api.updatePayslip(this.payslipDraft.id, this.payslipDraft);
-      } else {
+      }
+      else  {
         await this.api.createPayslip(this.payslipDraft);
       }
-
       this.closePayslipModal();
       await this.reload();
-    } catch (error: any) {
+    }
+    catch (error: any)  {
       this.formError =
-        error?.error?.error ??
-        error?.message ??
-        'Unable to save payslip.';
+      error?.error?.error ??
+      error?.message ??
+      'Unable to save payslip.';
     }
   }
-
-  private emptyEmployee(): Employee {
-    return {
+  private emptyEmployee(): Employee  {
+    return  {
       employeeNumber: '',
       firstName: '',
       lastName: '',
@@ -405,9 +384,8 @@ export class HrComponent implements OnInit {
       password: ''
     };
   }
-
-  private emptyPayslip(): Payslip {
-    return {
+  private emptyPayslip(): Payslip  {
+    return  {
       employeeId: 0,
       periodStart: '',
       periodEnd: '',
