@@ -133,12 +133,11 @@ The frontend uses Node.js 24.x and npm 11.x.
 
 The local Compose file intentionally starts **only infrastructure**. It does not start or build the backend/frontend containers.
 
-### Docker-managed services
+```bash
+docker compose -f docker-compose.local.yml up -d
+```
 
-- MySQL 8.4
-- Valkey 8
-- RabbitMQ 4
-- Keycloak 26.7.4
+The local Compose file starts **infrastructure only** (MySQL, Valkey, RabbitMQ and Keycloak). The backend and frontend are intentionally run manually from the host for faster development and debugging.
 
 ### Manually managed services
 
@@ -257,14 +256,15 @@ docker compose -f docker-compose.local.yml down
 
 | Service | Address | Default credentials |
 |---|---|---|
-| Angular frontend | http://localhost:4200 | Keycloak login |
-| Spring Boot backend | http://localhost:8080 | Keycloak protected |
+| Sivion frontend | http://localhost:4200 | Manually run with `npm start` |
+| Sivion backend | http://localhost:8080 | Manually run with Maven |
 | Backend health | http://localhost:8080/actuator/health | Public health endpoint |
 | API ping | http://localhost:8080/api/v1/ping | Public endpoint |
 | Keycloak | http://localhost:8081 | admin / admin |
 | Keycloak realm | http://localhost:8081/realms/sivion | — |
 | RabbitMQ management | http://localhost:15672 | sivion / sivion |
 | MySQL | localhost:3307 | admin / admin |
+| Valkey | localhost:6379 | — |
 | Valkey | localhost:6379 | — |
 
 The local MySQL port is 3307, not 3306.
@@ -319,23 +319,118 @@ npm run build
 docker compose -f docker-compose.local.yml logs -f
 ~~~
 
-Backend and frontend logs are printed directly by Maven/Spring Boot and Angular CLI.
+The backend and frontend are host processes in local mode, so run their logs directly in the Maven/Angular terminals.
+
+Follow Keycloak:
+
+```bash
+docker compose -f docker-compose.local.yml logs -f keycloak
+```
+
+Follow infrastructure services:
+
+```bash
+docker compose -f docker-compose.local.yml logs -f mysql valkey rabbitmq
+```
+
+Check the backend health endpoint:
+
+### PowerShell
+
+```powershell
+Invoke-WebRequest http://localhost:8080/actuator/health
+```
+
+### Linux/macOS/Git Bash
+
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+The expected result is a successful HTTP response with the application health reported as UP.
 
 ---
 
 ## 8. What must be restarted after a change
 
-| Change | Restart required |
-|---|---|
-| Angular .ts, .html, .css | Normally no; Angular reloads automatically |
-| Angular dependency/package change | Stop/start npm start; run npm install |
-| Java/Spring source change | Restart only backend |
-| Backend Maven configuration change | Restart backend; run Maven verification if needed |
-| Database data change | Usually restart neither application nor infrastructure |
-| Database initialization from scratch | Reset MySQL volume |
-| Keycloak realm/config change | Restart only Keycloak |
-| RabbitMQ configuration change | Restart only RabbitMQ |
-| Valkey configuration change | Restart only Valkey |
+### Start existing containers
+
+```bash
+docker compose -f docker-compose.local.yml start
+```
+
+### Stop containers without deleting them
+
+```bash
+docker compose -f docker-compose.local.yml stop
+```
+
+### Restart the complete stack
+
+```bash
+docker compose -f docker-compose.local.yml restart
+```
+
+### Stop and remove containers/networks
+
+```bash
+docker compose -f docker-compose.local.yml down
+```
+
+### Start local infrastructure
+
+```bash
+docker compose -f docker-compose.local.yml up -d
+```
+
+### Force recreation of infrastructure containers
+
+```bash
+docker compose -f docker-compose.local.yml up -d --force-recreate
+```
+
+### Run backend manually (Windows PowerShell)
+
+The local MySQL container is exposed on host port **3307** with database/user/password **sivion / admin / admin**. Set these variables before starting the backend:
+
+```powershell
+$env:SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3307/sivion"
+$env:SPRING_DATASOURCE_USERNAME="admin"
+$env:SPRING_DATASOURCE_PASSWORD="admin"
+$env:SPRING_DATA_REDIS_HOST="localhost"
+$env:SPRING_RABBITMQ_HOST="localhost"
+$env:SPRING_RABBITMQ_USERNAME="sivion"
+$env:SPRING_RABBITMQ_PASSWORD="sivion"
+$env:SIVION_KEYCLOAK_ADMIN_BASE_URL="http://localhost:8081"
+$env:SIVION_KEYCLOAK_ADMIN_USERNAME="admin"
+$env:SIVION_KEYCLOAK_ADMIN_PASSWORD="admin"
+cd backend
+mvnw.cmd spring-boot:run
+```
+
+### Run backend manually (Linux/macOS)
+
+```bash
+export SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3307/sivion"
+export SPRING_DATASOURCE_USERNAME="admin"
+export SPRING_DATASOURCE_PASSWORD="admin"
+export SPRING_DATA_REDIS_HOST="localhost"
+export SPRING_RABBITMQ_HOST="localhost"
+export SPRING_RABBITMQ_USERNAME="sivion"
+export SPRING_RABBITMQ_PASSWORD="sivion"
+export SIVION_KEYCLOAK_ADMIN_BASE_URL="http://localhost:8081"
+export SIVION_KEYCLOAK_ADMIN_USERNAME="admin"
+export SIVION_KEYCLOAK_ADMIN_PASSWORD="admin"
+cd backend
+./mvnw spring-boot:run
+```
+
+### Run frontend manually
+
+```bash
+cd frontend
+npm start
+```
 
 ---
 
@@ -453,7 +548,9 @@ docker compose -f docker-compose.local.yml up -d
 
 Warning: down -v deletes the local MySQL data.
 
-After MySQL becomes healthy, restart the manually managed backend:
+```bash
+docker compose -f docker-compose.local.yml up -d
+```
 
 ~~~bash
 cd backend
@@ -464,7 +561,85 @@ The initialization script is database/init.sql.
 
 ---
 
-## 13. Local versus deployment Compose files
+## 10. Rebuild only one application service
+
+Backend:
+
+```bash
+cd backend
+mvnw.cmd spring-boot:run
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm start
+```
+
+Rebuild both application images:
+
+```bash
+Run the backend and frontend manually in their respective terminals as shown above.
+```
+
+---
+
+## 11. Environment variables
+
+Docker Compose supports environment-variable overrides.
+
+The important variables include:
+
+```text
+MYSQL_DATABASE
+MYSQL_USER
+MYSQL_PASSWORD
+MYSQL_ROOT_PASSWORD
+MYSQL_PORT
+
+VALKEY_PORT
+
+RABBITMQ_DEFAULT_USER
+RABBITMQ_DEFAULT_PASS
+RABBITMQ_PORT
+RABBITMQ_MANAGEMENT_PORT
+
+KEYCLOAK_ADMIN_USERNAME
+KEYCLOAK_ADMIN_PASSWORD
+KEYCLOAK_PORT
+
+BACKEND_PORT
+FRONTEND_PORT
+```
+
+The Compose files provide development-safe defaults when these variables are not supplied.
+
+For a deployment environment, provide secure values through the environment or a deployment-specific environment file rather than committing secrets to Git.
+
+Example PowerShell session:
+
+```powershell
+$env:MYSQL_PASSWORD="change-me"
+$env:MYSQL_ROOT_PASSWORD="change-root-password"
+$env:KEYCLOAK_ADMIN_PASSWORD="change-admin-password"
+docker compose -f docker-compose.yml up -d --build
+```
+
+Example Linux shell:
+
+```bash
+export MYSQL_PASSWORD="change-me"
+export MYSQL_ROOT_PASSWORD="change-root-password"
+export KEYCLOAK_ADMIN_PASSWORD="change-admin-password"
+docker compose -f docker-compose.yml up -d --build
+```
+
+Do not commit passwords, access tokens, private keys, or other secrets to the repository.
+
+---
+
+## 12. Local versus deployment Compose files
 
 ### Local development
 
