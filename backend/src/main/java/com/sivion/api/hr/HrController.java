@@ -6,7 +6,7 @@ public class HrController {
  private final HrService service; public HrController(HrService s){service=s;}
  @GetMapping("/dashboard") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')") public Map<String,Object> dashboard(){return Map.of("activeEmployees",service.activeEmployees(),"employees",service.employees().size(),"departments",service.departments().size());}
  @GetMapping("/employees") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER')") public List<Employee> employees(){return service.employees();}
- @PostMapping("/employees") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Employee createEmployee(@RequestBody Employee e){return service.createEmployee(e);}
+ @PostMapping("/employees") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Employee createEmployee(@RequestBody Employee e,org.springframework.security.core.Authentication auth){return service.createEmployee(e,auth.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_ADMIN")));}
  @PutMapping("/employees/{id}") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Employee updateEmployee(@PathVariable Long id,@RequestBody Employee e,org.springframework.security.core.Authentication auth){return service.updateEmployee(id,e,auth.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_ADMIN")));}
  @GetMapping("/departments") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER')") public List<Department> departments(){return service.departments();}
  @PostMapping("/departments") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Department createDepartment(@RequestBody Department d){return service.createDepartment(d);}
