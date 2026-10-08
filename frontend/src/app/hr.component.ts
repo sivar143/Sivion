@@ -55,7 +55,7 @@ export class HrComponent implements OnInit {
  async ngOnInit(){await this.reload();}
  get canModifyHr(){return this.auth.hasRole('ADMIN')||this.auth.hasRole('HR_ADMIN')||this.auth.hasRole('HR_USER');}
  get isAdmin(){return this.auth.hasRole('ADMIN');}
- get availableRoles(){return this.isAdmin?['ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE','SALES_MANAGER','SALES_USER','INVENTORY_MANAGER','INVENTORY_USER','PROCUREMENT_MANAGER','FINANCE_MANAGER','FINANCE_USER','MARKETING_USER']:['HR_USER','MANAGER','EMPLOYEE'];}
+ get availableRoles(){return this.isAdmin?['ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE','SALES_MANAGER','SALES_USER','INVENTORY_MANAGER','INVENTORY_USER','WAREHOUSE_MANAGER','WAREHOUSE_USER','PROCUREMENT_MANAGER','FINANCE_MANAGER','FINANCE_USER','MARKETING_USER']:['HR_USER','MANAGER','EMPLOYEE'];}
  async reload(){[this.employees,this.departments,this.designations,this.attendance,this.leaves,this.goals,this.payslips]=await Promise.all([this.api.employees(),this.api.departments(),this.api.designations(),this.api.attendance(),this.api.leaves(),this.api.goals(),this.api.payslips()]);}
  get pendingLeaves(){return this.leaves.filter(x=>x.status==='PENDING').length;} get activeEmployees(){return this.employees.filter(x=>x.status==='ACTIVE').length;} get sectionTitle(){return this.section[0].toUpperCase()+this.section.slice(1);}
  get availableParents(){const currentId=this.departmentDraft.id;return this.departments.filter(d=>d.id!==currentId);}
