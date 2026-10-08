@@ -1,94 +1,168 @@
-import  {
-  Component,OnInit,inject
-}
-from '@angular/core';
-import  {
-  CommonModule
-}
-from '@angular/common';
-import  {
-  FormsModule
-}
-from '@angular/forms';
-import  {
-  HttpClient,HttpHeaders
-}
-from '@angular/common/http';
-import  {
-  firstValueFrom
-}
-from 'rxjs';
-import  {
-  AuthService
-}
-from '../services/auth.service';
-import  {
-  CrmApi,Customer
-}
-from '../services/crm-api.service';
-@Component( {
-  selector:'app-finance',standalone:true,imports:[CommonModule,FormsModule],templateUrl: './finance.component.html',styles:[`.sub{margin-top:28px}`]
+import { CommonModule } from '@angular/common';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
+
+import { AuthService } from '../services/auth.service';
+import { CrmApi, Customer } from '../services/crm-api.service';
+
+@Component({
+  selector: 'app-finance',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './finance.component.html',
+  styles: [`
+    .sub {
+      margin-top: 28px;
+    }
+  `]
 })
-export class FinanceComponent implements OnInit  {
-  http=inject(HttpClient);
-  auth=inject(AuthService);
-  crm=inject(CrmApi);
-  base='/api/v1/finance';
-  invoices:any[]=[];
-  payments:any[]=[];
-  expenses:any[]=[];
-  customers:Customer[]=[];
-  mode='';
-  draft:any= {
-  };
-  async ngOnInit() {
-    await this.reload();
-    this.customers=await this.crm.customers('');
+export class FinanceComponent implements OnInit {
+  private readonly baseUrl = '/api/v1/finance';
+
+  readonly http = inject(HttpClient);
+  readonly auth = inject(AuthService);
+  readonly crm = inject(CrmApi);
+
+  invoices: any[] = [];
+  payments: any[] = [];
+  expenses: any[] = [];
+  customers: Customer[] = [];
+
+  mode = '';
+  draft: any = {};
+
+  async ngOnInit(): Promise<void> {
+    await Promise.all([
+      this.reload(),
+      this.loadCustomers()
+    ]);
   }
-  async headers() {
+
+  private async loadCustomers(): Promise<void> {
+    this.customers = await this.crm.customers('');
+  }
+
+  private async requestOptions(): Promise<{ headers: HttpHeaders }> {
+    const token = await this.auth.token();
+
     return {
-      headers:new HttpHeaders( {
-        'Authorization':`Bearer ${await this.auth.token()}`,'X-Tenant-ID':'1'
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${token}`,
+        'X-Tenant-ID': '1'
       })
+    };
+  }
+
+  async reload(): Promise<void> {
+    const options = await this.requestOptions();
+
+    const [invoices, payments, expenses] = await Promise.all([
+      firstValueFrom(
+        this.http.get<any[]>(`${this.baseUrl}/invoices`, options)
+      ),
+      firstValueFrom(
+        this.http.get<any[]>(`${this.baseUrl}/payments`, options)
+      ),
+      firstValueFrom(
+        this.http.get<any[]>(`${this.baseUrl}/expenses`, options)
+      )
+    ]);
+
+    this.invoices = invoices;
+    this.payments = payments;
+    this.expenses = expenses;
+  }
+
+  get invoiceTotal(): number {
+    return this.invoices.reduce(
+      (total, invoice) => total + Number(invoice.amount ?? 0),
+      0
+    );
+  }
+
+  get paymentTotal(): number {
+    return this.payments.reduce(
+      (total, payment) => total + Number(payment.amount ?? 0),
+      0
+    );
+  }
+
+  get expenseTotal(): number {
+    return this.expenses.reduce(
+      (total, expense) => total + Number(expense.amount ?? 0),
+      0
+    );
+  }
+
+  get outstanding(): number {
+    return Math.max(0, this.invoiceTotal - this.paymentTotal);
+  }
+
+  get unpaidInvoices(): any[] {
+    return this.invoices.filter(invoice => invoice.status !== 'PAID');
+  }
+
+  customerName(id: number | undefined): string {
+    if (!id) {
+      return 'Customer not assigned';
     }
+
+    return (
+      this.customers.find(customer => customer.id === id)?.name
+      ?? `Customer #${id}`
+    );
   }
-  async reload() {
-    const h=await this.headers();
-    [this.invoices,this.payments,this.expenses]=await Promise.all([firstValueFrom(this.http.get<any[]>(this.base+'/invoices',h)),firstValueFrom(this.http.get<any[]>(this.base+'/payments',h)),firstValueFrom(this.http.get<any[]>(this.base+'/expenses',h))]);
+
+  invoiceName(id: number | undefined): string {
+    if (!id) {
+      return 'Invoice not assigned';
+    }
+
+    return (
+      this.invoices.find(invoice => invoice.id === id)?.invoiceNumber
+      ?? `Invoice #${id}`
+    );
   }
-  get invoiceTotal() {
-    return this.invoices.reduce((a,x)=>a+(x.amount||0),0)
-  }
-  get paymentTotal() {
-    return this.payments.reduce((a,x)=>a+(x.amount||0),0)
-  }
-  get expenseTotal() {
-    return this.expenses.reduce((a,x)=>a+(x.amount||0),0)
-  }
-  get outstanding() {
-    return Math.max(0,this.invoiceTotal-this.paymentTotal)
-  }
-  get unpaidInvoices() {
-    return this.invoices.filter(x=>x.status!=='PAID')
-  }
-  customerName(id:number) {
-    return this.customers.find(c=>c.id===id)?.name||`Customer #${id}`;
-  }
-  invoiceName(id:number) {
-    return this.invoices.find(i=>i.id===id)?.invoiceNumber||`Invoice #${id}`;
-  }
-  async submit() {
+
+  async submit(): Promise<void> {
+    if (!this.mode) {
+      return;
+    }
+
     try {
-      const h=await this.headers();
-      const path=this.mode==='invoice'?'invoices':this.mode==='payment'?'payments':'expenses';
-      await firstValueFrom(this.http.post(this.base+'/'+path,this.draft,h));
-      this.mode='';
-      this.draft= {
-      };
+      const options = await this.requestOptions();
+      const path = this.getSubmissionPath();
+
+      await firstValueFrom(
+        this.http.post(
+          `${this.baseUrl}/${path}`,
+          this.draft,
+          options
+        )
+      );
+
+      this.closeModal();
       await this.reload();
+    } catch (error: any) {
+      alert(error?.error?.message ?? 'Request failed');
     }
-    catch(e:any) {
-      alert(e?.error?.message||'Request failed')
+  }
+
+  private getSubmissionPath(): 'invoices' | 'payments' | 'expenses' {
+    switch (this.mode) {
+      case 'invoice':
+        return 'invoices';
+      case 'payment':
+        return 'payments';
+      default:
+        return 'expenses';
     }
+  }
+
+  private closeModal(): void {
+    this.mode = '';
+    this.draft = {};
   }
 }
