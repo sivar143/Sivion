@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class FinanceService {
 
+    private static final long TENANT = 1L;
+
     // Tenant scoping is applied to every finance repository operation until request-level tenant context is introduced.
 
     private final InvoiceRepository invoices;
