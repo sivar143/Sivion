@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HrApi, Employee, Department, Designation, Attendance, LeaveRequest, Goal } from '../services/hr-api.service';
 
 @Component({selector:'app-hr',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./hr.component.html',styles:[`
-:host .modal p[role="alert"]{margin:0 0 12px;padding:8px 10px;border-radius:4px;background:#f8d7da;color:#842029}
+:host .hr-actions{display:flex;align-items:center;gap:1vw}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hint{font-size:12px;color:#667085;margin:0}.form-error{margin:0;padding:8px 10px;border-radius:6px;background:#fef3f2;color:#b42318}.check{display:flex;align-items:center;gap:8px;font-size:13px}.check input{width:auto}.inactive-pill{background:#f2f4f7;color:#667085}textarea{width:100%;min-height:90px;border:1px solid #d0d5dd;border-radius:8px;padding:11px 12px;font:inherit}
 `]})
 export class HrComponent implements OnInit {
  @Input() section='employees'; api=inject(HrApi); employees:Employee[]=[]; departments:Department[]=[]; designations:Designation[]=[]; attendance:Attendance[]=[]; leaves:LeaveRequest[]=[]; goals:Goal[]=[];
