@@ -18,6 +18,9 @@ public class HrController {
  @PatchMapping("/leaves/{id}") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','MANAGER')") public LeaveRequest updateLeave(@PathVariable Long id,@RequestParam String status){return service.updateLeave(id,status,null);}
  @GetMapping("/goals") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')") public List<Goal> goals(){return service.goals();}
  @PostMapping("/goals") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','MANAGER','EMPLOYEE')") public Goal goal(@RequestBody Goal g){return service.createGoal(g);}
+ @GetMapping("/designations") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER')") public List<Designation> designations(){return service.designations();}
+ @PostMapping("/designations") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Designation createDesignation(@RequestBody Designation d){return service.saveDesignation(d);}
+ @PutMapping("/designations/{id}") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Designation updateDesignation(@PathVariable Long id,@RequestBody Designation d){return service.updateDesignation(id,d);}
  @GetMapping("/payslips") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER')") public List<Payslip> payslips(){return service.payslips();}
  @PostMapping("/payslips") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Payslip createPayslip(@RequestBody Payslip p){return service.savePayslip(p);}
  @PutMapping("/payslips/{id}") @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN')") public Payslip updatePayslip(@PathVariable Long id,@RequestBody Payslip p){return service.updatePayslip(id,p);}
