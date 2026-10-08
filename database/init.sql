@@ -16,3 +16,52 @@ INSERT INTO tenants(code,name,status) VALUES ('DEMO','Sivion Demo Tenant','ACTIV
 INSERT INTO warehouses(tenant_id,code,name,status) SELECT id,'MAIN','Main Warehouse','ACTIVE' FROM tenants WHERE code='DEMO' AND NOT EXISTS (SELECT 1 FROM warehouses WHERE code='MAIN');
 INSERT INTO customers(tenant_id,code,name,email,phone,status) SELECT id,'ACME-001','Acme Industries','sales@acme.example','+91 90000 00001','ACTIVE' FROM tenants WHERE code='DEMO' AND NOT EXISTS (SELECT 1 FROM customers WHERE code='ACME-001');
 INSERT INTO customers(tenant_id,code,name,email,phone,status) SELECT id,'GLOBEX-001','Globex Corporation','contact@globex.example','+91 90000 00002','ACTIVE' FROM tenants WHERE code='DEMO' AND NOT EXISTS (SELECT 1 FROM customers WHERE code='GLOBEX-001');
+
+-- HR staff accounts, organization and payroll
+CREATE TABLE IF NOT EXISTS hr_departments (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT, tenant_id BIGINT NOT NULL, code VARCHAR(40) NOT NULL, name VARCHAR(160) NOT NULL,
+ parent_id BIGINT NULL, status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE KEY uk_hr_dept_tenant_code (tenant_id,code), FOREIGN KEY (tenant_id) REFERENCES tenants(id),
+ FOREIGN KEY (parent_id) REFERENCES hr_departments(id)
+);
+CREATE TABLE IF NOT EXISTS hr_designations (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT, tenant_id BIGINT NOT NULL, code VARCHAR(40) NOT NULL, name VARCHAR(160) NOT NULL,
+ description VARCHAR(500), department_id BIGINT NULL, status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE KEY uk_hr_designation_tenant_code (tenant_id,code), FOREIGN KEY (tenant_id) REFERENCES tenants(id),
+ FOREIGN KEY (department_id) REFERENCES hr_departments(id)
+);
+CREATE TABLE IF NOT EXISTS hr_employees (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT, tenant_id BIGINT NOT NULL, employee_number VARCHAR(40) NOT NULL,
+ first_name VARCHAR(100) NOT NULL, last_name VARCHAR(100) NOT NULL, email VARCHAR(180) NOT NULL, phone VARCHAR(80),
+ department_id BIGINT NULL, designation_id BIGINT NULL, designation VARCHAR(120), manager_id BIGINT NULL, joining_date DATE NULL,
+ status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', keycloak_user_id VARCHAR(80), username VARCHAR(80),
+ role VARCHAR(40) NOT NULL DEFAULT 'EMPLOYEE', account_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+ UNIQUE KEY uk_hr_employee_tenant_number (tenant_id,employee_number), FOREIGN KEY (tenant_id) REFERENCES tenants(id),
+ FOREIGN KEY (department_id) REFERENCES hr_departments(id), FOREIGN KEY (designation_id) REFERENCES hr_designations(id)
+);
+CREATE TABLE IF NOT EXISTS hr_attendance (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT, tenant_id BIGINT NOT NULL, employee_id BIGINT NOT NULL, attendance_date DATE NOT NULL,
+ status VARCHAR(20) NOT NULL DEFAULT 'PRESENT', check_in DATETIME NULL, check_out DATETIME NULL,
+ UNIQUE KEY uk_hr_attendance_employee_day (tenant_id,employee_id,attendance_date),
+ FOREIGN KEY (tenant_id) REFERENCES tenants(id), FOREIGN KEY (employee_id) REFERENCES hr_employees(id)
+);
+CREATE TABLE IF NOT EXISTS hr_leave_requests (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT, tenant_id BIGINT NOT NULL, employee_id BIGINT NOT NULL, leave_type VARCHAR(40) NOT NULL,
+ start_date DATE NOT NULL, end_date DATE NOT NULL, status VARCHAR(20) NOT NULL DEFAULT 'PENDING', reason VARCHAR(500), approved_by BIGINT NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (tenant_id) REFERENCES tenants(id),
+ FOREIGN KEY (employee_id) REFERENCES hr_employees(id)
+);
+CREATE TABLE IF NOT EXISTS hr_goals (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT, tenant_id BIGINT NOT NULL, employee_id BIGINT NOT NULL, title VARCHAR(200) NOT NULL,
+ description VARCHAR(1000), target_value DOUBLE NULL, current_value DOUBLE NOT NULL DEFAULT 0, status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+ due_date DATE NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (tenant_id) REFERENCES tenants(id),
+ FOREIGN KEY (employee_id) REFERENCES hr_employees(id)
+);
+CREATE TABLE IF NOT EXISTS hr_payslips (
+ id BIGINT PRIMARY KEY AUTO_INCREMENT, tenant_id BIGINT NOT NULL, employee_id BIGINT NOT NULL, period_start DATE NOT NULL,
+ period_end DATE NOT NULL, gross_pay DECIMAL(18,2) NOT NULL DEFAULT 0, deductions DECIMAL(18,2) NOT NULL DEFAULT 0,
+ net_pay DECIMAL(18,2) NOT NULL DEFAULT 0, status VARCHAR(20) NOT NULL DEFAULT 'DRAFT', notes VARCHAR(1000),
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ UNIQUE KEY uk_hr_payslip_employee_period (tenant_id,employee_id,period_start,period_end),
+ FOREIGN KEY (tenant_id) REFERENCES tenants(id), FOREIGN KEY (employee_id) REFERENCES hr_employees(id)
+);
