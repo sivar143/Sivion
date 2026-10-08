@@ -6,8 +6,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.*;
 import java.util.*;
 @Service
-@Transactional public class HrService {
-    private static final Long TENANT_ID=1L;
+@Transactional
+public class HrService {
+    // Every HR repository operation is tenant-scoped until request-level tenant context is introduced.
+    private static final Long TENANT_ID = 1L;
     private static final Set<String> ALL_ROLES=Set.of( "ADMIN", "HR_ADMIN", "HR_USER", "MANAGER", "EMPLOYEE", "SALES_MANAGER", "SALES_USER", "INVENTORY_MANAGER", "INVENTORY_USER", "WAREHOUSE_MANAGER", "WAREHOUSE_USER", "PROCUREMENT_MANAGER", "FINANCE_MANAGER", "FINANCE_USER", "MARKETING_USER");
     private final EmployeeRepository employees;
     private final DepartmentRepository departments;
@@ -54,7 +56,8 @@ import java.util.*;
         e.setTenantId(TENANT_ID);
         try {
             return employees.save(e);
-        } catch(RuntimeException ex) {
+        }
+catch (RuntimeException ex) {
             if(e.getKeycloakUserId()!=null)keycloak.deleteUser(e.getKeycloakUserId());
             throw ex;
         }
@@ -72,7 +75,8 @@ import java.util.*;
         Boolean enabled=input.getAccountEnabled()==null?current.getAccountEnabled(): input.getAccountEnabled();
         if(current.getKeycloakUserId()!=null) {
             keycloak.updateUser(current.getKeycloakUserId(), username, input.getEmail(), input.getFirstName(), input.getLastName(), enabled, input.getPassword(), input.getTemporaryPassword(), role);
-        }else if(username!=null&&!username.isBlank()&&input.getPassword()!=null&&!input.getPassword().isBlank()) {
+        }
+        else if(username!=null&&!username.isBlank()&&input.getPassword()!=null&&!input.getPassword().isBlank()) {
             validatePassword(input.getPassword());
             String uid=keycloak.createUser(username, input.getEmail(), input.getFirstName(), input.getLastName(), input.getPassword(), Boolean.TRUE.equals(input.getTemporaryPassword()), role, Boolean.TRUE.equals(input.getAccountEnabled()));
             current.setKeycloakUserId(uid);
@@ -177,7 +181,10 @@ import java.util.*;
         validateEmployeeTenant(a.getEmployeeId());
         a.setTenantId(TENANT_ID);
         return attendance.findByTenantIdAndEmployeeIdAndAttendanceDate(TENANT_ID, a.getEmployeeId(), a.getAttendanceDate()).map(x-> {
-            x.setStatus(a.getStatus()); x.setCheckIn(a.getCheckIn()); x.setCheckOut(a.getCheckOut()); return attendance.save(x);
+            x.setStatus(a.getStatus());
+            x.setCheckIn(a.getCheckIn());
+            x.setCheckOut(a.getCheckOut());
+            return attendance.save(x);
         }).orElseGet(()->attendance.save(a));
     }
     public List<Attendance> attendance(LocalDate from, LocalDate to) {
@@ -271,11 +278,13 @@ import java.util.*;
         current.touch();
         return payslips.save(current);
     }
+    // Keep employee lookups tenant-scoped so payroll and HR operations cannot cross tenant boundaries.
     private void validateEmployeeTenant(Long employeeId) {
         if(employeeId==null)throw new IllegalArgumentException( "Employee is required");
         Employee employee=employees.findById(employeeId).orElseThrow(()->new IllegalArgumentException( "Employee not found"));
         if(!TENANT_ID.equals(employee.getTenantId()))throw new IllegalArgumentException( "Employee not found");
     }
+    // Validate the financial period and amounts before persisting payroll data.
     private void validatePayslip(Payslip p) {
         validateEmployeeTenant(p.getEmployeeId());
         if(p.getPeriodStart()==null||p.getPeriodEnd()==null||p.getPeriodEnd().isBefore(p.getPeriodStart()))throw new IllegalArgumentException( "Invalid payslip period");
