@@ -1,1 +1,8 @@
-package com.sivion.api.crm.repo; import com.sivion.api.crm.domain.Contact; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface ContactRepository extends JpaRepository<Contact,Long>{List<Contact> findByTenantIdAndCustomerIdOrderByFirstNameAsc(Long tenantId,Long customerId); List<Contact> findByTenantIdOrderByFirstNameAsc(Long tenantId);}
+package com.sivion.api.crm.repo;
+import com.sivion.api.crm.domain.Contact;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.*;
+public interface ContactRepository extends JpaRepository<Contact,Long> {
+    List<Contact> findByTenantIdAndCustomerIdOrderByFirstNameAsc(Long tenantId,Long customerId);
+    List<Contact> findByTenantIdOrderByFirstNameAsc(Long tenantId);
+}

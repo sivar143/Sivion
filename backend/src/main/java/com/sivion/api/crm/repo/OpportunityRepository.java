@@ -1,1 +1,8 @@
-package com.sivion.api.crm.repo; import com.sivion.api.crm.domain.Opportunity; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface OpportunityRepository extends JpaRepository<Opportunity,Long>{List<Opportunity> findByTenantIdOrderByCreatedAtDesc(Long tenantId); List<Opportunity> findByTenantIdAndStageOrderByCreatedAtDesc(Long tenantId,String stage);}
+package com.sivion.api.crm.repo;
+import com.sivion.api.crm.domain.Opportunity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.*;
+public interface OpportunityRepository extends JpaRepository<Opportunity,Long> {
+    List<Opportunity> findByTenantIdOrderByCreatedAtDesc(Long tenantId);
+    List<Opportunity> findByTenantIdAndStageOrderByCreatedAtDesc(Long tenantId,String stage);
+}

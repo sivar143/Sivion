@@ -1,1 +1,8 @@
-package com.sivion.api.crm.repo; import com.sivion.api.crm.domain.Activity; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface ActivityRepository extends JpaRepository<Activity,Long>{List<Activity> findByTenantIdOrderByCreatedAtDesc(Long tenantId); List<Activity> findByTenantIdAndCustomerIdOrderByCreatedAtDesc(Long tenantId,Long customerId);}
+package com.sivion.api.crm.repo;
+import com.sivion.api.crm.domain.Activity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.*;
+public interface ActivityRepository extends JpaRepository<Activity,Long> {
+    List<Activity> findByTenantIdOrderByCreatedAtDesc(Long tenantId);
+    List<Activity> findByTenantIdAndCustomerIdOrderByCreatedAtDesc(Long tenantId,Long customerId);
+}
