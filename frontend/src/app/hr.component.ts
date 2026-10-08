@@ -53,7 +53,7 @@ export class HrComponent implements OnInit {
  employeeModal=false; editingEmployee=false; departmentModal=false; editingDepartment=false; payslipModal=false; editingPayslip=false; designationModal=false; editingDesignation=false; formError='';
  employeeDraft:Employee=this.emptyEmployee(); departmentDraft:Department={code:'',name:'',status:'ACTIVE'}; designationDraft:Designation={code:'',name:'',status:'ACTIVE'}; payslipDraft:Payslip=this.emptyPayslip();
  async ngOnInit(){await this.reload();}
- get canModifyHr(){return this.auth.hasRole('ADMIN')||this.auth.hasRole('HR_ADMIN');}
+ get canModifyHr(){return this.auth.hasRole('ADMIN')||this.auth.hasRole('HR_ADMIN')||this.auth.hasRole('HR_USER');}
  get isAdmin(){return this.auth.hasRole('ADMIN');}
  get availableRoles(){return this.isAdmin?['ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE','SALES_MANAGER','SALES_USER','INVENTORY_MANAGER','INVENTORY_USER','PROCUREMENT_MANAGER','FINANCE_MANAGER','FINANCE_USER','MARKETING_USER']:['HR_USER','MANAGER','EMPLOYEE'];}
  async reload(){[this.employees,this.departments,this.designations,this.attendance,this.leaves,this.goals,this.payslips]=await Promise.all([this.api.employees(),this.api.departments(),this.api.designations(),this.api.attendance(),this.api.leaves(),this.api.goals(),this.api.payslips()]);}
