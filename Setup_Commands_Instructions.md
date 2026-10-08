@@ -266,7 +266,19 @@ docker compose -f docker-compose.local.yml up -d --force-recreate
 
 ### Run backend manually (Windows PowerShell)
 
+The local MySQL container is exposed on host port **3307** with database/user/password **sivion / admin / admin**. Set these variables before starting the backend:
+
 ```powershell
+$env:SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3307/sivion"
+$env:SPRING_DATASOURCE_USERNAME="admin"
+$env:SPRING_DATASOURCE_PASSWORD="admin"
+$env:SPRING_DATA_REDIS_HOST="localhost"
+$env:SPRING_RABBITMQ_HOST="localhost"
+$env:SPRING_RABBITMQ_USERNAME="sivion"
+$env:SPRING_RABBITMQ_PASSWORD="sivion"
+$env:SIVION_KEYCLOAK_ADMIN_BASE_URL="http://localhost:8081"
+$env:SIVION_KEYCLOAK_ADMIN_USERNAME="admin"
+$env:SIVION_KEYCLOAK_ADMIN_PASSWORD="admin"
 cd backend
 mvnw.cmd spring-boot:run
 ```
@@ -274,6 +286,16 @@ mvnw.cmd spring-boot:run
 ### Run backend manually (Linux/macOS)
 
 ```bash
+export SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3307/sivion"
+export SPRING_DATASOURCE_USERNAME="admin"
+export SPRING_DATASOURCE_PASSWORD="admin"
+export SPRING_DATA_REDIS_HOST="localhost"
+export SPRING_RABBITMQ_HOST="localhost"
+export SPRING_RABBITMQ_USERNAME="sivion"
+export SPRING_RABBITMQ_PASSWORD="sivion"
+export SIVION_KEYCLOAK_ADMIN_BASE_URL="http://localhost:8081"
+export SIVION_KEYCLOAK_ADMIN_USERNAME="admin"
+export SIVION_KEYCLOAK_ADMIN_PASSWORD="admin"
 cd backend
 ./mvnw spring-boot:run
 ```
