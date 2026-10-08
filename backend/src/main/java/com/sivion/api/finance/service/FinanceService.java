@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class FinanceService {
 
-    private static final long TENANT = 1L;
+    // Tenant scoping is applied to every finance repository operation until request-level tenant context is introduced.
 
     private final InvoiceRepository invoices;
     private final PaymentRepository payments;
@@ -73,6 +73,7 @@ public class FinanceService {
             throw new IllegalArgumentException("Invoice is required");
         }
 
+        // Lock the invoice while calculating the outstanding amount to prevent concurrent overpayments.
         Invoice invoice = invoices.findForUpdate(request.invoiceId(), TENANT)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found"));
 
