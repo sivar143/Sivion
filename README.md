@@ -18,6 +18,10 @@ Sivion is a modular B2B business management platform combining CRM, product cata
 
 CRM, catalog, inventory, orders, procurement, notifications, audit, and reporting.
 
+## Development standards
+
+All developers must follow `docs/DEVELOPMENT_STANDARDS.md`. The repository also includes `.editorconfig` to keep formatting consistent across development environments.
+
 ## Local development
 
 See `docs/getting-started.md`.
