@@ -117,11 +117,25 @@ import java.util.*;
     @Transactional public DispatchView dispatch(DispatchRequest r) {
         if(r.customerId()==null)throw new IllegalArgumentException("Customer is required");
         if(r.items()==null||r.items().isEmpty())throw new IllegalArgumentException("At least one dispatch item is required");
-        List<ItemRequest> ordered=new ArrayList<>(r.items());
+        List<ItemRequest> ordered = new ArrayList<>(r.items());
+
+        // Validate before sorting so malformed input cannot fail with a comparator NullPointerException.
+        for (ItemRequest item : ordered) {
+            if (item.productId() == null
+                    || item.warehouseId() == null
+                    || item.quantity() == null
+                    || item.quantity().signum() <= 0) {
+                throw new IllegalArgumentException(
+                        "Each dispatch item requires a material, warehouse and positive quantity"
+                );
+            }
+        }
+
         ordered.sort(Comparator.comparing(ItemRequest::productId));
-        Set<Long> locked=new HashSet<>();
-        for(ItemRequest i:ordered) {
-            if(i.productId()==null||i.warehouseId()==null||i.quantity()==null||i.quantity().signum()<=0)throw new IllegalArgumentException("Each dispatch item requires a material, warehouse and positive quantity");
+
+        Set<Long> locked = new HashSet<>();
+
+        for (ItemRequest i : ordered) {
             if(locked.add(i.productId()))lockProduct(i.productId());
             validate(i.productId(),i.warehouseId());
             if(r.salesOrderId()==null&&availableBalance(i.warehouseId(),i.productId()).compareTo(i.quantity())<0)throw new IllegalArgumentException("Insufficient stock for material "+i.productId());
