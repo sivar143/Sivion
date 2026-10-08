@@ -103,7 +103,7 @@ public class HrController {
     }
 
     @PostMapping("/leaves")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','MANAGER','EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')")
     public LeaveRequest requestLeave(@RequestBody LeaveRequest leave) {
         return service.requestLeave(leave);
     }
