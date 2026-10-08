@@ -60,6 +60,9 @@ cd backend
 to run backend :
 mvn spring-boot:run -Dspring-boot.run.profiles=local  ---- for local deployemnts
 
+to run backend with clear :
+mvn clean spring-boot:run -Dspring-boot.run.profiles=local
+
 to verify the backend :
 mvn -B verify
 
