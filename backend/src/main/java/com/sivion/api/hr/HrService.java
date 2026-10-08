@@ -4,7 +4,7 @@ import com.sivion.api.hr.domain.*; import com.sivion.api.hr.repository.*; import
 @Service @Transactional
 public class HrService {
  private static final Long TENANT_ID=1L;
- private static final Set<String> ALL_ROLES=Set.of("ADMIN","HR_ADMIN","HR_USER","MANAGER","EMPLOYEE","SALES_MANAGER","SALES_USER","INVENTORY_MANAGER","INVENTORY_USER","PROCUREMENT_MANAGER","FINANCE_MANAGER","FINANCE_USER","MARKETING_USER");
+ private static final Set<String> ALL_ROLES=Set.of("ADMIN","HR_ADMIN","HR_USER","MANAGER","EMPLOYEE","SALES_MANAGER","SALES_USER","INVENTORY_MANAGER","INVENTORY_USER","WAREHOUSE_MANAGER","WAREHOUSE_USER","PROCUREMENT_MANAGER","FINANCE_MANAGER","FINANCE_USER","MARKETING_USER");
  private final EmployeeRepository employees; private final DepartmentRepository departments; private final AttendanceRepository attendance; private final LeaveRequestRepository leaves; private final GoalRepository goals; private final PayslipRepository payslips; private final DesignationRepository designations; private final KeycloakAdminService keycloak;
  public HrService(EmployeeRepository e,DepartmentRepository d,AttendanceRepository a,LeaveRequestRepository l,GoalRepository g,PayslipRepository p,DesignationRepository ds,KeycloakAdminService k){employees=e;departments=d;attendance=a;leaves=l;goals=g;payslips=p;designations=ds;keycloak=k;}
  public List<Employee> employees(){return employees.findByTenantIdOrderByLastNameAscFirstNameAsc(TENANT_ID);} public List<Department> departments(){return departments.findByTenantIdOrderByName(TENANT_ID);} public long activeEmployees(){return employees.countByTenantIdAndStatus(TENANT_ID,"ACTIVE");}
