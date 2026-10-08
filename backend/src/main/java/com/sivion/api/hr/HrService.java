@@ -180,7 +180,8 @@ catch (RuntimeException ex) {
     }
     private void validateOrganizationAssignments(Employee e) {
         if(e.getDepartmentId()!=null) {
-            Department d=departments.findById(e.getDepartmentId()).orElseThrow(()->new IllegalArgumentException( "Department not found"));
+            Department d = departments.findById(e.getDepartmentId())
+                    .orElseThrow(() -> new IllegalArgumentException("Department not found"));
             if (!TENANT_ID.equals(d.getTenantId())) {
                 throw new IllegalArgumentException( "Invalid department");
             }
@@ -189,7 +190,8 @@ catch (RuntimeException ex) {
             }
         }
         if(e.getManagerId()!=null) {
-            Employee manager=employees.findById(e.getManagerId()).orElseThrow(()->new IllegalArgumentException( "Manager not found"));
+            Employee manager = employees.findById(e.getManagerId())
+                    .orElseThrow(() -> new IllegalArgumentException("Manager not found"));
             if (!TENANT_ID.equals(manager.getTenantId())) {
                 throw new IllegalArgumentException( "Invalid manager");
             }
@@ -205,7 +207,8 @@ catch (RuntimeException ex) {
         if (e.getDesignationId()==null) {
             return;
         }
-        Designation d=designations.findById(e.getDesignationId()).orElseThrow(()->new IllegalArgumentException( "Designation not found"));
+        Designation d = designations.findById(e.getDesignationId())
+                .orElseThrow(() -> new IllegalArgumentException("Designation not found"));
         if (!TENANT_ID.equals(d.getTenantId())) {
             throw new IllegalArgumentException( "Invalid designation");
         }
@@ -234,7 +237,8 @@ catch (RuntimeException ex) {
         return departments.save(d);
     }
     public Department updateDepartment(Long id, Department input) {
-        Department current=departments.findById(id).orElseThrow(()->new IllegalArgumentException( "Department not found"));
+        Department current = departments.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Department not found"));
         if (!TENANT_ID.equals(current.getTenantId())) {
             throw new IllegalArgumentException( "Department not found");
         }
@@ -275,7 +279,8 @@ catch (RuntimeException ex) {
             throw new IllegalArgumentException( "Department code already exists");
         }
         if(d.getParentId()!=null) {
-            Department parent=departments.findById(d.getParentId()).orElseThrow(()->new IllegalArgumentException( "Parent department not found"));
+            Department parent = departments.findById(d.getParentId())
+                    .orElseThrow(() -> new IllegalArgumentException("Parent department not found"));
             if (!TENANT_ID.equals(parent.getTenantId())) {
                 throw new IllegalArgumentException( "Invalid parent department");
             }
@@ -288,7 +293,8 @@ catch (RuntimeException ex) {
                     if (currentId.equals(ancestor)) {
                         throw new IllegalArgumentException( "Department hierarchy cannot contain cycles");
                     }
-                    Department next=departments.findById(ancestor).orElseThrow(()->new IllegalArgumentException( "Invalid parent hierarchy"));
+                    Department next = departments.findById(ancestor)
+                            .orElseThrow(() -> new IllegalArgumentException("Invalid parent hierarchy"));
                     if (!TENANT_ID.equals(next.getTenantId())) {
                         throw new IllegalArgumentException( "Invalid parent hierarchy");
                     }
@@ -300,7 +306,11 @@ catch (RuntimeException ex) {
     public Attendance markAttendance(Attendance a) {
         validateEmployeeTenant(a.getEmployeeId());
         a.setTenantId(TENANT_ID);
-        return attendance.findByTenantIdAndEmployeeIdAndAttendanceDate(TENANT_ID, a.getEmployeeId(), a.getAttendanceDate()).map(x-> {
+        return attendance.findByTenantIdAndEmployeeIdAndAttendanceDate(
+                    TENANT_ID,
+                    a.getEmployeeId(),
+                    a.getAttendanceDate()
+            ).map(existing -> {
             x.setStatus(a.getStatus());
             x.setCheckIn(a.getCheckIn());
             x.setCheckOut(a.getCheckOut());
@@ -394,7 +404,8 @@ catch (RuntimeException ex) {
             throw new IllegalArgumentException( "Designation code already exists");
         }
         if(d.getDepartmentId()!=null) {
-            Department dep=departments.findById(d.getDepartmentId()).orElseThrow(()->new IllegalArgumentException( "Department not found"));
+            Department dep = departments.findById(d.getDepartmentId())
+                    .orElseThrow(() -> new IllegalArgumentException("Department not found"));
             if (!TENANT_ID.equals(dep.getTenantId())) {
                 throw new IllegalArgumentException( "Invalid department");
             }
@@ -423,7 +434,15 @@ catch (RuntimeException ex) {
         current.setPeriodEnd(input.getPeriodEnd());
         current.setGrossPay(input.getGrossPay());
         current.setDeductions(input.getDeductions());
-        current.setNetPay(input.getNetPay()==null?input.getGrossPay().subtract(input.getDeductions()==null?java.math.BigDecimal.ZERO: input.getDeductions()): input.getNetPay());
+        BigDecimal deductions = input.getDeductions() == null
+                ? BigDecimal.ZERO
+                : input.getDeductions();
+
+        BigDecimal netPay = input.getNetPay() == null
+                ? input.getGrossPay().subtract(deductions)
+                : input.getNetPay();
+
+        current.setNetPay(netPay);
         current.setStatus(input.getStatus()==null? "DRAFT": input.getStatus());
         current.setNotes(input.getNotes());
         current.touch();
@@ -435,7 +454,8 @@ catch (RuntimeException ex) {
         if (employeeId==null) {
             throw new IllegalArgumentException( "Employee is required");
         }
-        Employee employee=employees.findById(employeeId).orElseThrow(()->new IllegalArgumentException( "Employee not found"));
+        Employee employee = employees.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
         if (!TENANT_ID.equals(employee.getTenantId())) {
             throw new IllegalArgumentException( "Employee not found");
         }
