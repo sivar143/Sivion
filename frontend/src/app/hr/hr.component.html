@@ -63,7 +63,7 @@
           <td>{{e.employeeNumber}}</td>
           <td>
             <b>{{e.firstName}} {{e.lastName}}</b>
-            <br></br>
+            <br>
             <small>{{e.email}}</small>
           </td>
           <td>{{e.username||'—'}}</td>
@@ -270,7 +270,7 @@
           <td>{{employeeName(g.employeeId)}}</td>
           <td>
             <b>{{g.title}}</b>
-            <br></br>
+            <br>
             <small>{{g.description}}</small>
           </td>
           <td>{{g.currentValue||0}} / {{g.targetValue||0}}</td>
@@ -314,11 +314,11 @@
         placeholder="Employee number"
         [(ngModel)]="employeeDraft.employeeNumber"
         name="number"
-></input>
-      <input required placeholder="First name" [(ngModel)]="employeeDraft.firstName" name="first"></input>
-      <input required placeholder="Last name" [(ngModel)]="employeeDraft.lastName" name="last"></input>
-      <input required type="email" placeholder="Email" [(ngModel)]="employeeDraft.email" name="email"></input>
-      <input placeholder="Phone" [(ngModel)]="employeeDraft.phone" name="phone"></input>
+>
+      <input required placeholder="First name" [(ngModel)]="employeeDraft.firstName" name="first">
+      <input required placeholder="Last name" [(ngModel)]="employeeDraft.lastName" name="last">
+      <input required type="email" placeholder="Email" [(ngModel)]="employeeDraft.email" name="email">
+      <input placeholder="Phone" [(ngModel)]="employeeDraft.phone" name="phone">
       <select [(ngModel)]="employeeDraft.departmentId" name="department">
         <option [ngValue]="undefined"></option>
         No department
@@ -335,7 +335,7 @@
   {{d.name}}
 </section>
 <div class="form-grid">
-  <input required placeholder="Username" [(ngModel)]="employeeDraft.username" name="username"></input>
+  <input required placeholder="Username" [(ngModel)]="employeeDraft.username" name="username">
   <select [(ngModel)]="employeeDraft.role" name="role">
     <option *ngFor="let role of availableRoles" [value]="role"></option>
     {{role}}
@@ -348,13 +348,13 @@
   placeholder="{{editingEmployee?'New password (leave blank to keep current)':'Initial password'}}"
   [(ngModel)]="employeeDraft.password"
   name="password"
-></input>
+>
 <label class="check">
-  <input type="checkbox" [(ngModel)]="employeeDraft.temporaryPassword" name="temporary"></input>
+  <input type="checkbox" [(ngModel)]="employeeDraft.temporaryPassword" name="temporary">
   Force password change at first login
 </label>
 <label class="check">
-  <input type="checkbox" [(ngModel)]="employeeDraft.accountEnabled" name="enabled"></input>
+  <input type="checkbox" [(ngModel)]="employeeDraft.accountEnabled" name="enabled">
   Login enabled
 </label>
 <div class="actions">
@@ -365,8 +365,8 @@
   <form (ngSubmit)="saveDepartment()">
     <h2>{{editingDepartment ? 'Edit department' : 'New department'}}</h2>
     <p *ngIf="formError" class="form-error" role="alert">{{formError}}</p>
-    <input required maxlength="40" placeholder="Department code" [(ngModel)]="departmentDraft.code" name="code"></input>
-    <input required maxlength="160" placeholder="Department name" [(ngModel)]="departmentDraft.name" name="name"></input>
+    <input required maxlength="40" placeholder="Department code" [(ngModel)]="departmentDraft.code" name="code">
+    <input required maxlength="160" placeholder="Department name" [(ngModel)]="departmentDraft.name" name="name">
     <select [(ngModel)]="departmentDraft.parentId" name="parent">
       <option [ngValue]="undefined"></option>
       No parent
@@ -395,14 +395,14 @@ Inactive
       placeholder="Designation code"
       [(ngModel)]="designationDraft.code"
       name="designationCode"
-></input>
+>
     <input
       required
       maxlength="160"
       placeholder="Designation name"
       [(ngModel)]="designationDraft.name"
       name="designationName"
-></input>
+>
     <select [(ngModel)]="designationDraft.departmentId" name="designationDepartment">
       <option [ngValue]="undefined"></option>
       All departments
@@ -434,8 +434,8 @@ Inactive
   </form>
 </div>
 <div class="form-grid">
-  <input required type="date" [(ngModel)]="payslipDraft.periodStart" name="periodStart"></input>
-  <input required type="date" [(ngModel)]="payslipDraft.periodEnd" name="periodEnd"></input>
+  <input required type="date" [(ngModel)]="payslipDraft.periodStart" name="periodStart">
+  <input required type="date" [(ngModel)]="payslipDraft.periodEnd" name="periodEnd">
 </div>
 <div class="form-grid">
   <input
@@ -446,7 +446,7 @@ Inactive
     placeholder="Gross pay"
     [(ngModel)]="payslipDraft.grossPay"
     name="gross"
-></input>
+>
   <input
     required
     type="number"
@@ -455,7 +455,7 @@ Inactive
     placeholder="Deductions"
     [(ngModel)]="payslipDraft.deductions"
     name="deductions"
-></input>
+>
 </div>
 <input
   type="number"
@@ -464,7 +464,7 @@ Inactive
   placeholder="Net pay (optional; auto calculated)"
   [(ngModel)]="payslipDraft.netPay"
   name="net"
-></input>
+>
 <select [(ngModel)]="payslipDraft.status" name="status">
   <option></option>
   DRAFT

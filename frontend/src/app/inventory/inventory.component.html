@@ -142,28 +142,28 @@
       {{mode==='warehouse'?'New warehouse':mode==='material'?'New material':mode==='stock'?'Stock in':mode==='adjust'?'Stock adjustment':'Dispatch materials'}}
     </h2>
     <ng-container *ngIf="mode==='warehouse'">
-      <input required placeholder="Warehouse code" [(ngModel)]="warehouseDraft.code" name="warehouseCode"></input>
-      <input required placeholder="Warehouse name" [(ngModel)]="warehouseDraft.name" name="warehouseName"></input>
+      <input required placeholder="Warehouse code" [(ngModel)]="warehouseDraft.code" name="warehouseCode">
+      <input required placeholder="Warehouse name" [(ngModel)]="warehouseDraft.name" name="warehouseName">
     </ng-container>
     <ng-container *ngIf="mode==='material'">
-      <input required placeholder="Material code / SKU" [(ngModel)]="draft.sku" name="sku"></input>
-      <input required placeholder="Material name" [(ngModel)]="draft.name" name="name"></input>
-      <input placeholder="Description" [(ngModel)]="draft.description" name="description"></input>
-      <input required placeholder="Unit (PCS, EA, KG...)" [(ngModel)]="draft.unit" name="unit"></input>
+      <input required placeholder="Material code / SKU" [(ngModel)]="draft.sku" name="sku">
+      <input required placeholder="Material name" [(ngModel)]="draft.name" name="name">
+      <input placeholder="Description" [(ngModel)]="draft.description" name="description">
+      <input required placeholder="Unit (PCS, EA, KG...)" [(ngModel)]="draft.unit" name="unit">
       <input
         type="number"
         min="0"
         placeholder="Initial quantity"
         [(ngModel)]="draft.initialQuantity"
         name="initialQuantity"
-></input>
+>
       <input
         type="number"
         min="0"
         placeholder="Minimum stock level"
         [(ngModel)]="draft.reorderLevel"
         name="reorderLevel"
-></input>
+>
     </ng-container>
     <ng-container *ngIf="mode==='stock'||mode==='adjust'">
       <select required [(ngModel)]="selectedId" name="selectedId">
@@ -174,8 +174,8 @@
       {{m.sku}} — {{m.name}} ({{m.quantity||0}})
     </ng-container>
   </form>
-  <input type="number" [min]="mode==='stock'?1:-999999" placeholder="Quantity" [(ngModel)]="quantity" name="quantity"></input>
-  <input required placeholder="Reference / reason" [(ngModel)]="reference" name="reference"></input>
+  <input type="number" [min]="mode==='stock'?1:-999999" placeholder="Quantity" [(ngModel)]="quantity" name="quantity">
+  <input required placeholder="Reference / reason" [(ngModel)]="reference" name="reference">
   <small *ngIf="mode==='adjust'">Positive adds stock; negative removes stock.</small>
 </section>
 <ng-container *ngIf="mode==='dispatch'">
@@ -194,11 +194,11 @@
   <option *ngFor="let m of materials" [ngValue]="m.id"></option>
   {{m.sku}} — {{m.name}} ({{m.quantity||0}})
 </div>
-<input type="number" required min="1" [(ngModel)]="line.quantity" [name]="'qty'+i" placeholder="Quantity"></input>
+<input type="number" required min="1" [(ngModel)]="line.quantity" [name]="'qty'+i" placeholder="Quantity">
 <button type="button" (click)="removeLine(i)" *ngIf="dispatchLines.length>1">Remove</button>
 <button type="button" (click)="addLine()">+ Add material</button>
-<input required placeholder="Sales order / reference" [(ngModel)]="reference" name="dispatchReference"></input>
-<input placeholder="Delivery address" [(ngModel)]="address" name="address"></input>
+<input required placeholder="Sales order / reference" [(ngModel)]="reference" name="dispatchReference">
+<input placeholder="Delivery address" [(ngModel)]="address" name="address">
 <textarea placeholder="Notes" [(ngModel)]="notes" name="notes"></textarea>
 <div class="actions">
   <button type="button" (click)="mode=''">Cancel</button>

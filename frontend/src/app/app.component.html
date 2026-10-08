@@ -91,7 +91,7 @@
           placeholder="Search customers..."
           [(ngModel)]="customerQuery"
           (ngModelChange)="loadCustomers()"
-></input>
+>
         <table>
           <thead>
             <tr>
@@ -276,10 +276,10 @@
 <section *ngIf="activeItem==='customers'&&newCustomer" class="modal">
   <form (ngSubmit)="saveCustomer()">
     <h2>New customer</h2>
-    <input required placeholder="Customer name" [(ngModel)]="customerDraft.name" name="name"></input>
-    <input placeholder="Code" [(ngModel)]="customerDraft.code" name="code"></input>
-    <input type="email" placeholder="Email" [(ngModel)]="customerDraft.email" name="email"></input>
-    <input placeholder="Phone" [(ngModel)]="customerDraft.phone" name="phone"></input>
+    <input required placeholder="Customer name" [(ngModel)]="customerDraft.name" name="name">
+    <input placeholder="Code" [(ngModel)]="customerDraft.code" name="code">
+    <input type="email" placeholder="Email" [(ngModel)]="customerDraft.email" name="email">
+    <input placeholder="Phone" [(ngModel)]="customerDraft.phone" name="phone">
     <select [(ngModel)]="customerDraft.status" name="status">
       <option></option>
       ACTIVE
@@ -303,13 +303,13 @@
     {{c.name}}
   </form>
 </section>
-<input required placeholder="First name" [(ngModel)]="contactDraft.firstName" name="firstName"></input>
-<input placeholder="Last name" [(ngModel)]="contactDraft.lastName" name="lastName"></input>
-<input placeholder="Job title" [(ngModel)]="contactDraft.jobTitle" name="jobTitle"></input>
-<input type="email" placeholder="Email" [(ngModel)]="contactDraft.email" name="email"></input>
-<input placeholder="Phone" [(ngModel)]="contactDraft.phone" name="phone"></input>
+<input required placeholder="First name" [(ngModel)]="contactDraft.firstName" name="firstName">
+<input placeholder="Last name" [(ngModel)]="contactDraft.lastName" name="lastName">
+<input placeholder="Job title" [(ngModel)]="contactDraft.jobTitle" name="jobTitle">
+<input type="email" placeholder="Email" [(ngModel)]="contactDraft.email" name="email">
+<input placeholder="Phone" [(ngModel)]="contactDraft.phone" name="phone">
 <label>
-  <input type="checkbox" [(ngModel)]="contactDraft.primaryContact" name="primaryContact"></input>
+  <input type="checkbox" [(ngModel)]="contactDraft.primaryContact" name="primaryContact">
   Primary contact
 </label>
 <div class="actions">
@@ -333,7 +333,7 @@
 TASK
 <option></option>
 NOTE
-<input required placeholder="Subject" [(ngModel)]="activityDraft.subject" name="subject"></input>
+<input required placeholder="Subject" [(ngModel)]="activityDraft.subject" name="subject">
 <select [(ngModel)]="activityDraft.customerId" name="customerId">
   <option [ngValue]="undefined"></option>
   No customer linked
@@ -348,10 +348,10 @@ NOTE
 <section *ngIf="activeItem==='leads'&&newLead" class="modal">
   <form (ngSubmit)="saveLead()">
     <h2>New lead</h2>
-    <input required placeholder="Lead name" [(ngModel)]="leadDraft.name" name="name"></input>
-    <input placeholder="Company" [(ngModel)]="leadDraft.companyName" name="company"></input>
-    <input type="email" placeholder="Email" [(ngModel)]="leadDraft.email" name="email"></input>
-    <input placeholder="Phone" [(ngModel)]="leadDraft.phone" name="phone"></input>
+    <input required placeholder="Lead name" [(ngModel)]="leadDraft.name" name="name">
+    <input placeholder="Company" [(ngModel)]="leadDraft.companyName" name="company">
+    <input type="email" placeholder="Email" [(ngModel)]="leadDraft.email" name="email">
+    <input placeholder="Phone" [(ngModel)]="leadDraft.phone" name="phone">
     <select [(ngModel)]="leadDraft.source" name="source">
       <option></option>
       WEBSITE
@@ -383,8 +383,8 @@ COLD
 <section *ngIf="activeItem==='opportunities'&&newOpp" class="modal">
   <form (ngSubmit)="saveOpp()">
     <h2>New opportunity</h2>
-    <input required placeholder="Opportunity name" [(ngModel)]="oppDraft.name" name="name"></input>
-    <input type="number" placeholder="Amount" [(ngModel)]="oppDraft.amount" name="amount"></input>
+    <input required placeholder="Opportunity name" [(ngModel)]="oppDraft.name" name="name">
+    <input type="number" placeholder="Amount" [(ngModel)]="oppDraft.amount" name="amount">
     <input
       type="number"
       min="0"
@@ -392,7 +392,7 @@ COLD
       placeholder="Probability %"
       [(ngModel)]="oppDraft.probability"
       name="probability"
-></input>
+>
     <select [(ngModel)]="oppDraft.stage" name="stage">
       <option *ngFor="let s of oppStages"></option>
       {{s}}

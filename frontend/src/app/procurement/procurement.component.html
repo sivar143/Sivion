@@ -181,11 +181,11 @@
       {{mode==='supplier'?'New supplier':mode==='request'?'Purchase request':mode==='order'?'Purchase order':'Receive goods'}}
     </h2>
     <ng-container *ngIf="mode==='supplier'">
-      <input required placeholder="Supplier code" [(ngModel)]="supplier.code" name="code"></input>
-      <input required placeholder="Supplier name" [(ngModel)]="supplier.name" name="name"></input>
-      <input type="email" placeholder="Email" [(ngModel)]="supplier.email" name="email"></input>
-      <input placeholder="Phone" [(ngModel)]="supplier.phone" name="phone"></input>
-      <input placeholder="Address" [(ngModel)]="supplier.address" name="address"></input>
+      <input required placeholder="Supplier code" [(ngModel)]="supplier.code" name="code">
+      <input required placeholder="Supplier name" [(ngModel)]="supplier.name" name="name">
+      <input type="email" placeholder="Email" [(ngModel)]="supplier.email" name="email">
+      <input placeholder="Phone" [(ngModel)]="supplier.phone" name="phone">
+      <input placeholder="Address" [(ngModel)]="supplier.address" name="address">
     </ng-container>
     <ng-container *ngIf="mode==='request'">
       <textarea
@@ -200,7 +200,7 @@
         placeholder="Estimated amount"
         [(ngModel)]="request.estimatedAmount"
         name="estimatedAmount"
-></input>
+>
     </ng-container>
     <ng-container *ngIf="mode==='order'">
       <select required [(ngModel)]="order.supplierId" name="supplierId">
@@ -226,8 +226,8 @@
 </select>
 <option *ngFor="let w of warehouses" [ngValue]="w.id"></option>
 {{w.code}} — {{w.name}}
-<input type="number" min="0.01" required placeholder="Qty" [(ngModel)]="item.quantity" [name]="'qty'+i"></input>
-<input type="number" min="0" required placeholder="Unit price" [(ngModel)]="item.unitPrice" [name]="'price'+i"></input>
+<input type="number" min="0.01" required placeholder="Qty" [(ngModel)]="item.quantity" [name]="'qty'+i">
+<input type="number" min="0" required placeholder="Unit price" [(ngModel)]="item.unitPrice" [name]="'price'+i">
 <button type="button" (click)="removeOrderItem(i)">×</button>
 <button type="button" (click)="addOrderItem()">+ Add line</button>
 <ng-container *ngIf="mode==='receipt'">
@@ -250,7 +250,7 @@
 </select>
 <option *ngFor="let i of selectedOrder?.items||[]" [ngValue]="i.warehouseId"></option>
 {{warehouseName(i.warehouseId)}}
-<input type="number" min="0.01" required placeholder="Received quantity" [(ngModel)]="receipt.quantity" name="quantity"></input>
+<input type="number" min="0.01" required placeholder="Received quantity" [(ngModel)]="receipt.quantity" name="quantity">
 <div class="actions">
   <button type="button" (click)="mode=''">Cancel</button>
   <button type="submit">Save</button>

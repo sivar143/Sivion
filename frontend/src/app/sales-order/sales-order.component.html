@@ -40,7 +40,7 @@
       <tr *ngFor="let o of orders">
         <td>
           <b>{{o.orderNumber}}</b>
-          <br></br>
+          <br>
           <small>{{o.orderDate|date:'mediumDate'}}</small>
         </td>
         <td>{{customerName(o.customerId)}}</td>
@@ -82,7 +82,7 @@
 </select>
 <option *ngFor="let o of opportunities" [ngValue]="o.id"></option>
 {{o.name}}
-<input placeholder="Delivery address" [(ngModel)]="draft.deliveryAddress" name="address"></input>
+<input placeholder="Delivery address" [(ngModel)]="draft.deliveryAddress" name="address">
 <h3>Order lines</h3>
 <div *ngFor="let item of draft.items;let i=index" class="line">
   <select required [(ngModel)]="item.materialId" [name]="'material'+i">
@@ -92,8 +92,8 @@
   <option *ngFor="let m of materials" [ngValue]="m.id"></option>
   {{m.sku}} — {{m.name}}
 </div>
-<input required type="number" min="0.0001" [(ngModel)]="item.quantity" [name]="'qty'+i" placeholder="Qty"></input>
-<input required type="number" min="0" [(ngModel)]="item.unitPrice" [name]="'price'+i" placeholder="Unit price"></input>
+<input required type="number" min="0.0001" [(ngModel)]="item.quantity" [name]="'qty'+i" placeholder="Qty">
+<input required type="number" min="0" [(ngModel)]="item.unitPrice" [name]="'price'+i" placeholder="Unit price">
 <button type="button" (click)="removeLine(i)" *ngIf="draft.items.length>1">Remove</button>
 <button type="button" (click)="addLine()">+ Add line</button>
 <textarea placeholder="Notes" [(ngModel)]="draft.notes" name="notes"></textarea>
