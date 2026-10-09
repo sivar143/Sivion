@@ -1,0 +1,20 @@
+<section class="panel">
+  <div class="toolbar"><div><h2>Leave management</h2><p>Review and approve or reject employee leave requests.</p></div></div>
+  <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
+  <p *ngIf="actionError" class="form-error" role="alert">{{ actionError }}</p>
+  <table>
+    <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let item of leaves">
+        <td>{{ employeeName(item.employeeId) }}</td><td>{{ item.leaveType }}</td>
+        <td>{{ item.startDate }} → {{ item.endDate }}</td><td>{{ item.reason || '—' }}</td>
+        <td><span class="pill">{{ item.status || 'PENDING' }}</span></td>
+        <td><ng-container *ngIf="item.status === 'PENDING'">
+          <button type="button" (click)="updateLeave(item, 'APPROVED')">Approve</button>
+          <button type="button" (click)="updateLeave(item, 'REJECTED')">Reject</button>
+        </ng-container></td>
+      </tr>
+      <tr *ngIf="!leaves.length"><td colspan="6" class="empty">No leave requests found.</td></tr>
+    </tbody>
+  </table>
+</section>
