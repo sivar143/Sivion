@@ -102,6 +102,10 @@ export interface Payslip  {
   async employees() {
     return firstValueFrom(this.http.get<Employee[]>('/api/v1/hr/employees',await this.options()));
   }
+  async payrollEmployees(): Promise<Array<Pick<Employee, 'id' | 'employeeNumber' | 'firstName' | 'lastName'>>> {
+    return firstValueFrom(this.http.get<Array<Pick<Employee, 'id' | 'employeeNumber' | 'firstName' | 'lastName'>>>(
+      '/api/v1/hr/payroll-employees', await this.options()));
+  }
   async departments() {
     return firstValueFrom(this.http.get<Department[]>('/api/v1/hr/departments',await this.options()));
   }
