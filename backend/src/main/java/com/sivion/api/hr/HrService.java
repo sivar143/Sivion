@@ -680,7 +680,17 @@ catch (RuntimeException ex) {
             throw new IllegalArgumentException( "Deductions cannot be negative");
         }
         if (p.getGrossPay().compareTo(p.getDeductions())<0) {
-            throw new IllegalArgumentException( "Deductions cannot exceed gross pay");
+            throw new IllegalArgumentException("Deductions cannot exceed gross pay");
         }
+        if (p.getNetPay() != null && (p.getNetPay().signum() < 0
+                || p.getNetPay().compareTo(p.getGrossPay()) > 0)) {
+            throw new IllegalArgumentException("Net pay must be between zero and gross pay");
+        }
+        String status = p.getStatus() == null || p.getStatus().isBlank()
+                ? "DRAFT" : p.getStatus().trim().toUpperCase(Locale.ROOT);
+        if (!Set.of("DRAFT", "PROCESSED", "PAID").contains(status)) {
+            throw new IllegalArgumentException("Invalid payslip status");
+        }
+        p.setStatus(status);
     }
 }
