@@ -52,7 +52,7 @@ export class AttendanceComponent implements OnInit {
     }
     this.saving = true;
     try {
-      await this.api.markAttendance({ ...this.draft });
+      await this.api.markAttendance({ ...this.draft, checkIn: this.draft.checkIn || undefined, checkOut: this.draft.checkOut || undefined });
       this.closeForm();
       await this.reload();
     } catch (error: any) {
@@ -65,7 +65,7 @@ export class AttendanceComponent implements OnInit {
   private emptyAttendance(): Attendance {
     return {
       employeeId: 0,
-      attendanceDate: new Date().toISOString().slice(0, 10),
+      attendanceDate: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
       status: 'PRESENT',
       checkIn: '',
       checkOut: ''
