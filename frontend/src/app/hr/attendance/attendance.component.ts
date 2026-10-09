@@ -18,6 +18,8 @@ export class AttendanceComponent implements OnInit {
   employees: Employee[] = [];
   loadError = '';
   actionError = '';
+  fromDate = this.dateDaysAgo(30);
+  toDate = this.localDate();
   formOpen = false;
   saving = false;
   draft: Attendance = this.emptyAttendance();
@@ -65,11 +67,21 @@ export class AttendanceComponent implements OnInit {
   private emptyAttendance(): Attendance {
     return {
       employeeId: 0,
-      attendanceDate: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
+      attendanceDate: this.localDate(),
       status: 'PRESENT',
       checkIn: '',
       checkOut: ''
     };
+  }
+
+  private localDate(): string {
+    return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  }
+
+  private dateDaysAgo(days: number): string {
+    const date = new Date();
+    date.setDate(date.getDate() - days);
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   }
 
   async ngOnInit(): Promise<void> {
@@ -78,8 +90,12 @@ export class AttendanceComponent implements OnInit {
 
   async reload(): Promise<void> {
     this.loadError = '';
+    if (this.fromDate && this.toDate && this.fromDate > this.toDate) {
+      this.loadError = 'The start date must be on or before the end date.';
+      return;
+    }
     const requests = [
-      this.api.attendance().then(value => { this.attendance = value; })
+      this.api.attendance(this.fromDate || undefined, this.toDate || undefined).then(value => { this.attendance = value; })
         .catch(() => this.addLoadError('Attendance records could not be loaded.')),
       this.api.employees().then(value => { this.employees = value; })
         .catch(() => this.addLoadError('Employee names could not be loaded.'))
