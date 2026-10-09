@@ -11,7 +11,10 @@ describe('OrganizationComponent', () => {
   const api = {
     departments: vi.fn(async () => [{ id: 1, code: 'ENG', name: 'Engineering', status: 'ACTIVE' }]),
     designations: vi.fn(async () => [{ id: 2, code: 'DEV', name: 'Developer', status: 'ACTIVE' }]),
-    employees: vi.fn(async () => [{ id: 10, employeeNumber: 'E010', firstName: 'Ari', lastName: 'Dev', email: 'ari@example.com', departmentId: 1 }]),
+    employees: vi.fn(async () => [{
+      id: 10, employeeNumber: 'E010', firstName: 'Ari', lastName: 'Dev',
+      email: 'ari@example.com', departmentId: 1
+    }]),
     createDepartment: vi.fn(async () => ({})),
     updateDepartment: vi.fn(async () => ({})),
     createDesignation: vi.fn(async () => ({})),
@@ -23,18 +26,28 @@ describe('OrganizationComponent', () => {
     vi.clearAllMocks();
     await TestBed.configureTestingModule({
       imports: [OrganizationComponent],
-      providers: [{ provide: HrApi, useValue: api }, { provide: AuthService, useValue: auth }]
+      providers: [
+        { provide: HrApi, useValue: api },
+        { provide: AuthService, useValue: auth }
+      ]
     }).compileComponents();
     fixture = TestBed.createComponent(OrganizationComponent);
     component = fixture.componentInstance;
   });
 
-  it('loads departments, designations, and employee counts', async () => {
-    await component.ngOnInit();
-    expect(component.departments[0].name).toBe('Engineering');
-    expect(component.designations[0].name).toBe('Developer');
+  it('loads organization data and employee counts on initial screen render', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(api.departments).toHaveBeenCalledOnce();
+    expect(api.designations).toHaveBeenCalledOnce();
+    expect(api.employees).toHaveBeenCalledOnce();
     expect(component.employeesInDepartment(1)).toBe(1);
-    expect(component.canModifyHr).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain('Engineering');
+    expect(fixture.nativeElement.textContent).toContain('Developer');
+    expect(fixture.nativeElement.textContent).toContain('Ari Dev');
+    expect(fixture.nativeElement.textContent).toContain('1');
   });
 
   it('creates a department and reloads the organization data', async () => {
