@@ -1,21 +1,83 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
 import { HrApi, Attendance, Employee } from '../../services/hr-api.service';
 
 @Component({
   selector: 'app-hr-attendance',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './attendance.component.html',
   styleUrls: ['../hr.component.scss']
 })
 export class AttendanceComponent implements OnInit {
   private readonly api = inject(HrApi);
+  private readonly auth = inject(AuthService);
   attendance: Attendance[] = [];
   employees: Employee[] = [];
   loadError = '';
+  actionError = '';
+  formOpen = false;
+  saving = false;
+  draft: Attendance = this.emptyAttendance();
+
+  get canSelectEmployee(): boolean {
+    return ['ADMIN', 'HR_ADMIN', 'HR_USER', 'MANAGER'].some(role => this.auth.hasRole(role));
+  }
+
+  openForm(): void {
+    this.draft = this.emptyAttendance();
+    const current = this.employees.find(employee => employee.username === this.auth.username)
+      ?? (this.employees.length === 1 ? this.employees[0] : undefined);
+    if (current?.id) this.draft.employeeId = current.id;
+    this.actionError = '';
+    this.formOpen = true;
+  }
+
+  closeForm(): void {
+    this.formOpen = false;
+    this.actionError = '';
+  }
+
+  async saveAttendance(): Promise<void> {
+    this.actionError = '';
+    if (!this.draft.employeeId || !this.draft.attendanceDate) {
+      this.actionError = 'Please select an employee and attendance date.';
+      return;
+    }
+    if (this.draft.checkIn && this.draft.checkOut && this.draft.checkOut < this.draft.checkIn) {
+      this.actionError = 'Check-out time cannot be earlier than check-in time.';
+      return;
+    }
+    this.saving = true;
+    try {
+      await this.api.markAttendance({ ...this.draft });
+      this.closeForm();
+      await this.reload();
+    } catch (error: any) {
+      this.actionError = error?.error?.error ?? error?.message ?? 'Unable to save attendance.';
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  private emptyAttendance(): Attendance {
+    return {
+      employeeId: 0,
+      attendanceDate: new Date().toISOString().slice(0, 10),
+      status: 'PRESENT',
+      checkIn: '',
+      checkOut: ''
+    };
+  }
 
   async ngOnInit(): Promise<void> {
+    await this.reload();
+  }
+
+  async reload(): Promise<void> {
+    this.loadError = '';
     const requests = [
       this.api.attendance().then(value => { this.attendance = value; })
         .catch(() => this.addLoadError('Attendance records could not be loaded.')),
