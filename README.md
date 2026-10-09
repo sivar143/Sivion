@@ -57,8 +57,8 @@ containers will run then:
 go to backend:
 cd backend
 
-to run backend :
-mvn spring-boot:run -Dspring-boot.run.profiles=local  ---- for local deployemnts
+to run backend without clear :
+mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 to run backend with clear :
 mvn clean spring-boot:run -Dspring-boot.run.profiles=local
