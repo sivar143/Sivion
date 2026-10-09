@@ -17,11 +17,17 @@ export class LeavesComponent implements OnInit {
   actionError = '';
 
   async ngOnInit(): Promise<void> {
-    const results = await Promise.allSettled([this.api.leaves(), this.api.employees()]);
-    if (results[0].status === 'fulfilled') this.leaves = results[0].value;
-    else this.loadError = 'Leave requests could not be loaded.';
-    if (results[1].status === 'fulfilled') this.employees = results[1].value;
-    else this.loadError = [this.loadError, 'Employee names could not be loaded.'].filter(Boolean).join(' ');
+    const requests = [
+      this.api.leaves().then(value => { this.leaves = value; })
+        .catch(() => this.addLoadError('Leave requests could not be loaded.')),
+      this.api.employees().then(value => { this.employees = value; })
+        .catch(() => this.addLoadError('Employee names could not be loaded.'))
+    ];
+    await Promise.all(requests);
+  }
+
+  private addLoadError(message: string): void {
+    this.loadError = this.loadError ? `${this.loadError} ${message}` : message;
   }
 
   employeeName(id: number): string {
