@@ -184,8 +184,9 @@ catch (RuntimeException ex) {
         prepareEmployee(input);
         String role=input.getRole()==null?current.getRole(): input.getRole();
         validateAccountRole(role);
-        if (!admin&&!Set.of( "HR_USER", "MANAGER", "EMPLOYEE").contains(role)) {
-            throw new IllegalArgumentException( "HR can assign only HR_USER, MANAGER or EMPLOYEE roles");
+        if (!admin && !Set.of("HR_USER", "MANAGER", "EMPLOYEE").contains(role)
+                && !Objects.equals(role, current.getRole())) {
+            throw new IllegalArgumentException("HR can assign only HR_USER, MANAGER or EMPLOYEE roles");
         }
         validateOrganizationAssignments(input);
         if (input.getEmployeeNumber() == null || input.getEmployeeNumber().isBlank()) {
