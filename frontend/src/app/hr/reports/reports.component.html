@@ -1,0 +1,11 @@
+<section class="panel">
+  <div class="toolbar"><div><h2>HR reports</h2><p>Workforce, leave and payroll summary based on saved records.</p></div></div>
+  <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
+  <div class="cards">
+    <article><span>Employees</span><strong>{{ employees.length }}</strong><small>People in tenant</small></article>
+    <article><span>Active employees</span><strong>{{ activeEmployees }}</strong><small>Currently active</small></article>
+    <article><span>Pending leave</span><strong>{{ pendingLeaves }}</strong><small>Requests awaiting action</small></article>
+    <article><span>Payslips</span><strong>{{ payslips.length }}</strong><small>Employee payroll records</small></article>
+  </div>
+  <p>Departments configured: {{ departments.length }}.</p>
+</section>
