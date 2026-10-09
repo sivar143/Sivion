@@ -40,11 +40,15 @@ export class EmployeesComponent implements OnInit {
   }
 
   get availableRoles(): string[] {
-    return this.auth.hasRole('ADMIN')
+    const allowed = this.auth.hasRole('ADMIN')
       ? ['ADMIN', 'HR_ADMIN', 'HR_USER', 'MANAGER', 'EMPLOYEE', 'SALES_MANAGER', 'SALES_USER',
          'INVENTORY_MANAGER', 'INVENTORY_USER', 'WAREHOUSE_MANAGER', 'WAREHOUSE_USER',
          'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'FINANCE_USER', 'MARKETING_USER']
       : ['HR_USER', 'MANAGER', 'EMPLOYEE'];
+    // Permit non-admin HR staff to preserve an existing role, without offering new privileged roles.
+    return this.editing && this.draft.role && !allowed.includes(this.draft.role)
+      ? [...allowed, this.draft.role]
+      : allowed;
   }
 
   async ngOnInit(): Promise<void> { await this.reload(); }
