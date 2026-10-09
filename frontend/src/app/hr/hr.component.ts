@@ -52,6 +52,7 @@ export class HrComponent implements OnInit  {
   designationModal = false;
   editingDesignation = false;
   formError = '';
+  loadError = '';
   employeeDraft: Employee = this.emptyEmployee();
   departmentDraft: Department =  {
     code: '',
@@ -99,25 +100,44 @@ export class HrComponent implements OnInit  {
     }
     return ['HR_USER', 'MANAGER', 'EMPLOYEE'];
   }
-  async reload(): Promise<void>  {
+  async reload(): Promise<void> {
+    this.loadError = '';
+
+    const canReadDirectory =
+      this.auth.hasRole('ADMIN') ||
+      this.auth.hasRole('HR_ADMIN') ||
+      this.auth.hasRole('HR_USER') ||
+      this.auth.hasRole('MANAGER');
+
+    const canReadHrAdministration =
+      this.auth.hasRole('ADMIN') ||
+      this.auth.hasRole('HR_ADMIN') ||
+      this.auth.hasRole('HR_USER');
+
+    const canReadEmployeeRecords =
+      canReadHrAdministration ||
+      this.auth.hasRole('MANAGER') ||
+      this.auth.hasRole('EMPLOYEE');
+
     [
-    this.employees,
-    this.departments,
-    this.designations,
-    this.attendance,
-    this.leaves,
-    this.goals,
-    this.payslips
+      this.employees,
+      this.departments,
+      this.designations,
+      this.attendance,
+      this.leaves,
+      this.goals,
+      this.payslips
     ] = await Promise.all([
-    this.api.employees(),
-    this.api.departments(),
-    this.api.designations(),
-    this.api.attendance(),
-    this.api.leaves(),
-    this.api.goals(),
-    this.api.payslips()
+      this.loadList(() => this.api.employees(), canReadDirectory, 'employees'),
+      this.loadList(() => this.api.departments(), canReadDirectory, 'departments'),
+      this.loadList(() => this.api.designations(), canReadHrAdministration, 'designations'),
+      this.loadList(() => this.api.attendance(), canReadEmployeeRecords, 'attendance'),
+      this.loadList(() => this.api.leaves(), canReadEmployeeRecords, 'leave requests'),
+      this.loadList(() => this.api.goals(), canReadEmployeeRecords, 'goals'),
+      this.loadList(() => this.api.payslips(), canReadHrAdministration, 'payslips')
     ]);
   }
+
   get pendingLeaves(): number  {
     return this.leaves.filter((leave) => leave.status === 'PENDING').length;
   }
@@ -320,6 +340,25 @@ export class HrComponent implements OnInit  {
       'Unable to save payslip.';
     }
   }
+  private async loadList<T>(
+    request: () => Promise<T[]>,
+    allowed: boolean,
+    resource: string
+  ): Promise<T[]> {
+    if (!allowed) {
+      return [];
+    }
+
+    try {
+      return await request();
+    } catch {
+      this.loadError = this.loadError
+        ? `${this.loadError} ${resource} could not be loaded.`
+        : `Some HR data could not be loaded: ${resource}.`;
+      return [];
+    }
+  }
+
   private emptyEmployee(): Employee  {
     return  {
       employeeNumber: '',
