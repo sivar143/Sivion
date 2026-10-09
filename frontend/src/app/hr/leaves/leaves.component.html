@@ -1,5 +1,7 @@
 <section class="panel">
-  <div class="toolbar"><div><h2>Leave management</h2><p>Review and approve or reject employee leave requests.</p></div></div>
+  <div class="toolbar"><div><h2>Leave management</h2><p>Review and approve or reject employee leave requests.</p></div>
+    <button type="button" (click)="openRequestForm()">+ Request leave</button>
+  </div>
   <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
   <p *ngIf="actionError" class="form-error" role="alert">{{ actionError }}</p>
   <table>
@@ -9,7 +11,7 @@
         <td>{{ employeeName(item.employeeId) }}</td><td>{{ item.leaveType }}</td>
         <td>{{ item.startDate }} → {{ item.endDate }}</td><td>{{ item.reason || '—' }}</td>
         <td><span class="pill">{{ item.status || 'PENDING' }}</span></td>
-        <td><ng-container *ngIf="item.status === 'PENDING'">
+        <td><ng-container *ngIf="canReviewLeave(item)">
           <button type="button" (click)="updateLeave(item, 'APPROVED')">Approve</button>
           <button type="button" (click)="updateLeave(item, 'REJECTED')">Reject</button>
         </ng-container></td>
@@ -18,3 +20,38 @@
     </tbody>
   </table>
 </section>
+
+<div *ngIf="requestFormOpen" class="modal">
+  <form (ngSubmit)="submitLeaveRequest()">
+    <h2>Request leave</h2>
+    <p *ngIf="requestError" class="form-error" role="alert">{{ requestError }}</p>
+    <label *ngIf="canRequestForOthers">Employee
+      <select required [(ngModel)]="draft.employeeId" name="employee">
+        <option [ngValue]="0">Select employee</option>
+        <option *ngFor="let employee of employees" [ngValue]="employee.id">
+          {{ employee.employeeNumber }} — {{ employee.firstName }} {{ employee.lastName }}
+        </option>
+      </select>
+    </label>
+    <input *ngIf="!canRequestForOthers" type="hidden" [(ngModel)]="draft.employeeId" name="employee">
+    <label>Leave type
+      <select required [(ngModel)]="draft.leaveType" name="leaveType">
+        <option value="ANNUAL">Annual</option>
+        <option value="SICK">Sick</option>
+        <option value="PERSONAL">Personal</option>
+        <option value="UNPAID">Unpaid</option>
+        <option value="MATERNITY">Maternity</option>
+        <option value="PATERNITY">Paternity</option>
+      </select>
+    </label>
+    <div class="form-grid">
+      <label>Start date<input required type="date" [(ngModel)]="draft.startDate" name="startDate"></label>
+      <label>End date<input required type="date" [min]="draft.startDate || null" [(ngModel)]="draft.endDate" name="endDate"></label>
+    </div>
+    <textarea maxlength="500" placeholder="Reason (optional)" [(ngModel)]="draft.reason" name="reason"></textarea>
+    <div class="actions">
+      <button type="button" (click)="closeRequestForm()">Cancel</button>
+      <button type="submit" [disabled]="submittingRequest">{{ submittingRequest ? 'Submitting…' : 'Submit request' }}</button>
+    </div>
+  </form>
+</div>
