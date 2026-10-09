@@ -9,7 +9,7 @@ describe('PayrollComponent', () => {
   let component: PayrollComponent;
   const api = {
     payslips: vi.fn(async () => [{ id: 4, employeeId: 5, periodStart: '2026-10-01', periodEnd: '2026-10-31', grossPay: 50000, deductions: 5000, status: 'DRAFT' }]),
-    employees: vi.fn(async () => [{ id: 5, employeeNumber: 'E005', firstName: 'Ravi', lastName: 'Kumar', email: 'ravi@example.com' }]),
+    payrollEmployees: vi.fn(async () => [{ id: 5, employeeNumber: 'E005', firstName: 'Ravi', lastName: 'Kumar' }]),
     createPayslip: vi.fn(async () => ({})),
     updatePayslip: vi.fn(async () => ({}))
   };
