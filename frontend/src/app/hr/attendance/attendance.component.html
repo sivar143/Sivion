@@ -1,5 +1,7 @@
 <section class="panel">
-  <div class="toolbar"><div><h2>Attendance</h2><p>Review employee attendance records and check-in/check-out times.</p></div></div>
+  <div class="toolbar"><div><h2>Attendance</h2><p>Review employee attendance records and check-in/check-out times.</p></div>
+    <button type="button" (click)="openForm()">+ Mark attendance</button>
+  </div>
   <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
   <table>
     <thead><tr><th>Date</th><th>Employee</th><th>Status</th><th>Check in</th><th>Check out</th></tr></thead>
@@ -12,3 +14,39 @@
     </tbody>
   </table>
 </section>
+
+<div *ngIf="formOpen" class="modal">
+  <form (ngSubmit)="saveAttendance()">
+    <h2>Record attendance</h2>
+    <p *ngIf="actionError" class="form-error" role="alert">{{ actionError }}</p>
+    <label *ngIf="canSelectEmployee">Employee
+      <select required [(ngModel)]="draft.employeeId" name="employee">
+        <option [ngValue]="0">Select employee</option>
+        <option *ngFor="let employee of employees" [ngValue]="employee.id">
+          {{ employee.employeeNumber }} — {{ employee.firstName }} {{ employee.lastName }}
+        </option>
+      </select>
+    </label>
+    <input *ngIf="!canSelectEmployee" type="hidden" [(ngModel)]="draft.employeeId" name="employee">
+    <label>Attendance date
+      <input required type="date" [(ngModel)]="draft.attendanceDate" name="attendanceDate">
+    </label>
+    <label>Status
+      <select required [(ngModel)]="draft.status" name="status">
+        <option value="PRESENT">Present</option>
+        <option value="ABSENT">Absent</option>
+        <option value="LEAVE">Leave</option>
+        <option value="HALF_DAY">Half day</option>
+        <option value="REMOTE">Remote</option>
+      </select>
+    </label>
+    <div class="form-grid">
+      <label>Check in<input type="datetime-local" [(ngModel)]="draft.checkIn" name="checkIn"></label>
+      <label>Check out<input type="datetime-local" [(ngModel)]="draft.checkOut" name="checkOut"></label>
+    </div>
+    <div class="actions">
+      <button type="button" (click)="closeForm()">Cancel</button>
+      <button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save attendance' }}</button>
+    </div>
+  </form>
+</div>
