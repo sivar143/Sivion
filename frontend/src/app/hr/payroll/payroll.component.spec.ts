@@ -52,6 +52,6 @@ describe('PayrollComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Ravi Kumar');
-    expect(fixture.nativeElement.textContent).toContain('50000');
+    expect(fixture.nativeElement.textContent).toContain('50,000');
   });
 });
