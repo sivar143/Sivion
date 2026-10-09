@@ -34,17 +34,17 @@ public class HrController {
 
     @GetMapping("/dashboard")
     @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')")
-    public Map<String, Object> dashboard() {
+    public Map<String, Object> dashboard(Authentication authentication) {
         return Map.of(
                 "activeEmployees", service.activeEmployees(),
-                "employees", service.employees().size(),
+                "employees", service.employees(authentication).size(),
                 "departments", service.departments().size());
     }
 
     @GetMapping("/employees")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER')")
-    public List<Employee> employees() {
-        return service.employees();
+    @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')")
+    public List<Employee> employees(Authentication authentication) {
+        return service.employees(authentication);
     }
 
     @PostMapping("/employees")
@@ -84,46 +84,53 @@ public class HrController {
     @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')")
     public List<Attendance> attendance(
             @RequestParam(required = false) LocalDate from,
-            @RequestParam(required = false) LocalDate to) {
+            @RequestParam(required = false) LocalDate to,
+            Authentication authentication) {
         LocalDate end = to == null ? LocalDate.now() : to;
         LocalDate start = from == null ? end.minusDays(30) : from;
-        return service.attendance(start, end);
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("'from' date must be on or before 'to' date");
+        }
+        return service.attendance(start, end, authentication);
     }
 
     @PostMapping("/attendance")
     @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')")
-    public Attendance markAttendance(@RequestBody Attendance attendance) {
-        return service.markAttendance(attendance);
+    public Attendance markAttendance(@RequestBody Attendance attendance, Authentication authentication) {
+        return service.markAttendance(attendance, authentication);
     }
 
     @GetMapping("/leaves")
     @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')")
-    public List<LeaveRequest> leaves() {
-        return service.leaves();
+    public List<LeaveRequest> leaves(Authentication authentication) {
+        return service.leaves(authentication);
     }
 
     @PostMapping("/leaves")
     @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')")
-    public LeaveRequest requestLeave(@RequestBody LeaveRequest leave) {
-        return service.requestLeave(leave);
+    public LeaveRequest requestLeave(@RequestBody LeaveRequest leave, Authentication authentication) {
+        return service.requestLeave(leave, authentication);
     }
 
     @PatchMapping("/leaves/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER')")
-    public LeaveRequest updateLeave(@PathVariable Long id, @RequestParam String status) {
-        return service.updateLeave(id, status, null);
+    public LeaveRequest updateLeave(
+            @PathVariable Long id,
+            @RequestParam String status,
+            Authentication authentication) {
+        return service.updateLeave(id, status, null, authentication);
     }
 
     @GetMapping("/goals")
     @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')")
-    public List<Goal> goals() {
-        return service.goals();
+    public List<Goal> goals(Authentication authentication) {
+        return service.goals(authentication);
     }
 
     @PostMapping("/goals")
     @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','MANAGER','EMPLOYEE')")
-    public Goal createGoal(@RequestBody Goal goal) {
-        return service.createGoal(goal);
+    public Goal createGoal(@RequestBody Goal goal, Authentication authentication) {
+        return service.createGoal(goal, authentication);
     }
 
     @GetMapping("/designations")
