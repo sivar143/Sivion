@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { HrApi, Department, Employee, LeaveRequest, Payslip } from '../../services/hr-api.service';
 
 @Component({
@@ -11,6 +11,7 @@ import { HrApi, Department, Employee, LeaveRequest, Payslip } from '../../servic
 })
 export class ReportsComponent implements OnInit {
   private readonly api = inject(HrApi);
+  private readonly cdr = inject(ChangeDetectorRef);
   employees: Employee[] = [];
   departments: Department[] = [];
   leaves: LeaveRequest[] = [];
@@ -19,6 +20,7 @@ export class ReportsComponent implements OnInit {
 
   private addLoadError(message: string): void {
     this.loadError = this.loadError ? `${this.loadError} ${message}` : message;
+    this.cdr.markForCheck();
   }
 
   get activeEmployees(): number {
@@ -30,13 +32,13 @@ export class ReportsComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const requests = [
-      this.api.employees().then(value => { this.employees = value; })
+      this.api.employees().then(value => { this.employees = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Employee summary could not be loaded.')),
-      this.api.departments().then(value => { this.departments = value; })
+      this.api.departments().then(value => { this.departments = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Department summary could not be loaded.')),
-      this.api.leaves().then(value => { this.leaves = value; })
+      this.api.leaves().then(value => { this.leaves = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Leave summary could not be loaded.')),
-      this.api.payslips().then(value => { this.payslips = value; })
+      this.api.payslips().then(value => { this.payslips = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Payroll summary could not be loaded.'))
     ];
     await Promise.all(requests);
