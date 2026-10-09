@@ -31,6 +31,21 @@ describe('AttendanceComponent', () => {
     expect(component.employeeName(5)).toBe('Ravi Kumar');
   });
 
+  it('loads attendance for the selected date range', async () => {
+    component.fromDate = '2026-10-01';
+    component.toDate = '2026-10-09';
+    await component.reload();
+    expect(api.attendance).toHaveBeenCalledWith('2026-10-01', '2026-10-09');
+  });
+
+  it('rejects an inverted date range before making an API call', async () => {
+    component.fromDate = '2026-10-10';
+    component.toDate = '2026-10-01';
+    await component.reload();
+    expect(api.attendance).not.toHaveBeenCalled();
+    expect(component.loadError).toContain('start date');
+  });
+
   it('records attendance for the signed-in employee', async () => {
     await component.ngOnInit();
     component.openForm();
