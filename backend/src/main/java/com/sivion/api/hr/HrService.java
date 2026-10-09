@@ -426,9 +426,15 @@ catch (RuntimeException ex) {
                     a.getEmployeeId(),
                     a.getAttendanceDate()
             ).map(existing -> {
+                java.time.LocalDateTime checkIn = a.getCheckIn() == null ? existing.getCheckIn() : a.getCheckIn();
+                java.time.LocalDateTime checkOut = a.getCheckOut() == null ? existing.getCheckOut() : a.getCheckOut();
+                if (checkIn != null && checkOut != null && checkOut.isBefore(checkIn)) {
+                    throw new IllegalArgumentException("Check-out cannot be earlier than check-in");
+                }
                 existing.setStatus(a.getStatus());
-                existing.setCheckIn(a.getCheckIn());
-                existing.setCheckOut(a.getCheckOut());
+                // Omitted timestamps mean "leave unchanged"; avoid erasing recorded times during a status-only update.
+                if (a.getCheckIn() != null) existing.setCheckIn(checkIn);
+                if (a.getCheckOut() != null) existing.setCheckOut(checkOut);
                 return attendance.save(existing);
             })
             .orElseGet(() -> attendance.save(a));
