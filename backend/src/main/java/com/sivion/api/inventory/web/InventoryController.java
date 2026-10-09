@@ -11,13 +11,13 @@ import java.util.*;
     public InventoryController(InventoryService service) {
         this.service=service;
     }
-    @GetMapping("/warehouses") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','WAREHOUSE_USER','INVENTORY_MANAGER','INVENTORY_USER')") public List<InventoryService.WarehouseView> warehouses() {
+    @GetMapping("/warehouses") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','WAREHOUSE_USER','INVENTORY_MANAGER','INVENTORY_USER','PROCUREMENT_MANAGER')") public List<InventoryService.WarehouseView> warehouses() {
         return service.warehouses();
     }
     @PostMapping("/warehouses") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','INVENTORY_MANAGER')") public InventoryService.WarehouseView createWarehouse(@Valid @RequestBody WarehouseRequest r) {
         return service.createWarehouse(new InventoryService.WarehouseRequest(r.code(),r.name()));
     }
-    @GetMapping("/materials") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','WAREHOUSE_USER','INVENTORY_MANAGER','INVENTORY_USER')") public List<InventoryService.MaterialView> materials(@RequestParam(required=false) Long warehouseId) {
+    @GetMapping("/materials") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','WAREHOUSE_USER','INVENTORY_MANAGER','INVENTORY_USER','SALES_MANAGER','SALES_USER','PROCUREMENT_MANAGER')") public List<InventoryService.MaterialView> materials(@RequestParam(required=false) Long warehouseId) {
         return warehouseId==null?service.materials():service.materials(warehouseId);
     }
     @PostMapping("/materials") @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','INVENTORY_MANAGER','INVENTORY_USER')") public InventoryService.MaterialView create(@Valid @RequestBody MaterialRequest r) {
