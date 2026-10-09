@@ -1,11 +1,7 @@
-declare const describe: (name: string, spec: () => void) => void;
-declare const beforeEach: (setup: () => void | Promise<void>) => void;
-declare const it: (name: string, spec: () => void | Promise<void>) => void;
-declare const expect: (actual: unknown) => any;
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FinanceComponent } from './finance.component';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { HttpClient } from '@angular/common/http';
+import { FinanceComponent } from './finance.component';
 import { AuthService } from '../services/auth.service';
 import { CrmApi } from '../services/crm-api.service';
 
@@ -19,15 +15,17 @@ describe('FinanceComponent', () => {
       providers: [
         { provide: HttpClient, useValue: {} },
         { provide: AuthService, useValue: { token: async () => 'test-token' } },
-        { provide: CrmApi, useValue: { customers: async () => [] } },
-      ],
+        { provide: CrmApi, useValue: { customers: async () => [] } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(FinanceComponent);
     component = fixture.componentInstance;
   });
 
-  it('should create', () => expect(component).toBeTruthy());
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 
   it('should calculate invoice, payment and outstanding totals', () => {
     component.invoices = [{ amount: 100 }, { amount: 250 }];
