@@ -136,6 +136,7 @@ public class HrService {
     public Employee createEmployee(Employee e, boolean admin) {
         prepareEmployee(e);
         e.setStatus(normalizeEmployeeStatus(e.getStatus(), "ACTIVE"));
+        if ("INACTIVE".equals(e.getStatus())) e.setAccountEnabled(false);
         if (e.getEmployeeNumber()==null||e.getEmployeeNumber().isBlank()) {
             throw new IllegalArgumentException( "Employee number is required");
         }
@@ -209,6 +210,7 @@ catch (RuntimeException ex) {
             throw new IllegalArgumentException("Username is required to maintain a staff login");
         }
         Boolean enabled=input.getAccountEnabled()==null?current.getAccountEnabled(): input.getAccountEnabled();
+        if ("INACTIVE".equals(targetStatus)) enabled = false;
         String newlyCreatedKeycloakUserId = null;
         if(current.getKeycloakUserId()!=null) {
             keycloak.updateUser(current.getKeycloakUserId(),
