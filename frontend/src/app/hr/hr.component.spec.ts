@@ -51,7 +51,10 @@ describe('HrComponent', () => {
     expect(buttons.some(button => button.textContent?.includes('+ Designation'))).toBe(true);
   });
 
-  it('should render a load error accessibly', () => {
+  it('should render a load error accessibly', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
     component.loadError = 'Some HR data could not be loaded.';
     fixture.detectChanges();
 
