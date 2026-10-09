@@ -23,6 +23,22 @@ export class EmployeesComponent implements OnInit {
   editing = false;
   draft: Employee = this.emptyEmployee();
 
+  get availableDesignations(): Designation[] {
+    return this.designations.filter(item =>
+      item.status !== 'INACTIVE' &&
+      (item.departmentId == null || item.departmentId === this.draft.departmentId));
+  }
+
+  onDepartmentChange(departmentId: number | undefined): void {
+    this.draft.departmentId = departmentId;
+    const selected = this.designations.find(item => item.id === this.draft.designationId);
+    if (selected && (selected.status === 'INACTIVE' ||
+        (selected.departmentId != null && selected.departmentId !== departmentId))) {
+      this.draft.designationId = undefined;
+      this.draft.designation = undefined;
+    }
+  }
+
   get availableRoles(): string[] {
     return this.auth.hasRole('ADMIN')
       ? ['ADMIN', 'HR_ADMIN', 'HR_USER', 'MANAGER', 'EMPLOYEE', 'SALES_MANAGER', 'SALES_USER',
