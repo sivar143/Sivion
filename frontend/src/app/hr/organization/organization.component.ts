@@ -38,13 +38,19 @@ export class OrganizationComponent implements OnInit {
 
   async reload(): Promise<void> {
     this.loadError = '';
-    const results = await Promise.allSettled([this.api.departments(), this.api.designations(), this.api.employees()]);
-    if (results[0].status === 'fulfilled') this.departments = results[0].value;
-    else this.loadError = 'Departments could not be loaded.';
-    if (results[1].status === 'fulfilled') this.designations = results[1].value;
-    else this.loadError = [this.loadError, 'Designations could not be loaded.'].filter(Boolean).join(' ');
-    if (results[2].status === 'fulfilled') this.employees = results[2].value;
-    else this.loadError = [this.loadError, 'Employee counts could not be loaded.'].filter(Boolean).join(' ');
+    const requests = [
+      this.api.departments().then(value => { this.departments = value; })
+        .catch(() => this.addLoadError('Departments could not be loaded.')),
+      this.api.designations().then(value => { this.designations = value; })
+        .catch(() => this.addLoadError('Designations could not be loaded.')),
+      this.api.employees().then(value => { this.employees = value; })
+        .catch(() => this.addLoadError('Employee counts could not be loaded.'))
+    ];
+    await Promise.all(requests);
+  }
+
+  private addLoadError(message: string): void {
+    this.loadError = this.loadError ? `${this.loadError} ${message}` : message;
   }
 
   departmentName(id?: number): string {
