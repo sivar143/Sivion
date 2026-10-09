@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { HrApi, Employee, Goal } from '../../services/hr-api.service';
@@ -14,6 +14,7 @@ import { HrApi, Employee, Goal } from '../../services/hr-api.service';
 export class GoalsComponent implements OnInit {
   private readonly api = inject(HrApi);
   private readonly auth = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
   goals: Goal[] = [];
   employees: Employee[] = [];
   loadError = '';
@@ -54,11 +55,14 @@ export class GoalsComponent implements OnInit {
     try {
       await this.api.createGoal({ ...this.draft });
       this.closeForm();
+      this.cdr.markForCheck();
       await this.reload();
     } catch (error: any) {
       this.actionError = error?.error?.error ?? error?.message ?? 'Unable to create the goal.';
+      this.cdr.markForCheck();
     } finally {
       this.saving = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -73,9 +77,9 @@ export class GoalsComponent implements OnInit {
   async reload(): Promise<void> {
     this.loadError = '';
     const requests = [
-      this.api.goals().then(value => { this.goals = value; })
+      this.api.goals().then(value => { this.goals = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Goals could not be loaded.')),
-      this.api.employees().then(value => { this.employees = value; })
+      this.api.employees().then(value => { this.employees = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Employee names could not be loaded.'))
     ];
     await Promise.all(requests);
@@ -83,6 +87,7 @@ export class GoalsComponent implements OnInit {
 
   private addLoadError(message: string): void {
     this.loadError = this.loadError ? `${this.loadError} ${message}` : message;
+    this.cdr.markForCheck();
   }
 
   employeeName(id: number): string {
