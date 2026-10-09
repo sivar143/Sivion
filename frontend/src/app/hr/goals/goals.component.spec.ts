@@ -55,4 +55,12 @@ describe('GoalsComponent', () => {
     await component.ngOnInit();
     expect(component.loadError).toContain('Goals could not be loaded.');
   });
+
+  it('renders goals after the initial asynchronous load', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Complete onboarding');
+    expect(fixture.nativeElement.textContent).toContain('Ravi Kumar');
+  });
 });
