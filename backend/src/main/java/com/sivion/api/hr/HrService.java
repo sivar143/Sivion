@@ -525,7 +525,16 @@ catch (RuntimeException ex) {
             throw new IllegalArgumentException("Only pending leave requests can be updated");
         }
         l.setStatus(status);
-        l.setApprovedBy(approver);
+        Long approverId = approver;
+        if (approverId == null) {
+            try {
+                approverId = currentEmployee(authentication).getId();
+            } catch (AccessDeniedException ex) {
+                if (!hasAnyRole(authentication, "ADMIN", "HR_ADMIN", "HR_USER")) throw ex;
+                // Platform administrators may not have an employee profile linked to their account.
+            }
+        }
+        l.setApprovedBy(approverId);
         return leaves.save(l);
     }
     public List<Goal> goals(Authentication authentication) {
