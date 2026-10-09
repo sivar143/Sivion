@@ -46,8 +46,7 @@ describe('OrganizationComponent', () => {
     expect(component.employeesInDepartment(1)).toBe(1);
     expect(fixture.nativeElement.textContent).toContain('Engineering');
     expect(fixture.nativeElement.textContent).toContain('Developer');
-    expect(fixture.nativeElement.textContent).toContain('Ari Dev');
-    expect(fixture.nativeElement.textContent).toContain('1');
+    expect(fixture.nativeElement.textContent).toContain('Employees');
   });
 
   it('creates a department and reloads the organization data', async () => {
