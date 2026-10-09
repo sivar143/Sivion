@@ -79,4 +79,12 @@ describe('AttendanceComponent', () => {
     await component.ngOnInit();
     expect(component.loadError).toContain('Attendance records could not be loaded.');
   });
+
+  it('renders attendance rows after the initial asynchronous load', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('2026-10-01');
+    expect(fixture.nativeElement.textContent).toContain('Ravi Kumar');
+  });
 });
