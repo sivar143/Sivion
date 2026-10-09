@@ -77,6 +77,14 @@ describe('AppComponent', () => {
     expect(component.isHr).toBe(true);
   });
 
+  it('routes only payroll, not finance reports, through the HR shell', () => {
+    component.workspace = WORKSPACES.finance;
+    component.activeItem = 'payroll';
+    expect(component.isHr).toBe(true);
+    component.activeItem = 'reports';
+    expect(component.isHr).toBe(false);
+  });
+
   it('should calculate open leads and win rate', () => {
     component.leads = [
       { status: 'NEW' } as any,
