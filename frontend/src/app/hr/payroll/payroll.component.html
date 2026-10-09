@@ -1,0 +1,37 @@
+<section class="panel">
+  <div class="toolbar"><div><h2>Payroll & payslips</h2><p>Review payroll records and manage employee payslips.</p></div>
+    <button *ngIf="canModifyHr" type="button" (click)="openNew()">+ Payslip</button>
+  </div>
+  <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
+  <table>
+    <thead><tr><th>Employee</th><th>Period</th><th>Gross</th><th>Deductions</th><th>Net</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let item of payslips">
+        <td>{{ employeeName(item.employeeId) }}</td><td>{{ item.periodStart }} → {{ item.periodEnd }}</td>
+        <td>₹{{ item.grossPay | number:'1.2-2' }}</td><td>₹{{ item.deductions | number:'1.2-2' }}</td>
+        <td>₹{{ (item.netPay ?? (item.grossPay - item.deductions)) | number:'1.2-2' }}</td>
+        <td><span class="pill">{{ item.status }}</span></td>
+        <td><button *ngIf="canModifyHr" type="button" (click)="openEdit(item)">Edit</button></td>
+      </tr>
+      <tr *ngIf="!payslips.length"><td colspan="7" class="empty">No payslips configured.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div *ngIf="modalOpen" class="modal">
+  <form (ngSubmit)="save()">
+    <h2>{{ editing ? 'Edit payslip' : 'New payslip' }}</h2>
+    <p *ngIf="formError" class="form-error" role="alert">{{ formError }}</p>
+    <select required [(ngModel)]="draft.employeeId" name="employee">
+      <option [ngValue]="0">Select employee</option>
+      <option *ngFor="let employee of employees" [ngValue]="employee.id">{{ employee.employeeNumber }} — {{ employee.firstName }} {{ employee.lastName }}</option>
+    </select>
+    <div class="form-grid"><input required type="date" [(ngModel)]="draft.periodStart" name="periodStart"><input required type="date" [(ngModel)]="draft.periodEnd" name="periodEnd"></div>
+    <div class="form-grid"><input required type="number" min="0" step="0.01" placeholder="Gross pay" [(ngModel)]="draft.grossPay" name="gross">
+      <input required type="number" min="0" step="0.01" placeholder="Deductions" [(ngModel)]="draft.deductions" name="deductions"></div>
+    <input type="number" min="0" step="0.01" placeholder="Net pay (optional; auto calculated)" [(ngModel)]="draft.netPay" name="net">
+    <select [(ngModel)]="draft.status" name="status"><option>DRAFT</option><option>PROCESSED</option><option>PAID</option></select>
+    <textarea placeholder="Notes" [(ngModel)]="draft.notes" name="notes"></textarea>
+    <div class="actions"><button type="button" (click)="closeModal()">Cancel</button><button type="submit">Save payslip</button></div>
+  </form>
+</div>
