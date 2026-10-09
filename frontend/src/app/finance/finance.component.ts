@@ -70,6 +70,7 @@ export class FinanceComponent implements OnInit {
   async reload(): Promise<void> {
     try {
       const options = await this.requestOptions();
+      this.setLoadFailure('finance data (authentication or API request failed)', false);
       const results = await Promise.allSettled([
         firstValueFrom(this.http.get<any[]>(`${this.baseUrl}/invoices`, options)),
         firstValueFrom(this.http.get<any[]>(`${this.baseUrl}/payments`, options)),

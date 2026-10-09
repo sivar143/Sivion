@@ -61,7 +61,7 @@ export class ProcurementComponent implements OnInit  {
     }
   }
   async reload() {
-    let h: Awaited<ReturnType<ProcurementComponent['headers']>>;
+    let h: { headers: HttpHeaders };
     try {
       h = await this.headers();
     } catch {
