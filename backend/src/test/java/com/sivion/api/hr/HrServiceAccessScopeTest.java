@@ -22,6 +22,7 @@ import com.sivion.api.hr.repository.LeaveRequestRepository;
 import com.sivion.api.hr.repository.PayslipRepository;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -58,6 +59,30 @@ class HrServiceAccessScopeTest {
         assertEquals(false, saved.getAccountEnabled());
         verify(keycloak).createUser("staff900", "staff900@example.com", "Staff", "Inactive",
                 "initialPass123", false, "EMPLOYEE", false);
+    }
+    @Test
+    void leaveDecisionRecordsLinkedApprover() {
+        EmployeeRepository employeeRepo = mock(EmployeeRepository.class);
+        LeaveRequestRepository leaveRepo = mock(LeaveRequestRepository.class);
+        Employee approver = employee(30L, "kc-hr", "hruser");
+        Employee requester = employee(10L, "kc-requester", "requester");
+        when(employeeRepo.findByTenantIdOrderByLastNameAscFirstNameAsc(1L))
+                .thenReturn(List.of(approver, requester));
+        LeaveRequest pending = leave(10L);
+        when(leaveRepo.findById(1L)).thenReturn(Optional.of(pending));
+        when(leaveRepo.save(any(LeaveRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        HrService service = new HrService(employeeRepo, mock(DepartmentRepository.class),
+                mock(AttendanceRepository.class), leaveRepo, mock(GoalRepository.class),
+                mock(PayslipRepository.class), mock(DesignationRepository.class),
+                mock(KeycloakAdminService.class));
+        var authentication = new UsernamePasswordAuthenticationToken(
+                "kc-hr", "ignored", List.of(new SimpleGrantedAuthority("ROLE_HR_USER")));
+
+        LeaveRequest approved = service.updateLeave(1L, "APPROVED", null, authentication);
+
+        assertEquals("APPROVED", approved.getStatus());
+        assertEquals(30L, approved.getApprovedBy());
     }
     @Test
     void employeeOnlyReceivesOwnHrRecords() {
