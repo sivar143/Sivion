@@ -45,7 +45,7 @@
     <div class="form-grid">
       <input required placeholder="Username" [(ngModel)]="draft.username" name="username">
       <select [(ngModel)]="draft.role" name="role"><option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option></select>
-      <select [(ngModel)]="draft.status" name="status"><option value="ACTIVE">Employment active</option><option value="INACTIVE">Employment inactive</option></select>
+      <select [(ngModel)]="draft.status" name="status" (ngModelChange)="onEmploymentStatusChange($event)"><option value="ACTIVE">Employment active</option><option value="INACTIVE">Employment inactive</option></select>
     </div>
     <input type="password" [required]="!editing || !draft.keycloakUserId" minlength="8"
       [placeholder]="editing && draft.keycloakUserId ? 'New password (leave blank to keep current)' : 'Initial password'"
