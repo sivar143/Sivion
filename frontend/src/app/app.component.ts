@@ -163,7 +163,11 @@ export class AppComponent implements OnInit  {
   get isHr()  {
     // Several section IDs (goals, meetings, reports) are shared with CRM.
     // Only route them to HR when the active workspace actually owns HR workflows.
-    const hrWorkspaces = ['admin', 'hr-admin', 'hr-user', 'manager', 'employee', 'finance'];
+    if (this.workspace.id === 'finance') {
+      // Finance has read-only payroll, but its reports belong to the finance workspace.
+      return this.activeItem === 'payroll';
+    }
+    const hrWorkspaces = ['admin', 'hr-admin', 'hr-user', 'manager', 'employee'];
     return hrWorkspaces.includes(this.workspace.id) && [
     'employees',
     'organization',
