@@ -29,19 +29,33 @@ export class FinanceComponent implements OnInit {
   payments: any[] = [];
   expenses: any[] = [];
   customers: Customer[] = [];
+  loadError = '';
 
   mode = '';
   draft: any = {};
 
   async ngOnInit(): Promise<void> {
-    await Promise.all([
-      this.reload(),
-      this.loadCustomers()
-    ]);
+    await Promise.allSettled([this.reload(), this.loadCustomers()]);
   }
 
   private async loadCustomers(): Promise<void> {
-    this.customers = await this.crm.customers('');
+    try {
+      this.customers = await this.crm.customers('');
+      this.refreshLoadError();
+    } catch {
+      this.addLoadError('customers');
+    }
+  }
+
+  private addLoadError(source: string): void {
+    const messages = this.loadError ? [this.loadError] : [];
+    const message = `Unable to load ${source}.`;
+    if (!messages.some(existing => existing.includes(message))) messages.push(message);
+    this.loadError = messages.join(' ');
+  }
+
+  private refreshLoadError(): void {
+    // Keep errors from other requests until a complete reload succeeds.
   }
 
   private async requestOptions(): Promise<{ headers: HttpHeaders }> {
@@ -56,23 +70,28 @@ export class FinanceComponent implements OnInit {
   }
 
   async reload(): Promise<void> {
-    const options = await this.requestOptions();
+    try {
+      const options = await this.requestOptions();
+      const results = await Promise.allSettled([
+        firstValueFrom(this.http.get<any[]>(`${this.baseUrl}/invoices`, options)),
+        firstValueFrom(this.http.get<any[]>(`${this.baseUrl}/payments`, options)),
+        firstValueFrom(this.http.get<any[]>(`${this.baseUrl}/expenses`, options))
+      ]);
+      const failures: string[] = [];
 
-    const [invoices, payments, expenses] = await Promise.all([
-      firstValueFrom(
-        this.http.get<any[]>(`${this.baseUrl}/invoices`, options)
-      ),
-      firstValueFrom(
-        this.http.get<any[]>(`${this.baseUrl}/payments`, options)
-      ),
-      firstValueFrom(
-        this.http.get<any[]>(`${this.baseUrl}/expenses`, options)
-      )
-    ]);
+      if (results[0].status === 'fulfilled') this.invoices = results[0].value;
+      else failures.push('invoices');
+      if (results[1].status === 'fulfilled') this.payments = results[1].value;
+      else failures.push('payments');
+      if (results[2].status === 'fulfilled') this.expenses = results[2].value;
+      else failures.push('expenses');
 
-    this.invoices = invoices;
-    this.payments = payments;
-    this.expenses = expenses;
+      this.loadError = failures.length
+        ? `Unable to load ${failures.join(', ')}. Other available finance data is still shown.`
+        : '';
+    } catch {
+      this.addLoadError('finance data (authentication or API request failed)');
+    }
   }
 
   get invoiceTotal(): number {

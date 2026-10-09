@@ -34,6 +34,7 @@ export class InventoryComponent implements OnInit  {
   customers:Customer[]=[];
   dispatches:any[]=[];
   transactions:InventoryTransaction[]=[];
+  loadError='';
   mode='';
   selectedId=0;
   warehouseId=0;
@@ -53,16 +54,28 @@ export class InventoryComponent implements OnInit  {
     productId:0,warehouseId:0,quantity:1
   }];
   async ngOnInit() {
-    try {
-      this.warehouses=await this.api.warehouses();
-      this.warehouseId=this.warehouses.find(w=>w.status==='ACTIVE')?.id||0;
-      this.customers=await this.crm.customers('');
-      this.draft.warehouseId=this.warehouseId;
-      await this.reload();
+    const [warehouses, customers] = await Promise.allSettled([
+      this.api.warehouses(),
+      this.crm.customers('')
+    ]);
+    const failures: string[] = [];
+
+    if (warehouses.status === 'fulfilled') {
+      this.warehouses = warehouses.value;
+      this.warehouseId = this.warehouses.find(w => w.status === 'ACTIVE')?.id || 0;
+    } else {
+      failures.push('warehouses');
     }
-    catch(e) {
-      alert(e)
-    }
+
+    if (customers.status === 'fulfilled') this.customers = customers.value;
+    else failures.push('customers');
+
+    this.draft.warehouseId = this.warehouseId;
+    this.loadError = failures.length
+      ? `Unable to load ${failures.join(', ')}. Other available inventory data is still shown.`
+      : '';
+
+    await this.reload();
   }
   get warehouseName() {
     return this.warehouses.find(w=>w.id===this.warehouseId)?.name||'Not configured';
@@ -83,9 +96,28 @@ export class InventoryComponent implements OnInit  {
     return this.warehouses.find(w=>w.id===id)?.code||`Warehouse #${id}`;
   }
   async reload() {
-    if(!this.warehouseId)return;
-    this.draft.warehouseId=this.warehouseId;
-    [this.materials,this.dispatches,this.transactions]=await Promise.all([this.api.materials(this.warehouseId),this.api.history(),this.api.transactions()]);
+    this.draft.warehouseId = this.warehouseId || undefined;
+    const results = await Promise.allSettled([
+      this.warehouseId ? this.api.materials(this.warehouseId) : Promise.resolve([] as Material[]),
+      this.api.history(),
+      this.api.transactions()
+    ]);
+    const failures: string[] = [];
+
+    if (results[0].status === 'fulfilled') this.materials = results[0].value;
+    else failures.push('materials and stock balances');
+    if (results[1].status === 'fulfilled') this.dispatches = results[1].value;
+    else failures.push('dispatch history');
+    if (results[2].status === 'fulfilled') this.transactions = results[2].value;
+    else failures.push('stock transactions');
+
+    if (!this.warehouseId && this.warehouses.length === 0) {
+      failures.push('no warehouse is configured');
+    }
+
+    this.loadError = failures.length
+      ? `Unable to load ${failures.join(', ')}. Other available inventory data is still shown.`
+      : '';
   }
   startDispatch() {
     this.dispatchLines=[ {

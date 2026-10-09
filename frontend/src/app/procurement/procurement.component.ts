@@ -36,6 +36,7 @@ export class ProcurementComponent implements OnInit  {
   receipts:any[]=[];
   materials:any[]=[];
   warehouses:any[]=[];
+  loadError='';
   mode='';
   supplier:any= {
     code:'',name:'',email:'',phone:'',address:''
@@ -60,13 +61,52 @@ export class ProcurementComponent implements OnInit  {
     }
   }
   async reload() {
-    const h=await this.headers();
-    [this.suppliers,this.requests,this.orders,this.receipts,this.warehouses]=await Promise.all([firstValueFrom(this.http.get<any[]>(this.base+'/suppliers',h)),firstValueFrom(this.http.get<any[]>(this.base+'/requests',h)),firstValueFrom(this.http.get<any[]>(this.base+'/orders',h)),firstValueFrom(this.http.get<any[]>(this.base+'/goods-received',h)),firstValueFrom(this.http.get<any[]>(this.inventoryBase+'/warehouses',h))]);
-    if(this.warehouses.length)this.materials=await firstValueFrom(this.http.get<any[]>(this.inventoryBase+'/materials', {
-      ...h,params: {
-        warehouseId:this.warehouses[0].id
+    let h: Awaited<ReturnType<ProcurementComponent['headers']>>;
+    try {
+      h = await this.headers();
+    } catch {
+      this.loadError = 'Unable to authenticate to load procurement data.';
+      return;
+    }
+
+    const results = await Promise.allSettled([
+      firstValueFrom(this.http.get<any[]>(this.base + '/suppliers', h)),
+      firstValueFrom(this.http.get<any[]>(this.base + '/requests', h)),
+      firstValueFrom(this.http.get<any[]>(this.base + '/orders', h)),
+      firstValueFrom(this.http.get<any[]>(this.base + '/goods-received', h)),
+      firstValueFrom(this.http.get<any[]>(this.inventoryBase + '/warehouses', h))
+    ]);
+    const failures: string[] = [];
+
+    if (results[0].status === 'fulfilled') this.suppliers = results[0].value;
+    else failures.push('suppliers');
+    if (results[1].status === 'fulfilled') this.requests = results[1].value;
+    else failures.push('purchase requests');
+    if (results[2].status === 'fulfilled') this.orders = results[2].value;
+    else failures.push('purchase orders');
+    if (results[3].status === 'fulfilled') this.receipts = results[3].value;
+    else failures.push('goods receipts');
+    if (results[4].status === 'fulfilled') this.warehouses = results[4].value;
+    else failures.push('warehouses');
+
+    const warehouse = this.warehouses.find(w => w.status === 'ACTIVE') ?? this.warehouses[0];
+    if (warehouse) {
+      try {
+        this.materials = await firstValueFrom(this.http.get<any[]>(
+          this.inventoryBase + '/materials',
+          { ...h, params: { warehouseId: warehouse.id } }
+        ));
+      } catch {
+        failures.push('materials');
       }
-    }));
+    } else {
+      this.materials = [];
+      if (results[4].status === 'fulfilled') failures.push('materials (no warehouse available)');
+    }
+
+    this.loadError = failures.length
+      ? `Unable to load ${failures.join(', ')}. Other available procurement data is still shown.`
+      : '';
   }
   get receivableOrders() {
     return this.orders.filter(x=>x.status==='ISSUED'||x.status==='PARTIALLY_RECEIVED');

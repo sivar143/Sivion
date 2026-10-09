@@ -33,6 +33,7 @@ export class SalesOrderComponent implements OnInit  {
   customers:Customer[]=[];
   opportunities:Opportunity[]=[];
   materials:Material[]=[];
+  loadError='';
   newOrder=false;
   statuses=['DRAFT','CONFIRMED','RESERVED','PARTIALLY_DISPATCHED','DISPATCHED','CANCELLED'];
   draft: {
@@ -51,7 +52,26 @@ export class SalesOrderComponent implements OnInit  {
     await this.reload();
   }
   async reload() {
-    [this.orders,this.customers,this.opportunities,this.materials]=await Promise.all([this.api.list(),this.crm.customers(''),this.crm.opportunities(),this.inventory.materials()]);
+    const results = await Promise.allSettled([
+      this.api.list(),
+      this.crm.customers(''),
+      this.crm.opportunities(),
+      this.inventory.materials()
+    ]);
+    const failures: string[] = [];
+
+    if (results[0].status === 'fulfilled') this.orders = results[0].value;
+    else failures.push('sales orders');
+    if (results[1].status === 'fulfilled') this.customers = results[1].value;
+    else failures.push('customers');
+    if (results[2].status === 'fulfilled') this.opportunities = results[2].value;
+    else failures.push('opportunities');
+    if (results[3].status === 'fulfilled') this.materials = results[3].value;
+    else failures.push('materials');
+
+    this.loadError = failures.length
+      ? `Some sales-order data could not be loaded: ${failures.join(', ')}. Other available data is still shown.`
+      : '';
   }
   get total() {
     return this.orders.reduce((a,o)=>a+Number(o.totalAmount||0),0);
