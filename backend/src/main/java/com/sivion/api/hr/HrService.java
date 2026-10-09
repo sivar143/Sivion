@@ -134,8 +134,10 @@ public class HrService {
         if (e.getEmployeeNumber()==null||e.getEmployeeNumber().isBlank()) {
             throw new IllegalArgumentException( "Employee number is required");
         }
+        e.setEmployeeNumber(e.getEmployeeNumber().trim());
+        validateEmployeeIdentity(e.getFirstName(), e.getLastName(), e.getEmail());
         if (employees.existsByTenantIdAndEmployeeNumber(TENANT_ID, e.getEmployeeNumber())) {
-            throw new IllegalArgumentException( "Employee number already exists");
+            throw new IllegalArgumentException("Employee number already exists");
         }
         validateDesignationAssignment(e);
         validateAccountRole(e.getRole());
@@ -143,8 +145,11 @@ public class HrService {
             throw new IllegalArgumentException( "HR can assign only HR_USER, MANAGER or EMPLOYEE roles");
         }
         validateOrganizationAssignments(e);
-        if(e.getUsername()!=null&&!e.getUsername().isBlank()) {
-            validatePassword(e.getPassword());
+        if (e.getUsername() == null || e.getUsername().isBlank()) {
+            throw new IllegalArgumentException("Username is required to create a staff login");
+        }
+        validatePassword(e.getPassword());
+        {
             String id=keycloak.createUser(e.getUsername(),
                  e.getEmail(),
                  e.getFirstName(),
@@ -183,7 +188,19 @@ catch (RuntimeException ex) {
             throw new IllegalArgumentException( "HR can assign only HR_USER, MANAGER or EMPLOYEE roles");
         }
         validateOrganizationAssignments(input);
-        String username=input.getUsername()==null?current.getUsername(): input.getUsername();
+        if (input.getEmployeeNumber() == null || input.getEmployeeNumber().isBlank()) {
+            throw new IllegalArgumentException("Employee number is required");
+        }
+        input.setEmployeeNumber(input.getEmployeeNumber().trim());
+        validateEmployeeIdentity(input.getFirstName(), input.getLastName(), input.getEmail());
+        if (!Objects.equals(current.getEmployeeNumber(), input.getEmployeeNumber())
+                && employees.existsByTenantIdAndEmployeeNumber(TENANT_ID, input.getEmployeeNumber())) {
+            throw new IllegalArgumentException("Employee number already exists");
+        }
+        String username=input.getUsername()==null?current.getUsername(): input.getUsername().trim();
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username is required to maintain a staff login");
+        }
         Boolean enabled=input.getAccountEnabled()==null?current.getAccountEnabled(): input.getAccountEnabled();
         if(current.getKeycloakUserId()!=null) {
             keycloak.updateUser(current.getKeycloakUserId(),
@@ -196,7 +213,7 @@ catch (RuntimeException ex) {
                  input.getTemporaryPassword(),
                 role);
         }
-        else if(username!=null&&!username.isBlank()&&input.getPassword()!=null&&!input.getPassword().isBlank()) {
+        else {
             validatePassword(input.getPassword());
             String uid=keycloak.createUser(username,
                  input.getEmail(),
@@ -207,14 +224,6 @@ catch (RuntimeException ex) {
                  role,
                 Boolean.TRUE.equals(input.getAccountEnabled()));
             current.setKeycloakUserId(uid);
-        }
-        if (input.getEmployeeNumber()==null||input.getEmployeeNumber().isBlank()) {
-            throw new IllegalArgumentException( "Employee number is required");
-        }
-        if (!Objects.equals(current.getEmployeeNumber(),
-             input.getEmployeeNumber())&&employees.existsByTenantIdAndEmployeeNumber(TENANT_ID,
-            input.getEmployeeNumber())) {
-            throw new IllegalArgumentException( "Employee number already exists");
         }
         current.setEmployeeNumber(input.getEmployeeNumber());
         current.setFirstName(input.getFirstName());
@@ -234,7 +243,19 @@ catch (RuntimeException ex) {
         current.setTemporaryPassword(false);
         return employees.save(current);
     }
+    private void validateEmployeeIdentity(String firstName, String lastName, String email) {
+        if (firstName == null || firstName.isBlank()) throw new IllegalArgumentException("First name is required");
+        if (lastName == null || lastName.isBlank()) throw new IllegalArgumentException("Last name is required");
+        if (email == null || email.isBlank() || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            throw new IllegalArgumentException("A valid email address is required");
+        }
+    }
+
     private void prepareEmployee(Employee e) {
+        if (e.getFirstName() != null) e.setFirstName(e.getFirstName().trim());
+        if (e.getLastName() != null) e.setLastName(e.getLastName().trim());
+        if (e.getEmail() != null) e.setEmail(e.getEmail().trim());
+        if (e.getEmployeeNumber() != null) e.setEmployeeNumber(e.getEmployeeNumber().trim());
         if (e.getStatus()==null) {
             e.setStatus( "ACTIVE");
         }
