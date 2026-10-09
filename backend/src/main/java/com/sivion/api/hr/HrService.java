@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 
 @Service
 @Transactional
@@ -54,8 +56,72 @@ public class HrService {
         designations=ds;
         keycloak=k;
     }
-    public List<Employee> employees() {
-        return employees.findByTenantIdOrderByLastNameAscFirstNameAsc(TENANT_ID);
+    public List<Employee> employees(Authentication authentication) {
+        List<Employee> all = employees.findByTenantIdOrderByLastNameAscFirstNameAsc(TENANT_ID);
+        if (hasAnyRole(authentication, "ADMIN", "HR_ADMIN", "HR_USER")) return all;
+        Employee current = currentEmployee(authentication, all);
+        if (hasAnyRole(authentication, "MANAGER")) {
+            return all.stream()
+                    .filter(employee -> Objects.equals(employee.getId(), current.getId())
+                            || Objects.equals(employee.getManagerId(), current.getId()))
+                    .toList();
+        }
+        return List.of(current);
+    }
+
+    private String roleName(Authentication authentication) {
+        if (authentication == null) return "";
+        return authentication.getAuthorities().stream()
+                .map(authority -> authority.getAuthority().replaceFirst("^ROLE_", ""))
+                .filter(role -> Set.of("ADMIN", "HR_ADMIN", "HR_USER", "MANAGER", "EMPLOYEE").contains(role))
+                .findFirst().orElse("");
+    }
+
+    private boolean hasAnyRole(Authentication authentication, String... roles) {
+        if (authentication == null) return false;
+        Set<String> expected = Set.of(roles);
+        return authentication.getAuthorities().stream()
+                .map(authority -> authority.getAuthority().replaceFirst("^ROLE_", ""))
+                .anyMatch(expected::contains);
+    }
+
+    private Employee currentEmployee(Authentication authentication, List<Employee> all) {
+        if (authentication == null || authentication.getName() == null) {
+            throw new AccessDeniedException("Authenticated employee profile is required");
+        }
+        String principal = authentication.getName();
+        return all.stream()
+                .filter(employee -> principal.equals(employee.getKeycloakUserId())
+                        || principal.equals(employee.getUsername()))
+                .findFirst()
+                .orElseThrow(() -> new AccessDeniedException("No HR employee profile is linked to this account"));
+    }
+
+    private Set<Long> visibleEmployeeIds(Authentication authentication) {
+        List<Employee> all = employees.findByTenantIdOrderByLastNameAscFirstNameAsc(TENANT_ID);
+        if (hasAnyRole(authentication, "ADMIN", "HR_ADMIN", "HR_USER")) {
+            Set<Long> ids = new HashSet<>();
+            all.forEach(employee -> ids.add(employee.getId()));
+            return ids;
+        }
+        Employee current = currentEmployee(authentication, all);
+        Set<Long> ids = new HashSet<>();
+        ids.add(current.getId());
+        if (hasAnyRole(authentication, "MANAGER")) {
+            all.stream().filter(employee -> Objects.equals(employee.getManagerId(), current.getId()))
+                    .map(Employee::getId).forEach(ids::add);
+        }
+        return ids;
+    }
+
+    private Employee currentEmployee(Authentication authentication) {
+        return currentEmployee(authentication, employees.findByTenantIdOrderByLastNameAscFirstNameAsc(TENANT_ID));
+    }
+
+    private void requireEmployeeScope(Long employeeId, Authentication authentication) {
+        if (!visibleEmployeeIds(authentication).contains(employeeId)) {
+            throw new AccessDeniedException("You are not allowed to access this employee's HR records");
+        }
     }
     public List<Department> departments() {
         return departments.findByTenantIdOrderByName(TENANT_ID);
@@ -307,8 +373,9 @@ catch (RuntimeException ex) {
             }
         }
     }
-    public Attendance markAttendance(Attendance a) {
+    public Attendance markAttendance(Attendance a, Authentication authentication) {
         validateEmployeeTenant(a.getEmployeeId());
+        requireEmployeeScope(a.getEmployeeId(), authentication);
         a.setTenantId(TENANT_ID);
         return attendance.findByTenantIdAndEmployeeIdAndAttendanceDate(
                     TENANT_ID,
@@ -322,35 +389,61 @@ catch (RuntimeException ex) {
             })
             .orElseGet(() -> attendance.save(a));
     }
-    public List<Attendance> attendance(LocalDate from, LocalDate to) {
-        return attendance.findByTenantIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(TENANT_ID, from, to);
+    public List<Attendance> attendance(LocalDate from, LocalDate to, Authentication authentication) {
+        Set<Long> visibleIds = visibleEmployeeIds(authentication);
+        return attendance.findByTenantIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(TENANT_ID, from, to)
+                .stream().filter(record -> visibleIds.contains(record.getEmployeeId())).toList();
     }
-    public List<LeaveRequest> leaves() {
-        return leaves.findByTenantIdOrderByCreatedAtDesc(TENANT_ID);
+    public List<LeaveRequest> leaves(Authentication authentication) {
+        Set<Long> visibleIds = visibleEmployeeIds(authentication);
+        return leaves.findByTenantIdOrderByCreatedAtDesc(TENANT_ID)
+                .stream().filter(record -> visibleIds.contains(record.getEmployeeId())).toList();
     }
-    public LeaveRequest requestLeave(LeaveRequest l) {
+    public LeaveRequest requestLeave(LeaveRequest l, Authentication authentication) {
         validateEmployeeTenant(l.getEmployeeId());
+        if (!hasAnyRole(authentication, "ADMIN", "HR_ADMIN", "HR_USER")) {
+            Employee current = currentEmployee(authentication);
+            if (!Objects.equals(current.getId(), l.getEmployeeId())) {
+                throw new AccessDeniedException("You can request leave only for your own employee profile");
+            }
+        }
         l.setTenantId(TENANT_ID);
         l.setStatus( "PENDING");
         return leaves.save(l);
     }
-    public LeaveRequest updateLeave(Long id, String status, Long approver) {
+    public LeaveRequest updateLeave(Long id, String status, Long approver, Authentication authentication) {
         LeaveRequest l=leaves.findById(id).orElseThrow(()->new IllegalArgumentException( "Leave request not found"));
         if (!l.getTenantId().equals(TENANT_ID)) {
             throw new IllegalArgumentException( "Invalid tenant");
         }
-        if (!Set.of( "APPROVED", "REJECTED", "PENDING", "CANCELLED").contains(status)) {
-            throw new IllegalArgumentException( "Invalid leave status");
+        if (!Set.of("APPROVED", "REJECTED").contains(status)) {
+            throw new IllegalArgumentException("Leave status must be APPROVED or REJECTED");
+        }
+        if ("MANAGER".equals(roleName(authentication)) && !hasAnyRole(authentication, "ADMIN", "HR_ADMIN", "HR_USER")) {
+            Employee manager = currentEmployee(authentication);
+            if (Objects.equals(manager.getId(), l.getEmployeeId())) {
+                throw new AccessDeniedException("Managers cannot approve their own leave requests");
+            }
+            requireEmployeeScope(l.getEmployeeId(), authentication);
+        }
+        if (!hasAnyRole(authentication, "ADMIN", "HR_ADMIN", "HR_USER", "MANAGER")) {
+            throw new AccessDeniedException("You are not allowed to approve leave requests");
+        }
+        if (!"PENDING".equals(l.getStatus())) {
+            throw new IllegalArgumentException("Only pending leave requests can be updated");
         }
         l.setStatus(status);
         l.setApprovedBy(approver);
         return leaves.save(l);
     }
-    public List<Goal> goals() {
-        return goals.findByTenantIdOrderByDueDateAsc(TENANT_ID);
+    public List<Goal> goals(Authentication authentication) {
+        Set<Long> visibleIds = visibleEmployeeIds(authentication);
+        return goals.findByTenantIdOrderByDueDateAsc(TENANT_ID)
+                .stream().filter(goal -> visibleIds.contains(goal.getEmployeeId())).toList();
     }
-    public Goal createGoal(Goal g) {
+    public Goal createGoal(Goal g, Authentication authentication) {
         validateEmployeeTenant(g.getEmployeeId());
+        requireEmployeeScope(g.getEmployeeId(), authentication);
         g.setTenantId(TENANT_ID);
         return goals.save(g);
     }
