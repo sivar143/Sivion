@@ -26,7 +26,6 @@ describe('HrComponent', () => {
     createPayslip: async () => {},
     updatePayslip: async () => {}
   };
-
   const auth = { hasRole: (role: string) => role === 'ADMIN' };
 
   beforeEach(async () => {
@@ -37,17 +36,16 @@ describe('HrComponent', () => {
         { provide: AuthService, useValue: auth }
       ]
     }).compileComponents();
-
     fixture = TestBed.createComponent(HrComponent);
     component = fixture.componentInstance;
   });
 
-  it('should create the HR section host', () => {
+  it('creates the HR section host', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render the dedicated organization component and its actions', () => {
-    component.section = 'organization';
+  it('renders the dedicated organization component and its actions', () => {
+    fixture.componentRef.setInput('section', 'organization');
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('app-hr-organization')).toBeTruthy();
@@ -56,19 +54,16 @@ describe('HrComponent', () => {
     expect(buttons.some(button => button.textContent?.includes('+ Designation'))).toBe(true);
   });
 
-  it('should render separate components for employee-related sections', () => {
-    const cases: Array<[string, string]> = [
-      ['employees', 'app-hr-employees'],
-      ['attendance', 'app-hr-attendance'],
-      ['leaves', 'app-hr-leaves'],
-      ['payroll', 'app-hr-payroll'],
-      ['goals', 'app-hr-goals']
-    ];
-
-    for (const [section, selector] of cases) {
-      component.section = section;
-      fixture.detectChanges();
-      expect(fixture.nativeElement.querySelector(selector)).toBeTruthy();
-    }
+  it.each([
+    ['employees', 'app-hr-employees'],
+    ['attendance', 'app-hr-attendance'],
+    ['leaves', 'app-hr-leaves'],
+    ['payroll', 'app-hr-payroll'],
+    ['goals', 'app-hr-goals'],
+    ['reports', 'app-hr-reports']
+  ])('renders the dedicated component for the %s section', (section, selector) => {
+    fixture.componentRef.setInput('section', section);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector(selector)).toBeTruthy();
   });
 });
