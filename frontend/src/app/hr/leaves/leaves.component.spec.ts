@@ -71,4 +71,12 @@ describe('LeavesComponent', () => {
     expect(component.actionError).toContain('Unable to update');
     expect(component.leaves[0].status).toBe('PENDING');
   });
+
+  it('renders leave requests after the initial asynchronous load', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('ANNUAL');
+    expect(fixture.nativeElement.textContent).toContain('Ravi Kumar');
+  });
 });
