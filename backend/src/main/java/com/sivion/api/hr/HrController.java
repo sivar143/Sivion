@@ -154,9 +154,21 @@ public class HrController {
     }
 
     @GetMapping("/payslips")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','FINANCE_MANAGER','FINANCE_USER')")
     public List<Payslip> payslips() {
         return service.payslips();
+    }
+
+    @GetMapping("/payroll-employees")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','FINANCE_MANAGER','FINANCE_USER')")
+    public List<Map<String, Object>> payrollEmployees() {
+        return service.payrollEmployees().stream()
+                .map(employee -> Map.<String, Object>of(
+                        "id", employee.getId(),
+                        "employeeNumber", employee.getEmployeeNumber(),
+                        "firstName", employee.getFirstName(),
+                        "lastName", employee.getLastName()))
+                .toList();
     }
 
     @PostMapping("/payslips")
