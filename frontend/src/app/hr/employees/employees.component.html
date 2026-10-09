@@ -30,20 +30,20 @@
     <input required placeholder="Last name" [(ngModel)]="draft.lastName" name="last">
     <input required type="email" placeholder="Email" [(ngModel)]="draft.email" name="email">
     <input placeholder="Phone" [(ngModel)]="draft.phone" name="phone">
-    <select [(ngModel)]="draft.departmentId" name="department">
+    <select [(ngModel)]="draft.departmentId" name="department" (ngModelChange)="onDepartmentChange($event)">
       <option [ngValue]="undefined">No department</option>
       <option *ngFor="let item of departments" [ngValue]="item.id">{{ item.name }}</option>
     </select>
     <select [(ngModel)]="draft.designationId" name="designation">
       <option [ngValue]="undefined">No designation</option>
-      <option *ngFor="let item of designations" [ngValue]="item.id">{{ item.name }}</option>
+      <option *ngFor="let item of availableDesignations" [ngValue]="item.id">{{ item.name }}</option>
     </select>
     <div class="form-grid">
       <input required placeholder="Username" [(ngModel)]="draft.username" name="username">
       <select [(ngModel)]="draft.role" name="role"><option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option></select>
     </div>
-    <input type="password" [required]="!editing" minlength="8"
-      [placeholder]="editing ? 'New password (leave blank to keep current)' : 'Initial password'"
+    <input type="password" [required]="!editing || !draft.keycloakUserId" minlength="8"
+      [placeholder]="editing && draft.keycloakUserId ? 'New password (leave blank to keep current)' : 'Initial password'"
       [(ngModel)]="draft.password" name="password">
     <label class="check"><input type="checkbox" [(ngModel)]="draft.temporaryPassword" name="temporary"> Force password change at first login</label>
     <label class="check"><input type="checkbox" [(ngModel)]="draft.accountEnabled" name="enabled"> Login enabled</label>
