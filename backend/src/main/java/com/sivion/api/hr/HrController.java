@@ -128,7 +128,7 @@ public class HrController {
     }
 
     @PostMapping("/goals")
-    @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','MANAGER','EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')")
     public Goal createGoal(@RequestBody Goal goal, Authentication authentication) {
         return service.createGoal(goal, authentication);
     }
