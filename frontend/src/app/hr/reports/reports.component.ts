@@ -17,6 +17,10 @@ export class ReportsComponent implements OnInit {
   payslips: Payslip[] = [];
   loadError = '';
 
+  private addLoadError(message: string): void {
+    this.loadError = this.loadError ? `${this.loadError} ${message}` : message;
+  }
+
   get activeEmployees(): number {
     return this.employees.filter(employee => employee.status === 'ACTIVE').length;
   }
@@ -25,16 +29,16 @@ export class ReportsComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const results = await Promise.allSettled([
-      this.api.employees(), this.api.departments(), this.api.leaves(), this.api.payslips()
-    ]);
-    if (results[0].status === 'fulfilled') this.employees = results[0].value;
-    else this.loadError = 'Employee summary could not be loaded.';
-    if (results[1].status === 'fulfilled') this.departments = results[1].value;
-    else this.loadError = [this.loadError, 'Department summary could not be loaded.'].filter(Boolean).join(' ');
-    if (results[2].status === 'fulfilled') this.leaves = results[2].value;
-    else this.loadError = [this.loadError, 'Leave summary could not be loaded.'].filter(Boolean).join(' ');
-    if (results[3].status === 'fulfilled') this.payslips = results[3].value;
-    else this.loadError = [this.loadError, 'Payroll summary could not be loaded.'].filter(Boolean).join(' ');
+    const requests = [
+      this.api.employees().then(value => { this.employees = value; })
+        .catch(() => this.addLoadError('Employee summary could not be loaded.')),
+      this.api.departments().then(value => { this.departments = value; })
+        .catch(() => this.addLoadError('Department summary could not be loaded.')),
+      this.api.leaves().then(value => { this.leaves = value; })
+        .catch(() => this.addLoadError('Leave summary could not be loaded.')),
+      this.api.payslips().then(value => { this.payslips = value; })
+        .catch(() => this.addLoadError('Payroll summary could not be loaded.'))
+    ];
+    await Promise.all(requests);
   }
 }
