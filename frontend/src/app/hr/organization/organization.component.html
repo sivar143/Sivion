@@ -1,0 +1,56 @@
+<section class="panel">
+  <div class="toolbar">
+    <div><h2>Organization structure</h2><p>Manage departments, designations and reporting hierarchy.</p></div>
+    <div class="hr-actions" *ngIf="canModifyHr">
+      <button type="button" (click)="openNewDepartment()">+ Department</button>
+      <button type="button" (click)="openNewDesignation()">+ Designation</button>
+    </div>
+  </div>
+  <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
+  <table>
+    <thead><tr><th>Code</th><th>Department</th><th>Parent</th><th>Status</th><th>Employees</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let item of departments">
+        <td>{{ item.code }}</td><td><b>{{ item.name }}</b></td><td>{{ departmentName(item.parentId) }}</td>
+        <td><span class="pill">{{ item.status || 'ACTIVE' }}</span></td><td>{{ employeesInDepartment(item.id) }}</td>
+        <td><button *ngIf="canModifyHr" type="button" (click)="openEditDepartment(item)">Edit</button></td>
+      </tr>
+      <tr *ngIf="!departments.length"><td colspan="6" class="empty">No departments configured yet.</td></tr>
+    </tbody>
+  </table>
+  <div class="toolbar sub"><h3>Designations</h3><button *ngIf="canModifyHr" type="button" (click)="openNewDesignation()">+ Designation</button></div>
+  <table>
+    <thead><tr><th>Code</th><th>Designation</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let item of designations">
+        <td>{{ item.code }}</td><td><b>{{ item.name }}</b></td><td><span class="pill">{{ item.status || 'ACTIVE' }}</span></td>
+        <td><button *ngIf="canModifyHr" type="button" (click)="openEditDesignation(item)">Edit</button></td>
+      </tr>
+      <tr *ngIf="!designations.length"><td colspan="4" class="empty">No designations configured.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div *ngIf="departmentModal" class="modal">
+  <form (ngSubmit)="saveDepartment()">
+    <h2>{{ editingDepartment ? 'Edit department' : 'New department' }}</h2>
+    <p *ngIf="formError" class="form-error" role="alert">{{ formError }}</p>
+    <input required maxlength="40" placeholder="Department code" [(ngModel)]="departmentDraft.code" name="code">
+    <input required maxlength="160" placeholder="Department name" [(ngModel)]="departmentDraft.name" name="name">
+    <select [(ngModel)]="departmentDraft.parentId" name="parent"><option [ngValue]="undefined">No parent</option><option *ngFor="let item of availableParents" [ngValue]="item.id">{{ item.name }}</option></select>
+    <select [(ngModel)]="departmentDraft.status" name="status"><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option></select>
+    <div class="actions"><button type="button" (click)="closeDepartmentModal()">Cancel</button><button type="submit">{{ editingDepartment ? 'Save changes' : 'Create' }}</button></div>
+  </form>
+</div>
+
+<div *ngIf="designationModal" class="modal">
+  <form (ngSubmit)="saveDesignation()">
+    <h2>{{ editingDesignation ? 'Edit designation' : 'New designation' }}</h2>
+    <p *ngIf="formError" class="form-error" role="alert">{{ formError }}</p>
+    <input required maxlength="40" placeholder="Designation code" [(ngModel)]="designationDraft.code" name="code">
+    <input required maxlength="160" placeholder="Designation name" [(ngModel)]="designationDraft.name" name="name">
+    <select [(ngModel)]="designationDraft.departmentId" name="department"><option [ngValue]="undefined">All departments</option><option *ngFor="let item of departments" [ngValue]="item.id">{{ item.name }}</option></select>
+    <select [(ngModel)]="designationDraft.status" name="status"><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option></select>
+    <div class="actions"><button type="button" (click)="closeDesignationModal()">Cancel</button><button type="submit">Save designation</button></div>
+  </form>
+</div>
