@@ -398,6 +398,21 @@ catch (RuntimeException ex) {
     public Attendance markAttendance(Attendance a, Authentication authentication) {
         validateEmployeeTenant(a.getEmployeeId());
         requireEmployeeScope(a.getEmployeeId(), authentication);
+        if (a.getAttendanceDate() == null) throw new IllegalArgumentException("Attendance date is required");
+        String status = a.getStatus() == null ? "PRESENT" : a.getStatus().trim().toUpperCase(Locale.ROOT);
+        if (!Set.of("PRESENT", "ABSENT", "LEAVE", "HALF_DAY", "REMOTE", "HOLIDAY").contains(status)) {
+            throw new IllegalArgumentException("Invalid attendance status");
+        }
+        a.setStatus(status);
+        if (a.getCheckIn() != null && !a.getAttendanceDate().equals(a.getCheckIn().toLocalDate())) {
+            throw new IllegalArgumentException("Check-in date must match the attendance date");
+        }
+        if (a.getCheckOut() != null && !a.getAttendanceDate().equals(a.getCheckOut().toLocalDate())) {
+            throw new IllegalArgumentException("Check-out date must match the attendance date");
+        }
+        if (a.getCheckIn() != null && a.getCheckOut() != null && a.getCheckOut().isBefore(a.getCheckIn())) {
+            throw new IllegalArgumentException("Check-out cannot be earlier than check-in");
+        }
         a.setTenantId(TENANT_ID);
         return attendance.findByTenantIdAndEmployeeIdAndAttendanceDate(
                     TENANT_ID,
@@ -423,6 +438,17 @@ catch (RuntimeException ex) {
     }
     public LeaveRequest requestLeave(LeaveRequest l, Authentication authentication) {
         validateEmployeeTenant(l.getEmployeeId());
+        if (l.getLeaveType() == null || !Set.of("ANNUAL", "SICK", "PERSONAL", "UNPAID", "MATERNITY", "PATERNITY")
+                .contains(l.getLeaveType().trim().toUpperCase(Locale.ROOT))) {
+            throw new IllegalArgumentException("Invalid leave type");
+        }
+        l.setLeaveType(l.getLeaveType().trim().toUpperCase(Locale.ROOT));
+        if (l.getStartDate() == null || l.getEndDate() == null || l.getEndDate().isBefore(l.getStartDate())) {
+            throw new IllegalArgumentException("Leave end date must be on or after the start date");
+        }
+        if (l.getReason() != null && l.getReason().length() > 500) {
+            throw new IllegalArgumentException("Leave reason cannot exceed 500 characters");
+        }
         if (!hasAnyRole(authentication, "ADMIN", "HR_ADMIN", "HR_USER")) {
             Employee current = currentEmployee(authentication);
             if (!Objects.equals(current.getId(), l.getEmployeeId())) {
@@ -466,6 +492,21 @@ catch (RuntimeException ex) {
     public Goal createGoal(Goal g, Authentication authentication) {
         validateEmployeeTenant(g.getEmployeeId());
         requireEmployeeScope(g.getEmployeeId(), authentication);
+        if (g.getTitle() == null || g.getTitle().isBlank()) {
+            throw new IllegalArgumentException("Goal title is required");
+        }
+        g.setTitle(g.getTitle().trim());
+        if (g.getTargetValue() != null && g.getTargetValue() < 0) {
+            throw new IllegalArgumentException("Goal target cannot be negative");
+        }
+        if (g.getCurrentValue() != null && g.getCurrentValue() < 0) {
+            throw new IllegalArgumentException("Goal progress cannot be negative");
+        }
+        if (g.getStatus() == null || g.getStatus().isBlank()) g.setStatus("ACTIVE");
+        g.setStatus(g.getStatus().trim().toUpperCase(Locale.ROOT));
+        if (!Set.of("ACTIVE", "COMPLETED", "ON_HOLD", "CANCELLED").contains(g.getStatus())) {
+            throw new IllegalArgumentException("Invalid goal status");
+        }
         g.setTenantId(TENANT_ID);
         return goals.save(g);
     }
