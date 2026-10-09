@@ -16,11 +16,17 @@ export class GoalsComponent implements OnInit {
   loadError = '';
 
   async ngOnInit(): Promise<void> {
-    const results = await Promise.allSettled([this.api.goals(), this.api.employees()]);
-    if (results[0].status === 'fulfilled') this.goals = results[0].value;
-    else this.loadError = 'Goals could not be loaded.';
-    if (results[1].status === 'fulfilled') this.employees = results[1].value;
-    else this.loadError = [this.loadError, 'Employee names could not be loaded.'].filter(Boolean).join(' ');
+    const requests = [
+      this.api.goals().then(value => { this.goals = value; })
+        .catch(() => this.addLoadError('Goals could not be loaded.')),
+      this.api.employees().then(value => { this.employees = value; })
+        .catch(() => this.addLoadError('Employee names could not be loaded.'))
+    ];
+    await Promise.all(requests);
+  }
+
+  private addLoadError(message: string): void {
+    this.loadError = this.loadError ? `${this.loadError} ${message}` : message;
   }
 
   employeeName(id: number): string {
