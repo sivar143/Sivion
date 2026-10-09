@@ -3,7 +3,7 @@ import  {
 }
 from '@angular/core';
 import  {
-  HttpClient,HttpHeaders
+  HttpClient,HttpHeaders,HttpParams
 }
 from '@angular/common/http';
 import  {
@@ -132,8 +132,13 @@ export interface Payslip  {
     if(!d.id)throw new Error('Designation id is required for update');
     return firstValueFrom(this.http.put<Designation>(`/api/v1/hr/designations/${d.id}`,d,await this.options()));
   }
-  async attendance() {
-    return firstValueFrom(this.http.get<Attendance[]>('/api/v1/hr/attendance',await this.options()));
+  async attendance(from?: string, to?: string) {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return firstValueFrom(this.http.get<Attendance[]>('/api/v1/hr/attendance', {
+      ...(await this.options()), params
+    }));
   }
   async markAttendance(a:Attendance) {
     return firstValueFrom(this.http.post<Attendance>('/api/v1/hr/attendance',a,await this.options()));
