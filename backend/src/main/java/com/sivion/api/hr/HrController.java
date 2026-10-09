@@ -168,14 +168,25 @@ public class HrController {
 
     @GetMapping("/payroll-employees")
     @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','FINANCE_MANAGER','FINANCE_USER')")
-    public List<Map<String, Object>> payrollEmployees() {
+    public List<PayrollEmployeeResponse> payrollEmployees() {
         return service.payrollEmployees().stream()
-                .map(employee -> Map.<String, Object>of(
-                        "id", employee.getId(),
-                        "employeeNumber", employee.getEmployeeNumber(),
-                        "firstName", employee.getFirstName(),
-                        "lastName", employee.getLastName()))
+                .map(employee -> new PayrollEmployeeResponse(
+                        employee.getId(),
+                        employee.getEmployeeNumber(),
+                        employee.getFirstName(),
+                        employee.getLastName()))
                 .toList();
+    }
+
+    /**
+     * A response DTO that permits nullable fields in legacy database rows.
+     * Unlike Map.of(), record construction does not throw when a field is null.
+     */
+    public record PayrollEmployeeResponse(
+            Long id,
+            String employeeNumber,
+            String firstName,
+            String lastName) {
     }
 
     @PostMapping("/payslips")
