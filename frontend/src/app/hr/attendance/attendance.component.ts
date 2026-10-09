@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { HrApi, Attendance, Employee } from '../../services/hr-api.service';
@@ -14,6 +14,7 @@ import { HrApi, Attendance, Employee } from '../../services/hr-api.service';
 export class AttendanceComponent implements OnInit {
   private readonly api = inject(HrApi);
   private readonly auth = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
   attendance: Attendance[] = [];
   employees: Employee[] = [];
   loadError = '';
@@ -56,11 +57,14 @@ export class AttendanceComponent implements OnInit {
     try {
       await this.api.markAttendance({ ...this.draft, checkIn: this.draft.checkIn || undefined, checkOut: this.draft.checkOut || undefined });
       this.closeForm();
+      this.cdr.markForCheck();
       await this.reload();
     } catch (error: any) {
       this.actionError = error?.error?.error ?? error?.message ?? 'Unable to save attendance.';
+      this.cdr.markForCheck();
     } finally {
       this.saving = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -92,12 +96,13 @@ export class AttendanceComponent implements OnInit {
     this.loadError = '';
     if (this.fromDate && this.toDate && this.fromDate > this.toDate) {
       this.loadError = 'The start date must be on or before the end date.';
+      this.cdr.markForCheck();
       return;
     }
     const requests = [
-      this.api.attendance(this.fromDate || undefined, this.toDate || undefined).then(value => { this.attendance = value; })
+      this.api.attendance(this.fromDate || undefined, this.toDate || undefined).then(value => { this.attendance = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Attendance records could not be loaded.')),
-      this.api.employees().then(value => { this.employees = value; })
+      this.api.employees().then(value => { this.employees = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Employee names could not be loaded.'))
     ];
     await Promise.all(requests);
@@ -105,6 +110,7 @@ export class AttendanceComponent implements OnInit {
 
   private addLoadError(message: string): void {
     this.loadError = this.loadError ? `${this.loadError} ${message}` : message;
+    this.cdr.markForCheck();
   }
 
   employeeName(id: number): string {
