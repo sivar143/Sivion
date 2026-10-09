@@ -46,4 +46,12 @@ describe('PayrollComponent', () => {
     await component.ngOnInit();
     expect(component.loadError).toContain('Payslips could not be loaded.');
   });
+
+  it('renders payslips after the initial asynchronous load', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Ravi Kumar');
+    expect(fixture.nativeElement.textContent).toContain('50000');
+  });
 });
