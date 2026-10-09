@@ -62,4 +62,16 @@ describe('EmployeesComponent', () => {
       api.designations = originalDesignations;
     }
   });
+
+  it('renders employee rows after the initial asynchronous load', async () => {
+    api.employees = async () => [{
+      id: 8, employeeNumber: 'E008', firstName: 'Jordan', lastName: 'Lee',
+      email: 'jordan@example.com', status: 'ACTIVE', accountEnabled: true
+    }];
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('E008');
+    expect(fixture.nativeElement.textContent).toContain('Jordan Lee');
+  });
 });
