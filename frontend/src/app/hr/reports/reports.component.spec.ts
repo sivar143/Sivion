@@ -45,4 +45,13 @@ describe('ReportsComponent', () => {
     expect(component.loadError).toContain('Employee summary could not be loaded.');
     expect(component.loadError).toContain('Leave summary could not be loaded.');
   });
+
+  it('renders report metrics after the initial asynchronous load', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Active employees');
+    expect(fixture.nativeElement.textContent).toContain('Pending leave');
+    expect(fixture.nativeElement.textContent).toContain('Departments configured: 1');
+  });
 });
