@@ -131,6 +131,7 @@ public class HrService {
     }
     public Employee createEmployee(Employee e, boolean admin) {
         prepareEmployee(e);
+        e.setStatus(normalizeEmployeeStatus(e.getStatus(), "ACTIVE"));
         if (e.getEmployeeNumber()==null||e.getEmployeeNumber().isBlank()) {
             throw new IllegalArgumentException( "Employee number is required");
         }
@@ -183,7 +184,8 @@ catch (RuntimeException ex) {
         }
         normalizeEmployeeStrings(input);
         String role=input.getRole()==null || input.getRole().isBlank()
-                ? current.getRole() : input.getRole().trim();
+                ? current.getRole() : input.getRole().trim().toUpperCase(Locale.ROOT);
+        String targetStatus = normalizeEmployeeStatus(input.getStatus(), current.getStatus());
         validateAccountRole(role);
         if (!admin && !Set.of("HR_USER", "MANAGER", "EMPLOYEE").contains(role)
                 && !Objects.equals(role, current.getRole())) {
@@ -204,6 +206,7 @@ catch (RuntimeException ex) {
             throw new IllegalArgumentException("Username is required to maintain a staff login");
         }
         Boolean enabled=input.getAccountEnabled()==null?current.getAccountEnabled(): input.getAccountEnabled();
+        String newlyCreatedKeycloakUserId = null;
         if(current.getKeycloakUserId()!=null) {
             keycloak.updateUser(current.getKeycloakUserId(),
                  username,
@@ -226,6 +229,7 @@ catch (RuntimeException ex) {
                  role,
                 Boolean.TRUE.equals(input.getAccountEnabled()));
             current.setKeycloakUserId(uid);
+            newlyCreatedKeycloakUserId = uid;
         }
         current.setEmployeeNumber(input.getEmployeeNumber());
         current.setFirstName(input.getFirstName());
@@ -237,15 +241,36 @@ catch (RuntimeException ex) {
         current.setDesignationId(input.getDesignationId());
         current.setManagerId(input.getManagerId());
         current.setJoiningDate(input.getJoiningDate());
-        current.setStatus(input.getStatus()==null || input.getStatus().isBlank()
-                ? current.getStatus() : input.getStatus().trim().toUpperCase(Locale.ROOT));
+        current.setStatus(targetStatus);
         current.setUsername(username);
         current.setRole(role);
         current.setAccountEnabled(enabled);
         current.setPassword(null);
         current.setTemporaryPassword(false);
-        return employees.save(current);
+        try {
+            return employees.save(current);
+        } catch (RuntimeException ex) {
+            if (newlyCreatedKeycloakUserId != null) {
+                try {
+                    keycloak.deleteUser(newlyCreatedKeycloakUserId);
+                } catch (RuntimeException cleanupError) {
+                    ex.addSuppressed(cleanupError);
+                }
+            }
+            throw ex;
+        }
     }
+
+    private String normalizeEmployeeStatus(String status, String fallback) {
+        String normalized = status == null || status.isBlank()
+                ? (fallback == null || fallback.isBlank() ? "ACTIVE" : fallback.trim().toUpperCase(Locale.ROOT))
+                : status.trim().toUpperCase(Locale.ROOT);
+        if (!Set.of("ACTIVE", "INACTIVE").contains(normalized)) {
+            throw new IllegalArgumentException("Employee status must be ACTIVE or INACTIVE");
+        }
+        return normalized;
+    }
+
     private void validateEmployeeIdentity(String firstName, String lastName, String email) {
         if (firstName == null || firstName.isBlank()) throw new IllegalArgumentException("First name is required");
         if (lastName == null || lastName.isBlank()) throw new IllegalArgumentException("Last name is required");
@@ -260,6 +285,7 @@ catch (RuntimeException ex) {
         if (e.getEmail() != null) e.setEmail(e.getEmail().trim());
         if (e.getEmployeeNumber() != null) e.setEmployeeNumber(e.getEmployeeNumber().trim());
         if (e.getUsername() != null) e.setUsername(e.getUsername().trim());
+        if (e.getRole() != null) e.setRole(e.getRole().trim().toUpperCase(Locale.ROOT));
     }
 
     private void prepareEmployee(Employee e) {
