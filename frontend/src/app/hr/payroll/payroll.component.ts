@@ -14,7 +14,7 @@ import { Employee, HrApi, Payslip } from '../../services/hr-api.service';
 export class PayrollComponent implements OnInit {
   private readonly api = inject(HrApi);
   private readonly auth = inject(AuthService);
-  employees: Employee[] = [];
+  employees: Array<Pick<Employee, 'id' | 'employeeNumber' | 'firstName' | 'lastName'>> = [];
   payslips: Payslip[] = [];
   loadError = '';
   formError = '';
@@ -33,7 +33,7 @@ export class PayrollComponent implements OnInit {
     const requests = [
       this.api.payslips().then(value => { this.payslips = value; })
         .catch(() => this.addLoadError('Payslips could not be loaded.')),
-      this.api.employees().then(value => { this.employees = value; })
+      this.api.payrollEmployees().then(value => { this.employees = value; })
         .catch(() => this.addLoadError('Employee names could not be loaded.'))
     ];
     await Promise.all(requests);
