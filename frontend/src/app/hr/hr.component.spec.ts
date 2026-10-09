@@ -8,7 +8,7 @@ describe('HrComponent', () => {
   let fixture: ComponentFixture<HrComponent>;
   let component: HrComponent;
 
-  const api = {
+  const api: any = {
     employees: async () => [],
     departments: async () => [],
     designations: async () => [],
@@ -49,6 +49,38 @@ describe('HrComponent', () => {
 
     expect(buttons.some(button => button.textContent?.includes('+ Department'))).toBe(true);
     expect(buttons.some(button => button.textContent?.includes('+ Designation'))).toBe(true);
+  });
+
+  it('should show employees as soon as their request completes', async () => {
+    const originalEmployees = api.employees;
+    const originalDepartments = api.departments;
+    let resolveDepartments!: (departments: unknown[]) => void;
+
+    api.employees = async () => [{
+      id: 7,
+      employeeNumber: 'E007',
+      firstName: 'Taylor',
+      lastName: 'Employee',
+      email: 'taylor@example.com'
+    }];
+    // Simulate an unrelated HR request that has not completed yet.
+    api.departments = () => new Promise((resolve) => {
+      resolveDepartments = resolve;
+    });
+
+    try {
+      const reload = component.reload();
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+      expect(component.employees).toHaveLength(1);
+      expect(component.employees[0].employeeNumber).toBe('E007');
+
+      resolveDepartments([]);
+      await reload;
+    } finally {
+      api.employees = originalEmployees;
+      api.departments = originalDepartments;
+    }
   });
 
   it('should render a load error accessibly', () => {
