@@ -2,6 +2,11 @@
   <div class="toolbar"><div><h2>Attendance</h2><p>Review employee attendance records and check-in/check-out times.</p></div>
     <button type="button" (click)="openForm()">+ Mark attendance</button>
   </div>
+  <div class="toolbar sub">
+    <label>From <input type="date" [(ngModel)]="fromDate" name="fromDate"></label>
+    <label>To <input type="date" [(ngModel)]="toDate" name="toDate"></label>
+    <button type="button" (click)="reload()">Apply dates</button>
+  </div>
   <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
   <table>
     <thead><tr><th>Date</th><th>Employee</th><th>Status</th><th>Check in</th><th>Check out</th></tr></thead>
