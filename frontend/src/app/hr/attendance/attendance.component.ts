@@ -16,11 +16,17 @@ export class AttendanceComponent implements OnInit {
   loadError = '';
 
   async ngOnInit(): Promise<void> {
-    const results = await Promise.allSettled([this.api.attendance(), this.api.employees()]);
-    if (results[0].status === 'fulfilled') this.attendance = results[0].value;
-    else this.loadError = 'Attendance records could not be loaded.';
-    if (results[1].status === 'fulfilled') this.employees = results[1].value;
-    else this.loadError = [this.loadError, 'Employee names could not be loaded.'].filter(Boolean).join(' ');
+    const requests = [
+      this.api.attendance().then(value => { this.attendance = value; })
+        .catch(() => this.addLoadError('Attendance records could not be loaded.')),
+      this.api.employees().then(value => { this.employees = value; })
+        .catch(() => this.addLoadError('Employee names could not be loaded.'))
+    ];
+    await Promise.all(requests);
+  }
+
+  private addLoadError(message: string): void {
+    this.loadError = this.loadError ? `${this.loadError} ${message}` : message;
   }
 
   employeeName(id: number): string {
