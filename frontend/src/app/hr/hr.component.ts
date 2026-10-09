@@ -119,23 +119,26 @@ export class HrComponent implements OnInit  {
       this.auth.hasRole('MANAGER') ||
       this.auth.hasRole('EMPLOYEE');
 
-    [
-      this.employees,
-      this.departments,
-      this.designations,
-      this.attendance,
-      this.leaves,
-      this.goals,
-      this.payslips
-    ] = await Promise.all([
-      this.loadList(() => this.api.employees(), canReadDirectory, 'employees'),
-      this.loadList(() => this.api.departments(), canReadDirectory, 'departments'),
-      this.loadList(() => this.api.designations(), canReadHrAdministration, 'designations'),
-      this.loadList(() => this.api.attendance(), canReadEmployeeRecords, 'attendance'),
-      this.loadList(() => this.api.leaves(), canReadEmployeeRecords, 'leave requests'),
-      this.loadList(() => this.api.goals(), canReadEmployeeRecords, 'goals'),
+    // Apply each response as soon as it arrives. A slow unrelated HR endpoint
+    // must not keep the employee directory empty after the employee API succeeds.
+    const requests = [
+      this.loadList(() => this.api.employees(), canReadDirectory, 'employees')
+        .then((employees) => { this.employees = employees; }),
+      this.loadList(() => this.api.departments(), canReadDirectory, 'departments')
+        .then((departments) => { this.departments = departments; }),
+      this.loadList(() => this.api.designations(), canReadHrAdministration, 'designations')
+        .then((designations) => { this.designations = designations; }),
+      this.loadList(() => this.api.attendance(), canReadEmployeeRecords, 'attendance')
+        .then((attendance) => { this.attendance = attendance; }),
+      this.loadList(() => this.api.leaves(), canReadEmployeeRecords, 'leave requests')
+        .then((leaves) => { this.leaves = leaves; }),
+      this.loadList(() => this.api.goals(), canReadEmployeeRecords, 'goals')
+        .then((goals) => { this.goals = goals; }),
       this.loadList(() => this.api.payslips(), canReadHrAdministration, 'payslips')
-    ]);
+        .then((payslips) => { this.payslips = payslips; })
+    ];
+
+    await Promise.all(requests);
   }
 
   get pendingLeaves(): number  {
