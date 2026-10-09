@@ -1,0 +1,14 @@
+<section class="panel">
+  <div class="toolbar"><div><h2>Goals</h2><p>Track employee targets, progress, and due dates.</p></div></div>
+  <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
+  <table>
+    <thead><tr><th>Employee</th><th>Goal</th><th>Progress</th><th>Due</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let item of goals">
+        <td>{{ employeeName(item.employeeId) }}</td><td><b>{{ item.title }}</b><br><small>{{ item.description }}</small></td>
+        <td>{{ item.currentValue || 0 }} / {{ item.targetValue || 0 }}</td><td>{{ item.dueDate || '—' }}</td>
+      </tr>
+      <tr *ngIf="!goals.length"><td colspan="4" class="empty">No goals found.</td></tr>
+    </tbody>
+  </table>
+</section>
