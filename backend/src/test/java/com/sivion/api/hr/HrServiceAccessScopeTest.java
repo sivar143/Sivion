@@ -3,6 +3,8 @@ package com.sivion.api.hr;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
 
 import com.sivion.api.hr.domain.Attendance;
 import com.sivion.api.hr.domain.Department;
@@ -26,6 +28,37 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class HrServiceAccessScopeTest {
+    @Test
+    void inactiveEmployeeIsCreatedWithLoginDisabled() {
+        EmployeeRepository employeeRepo = mock(EmployeeRepository.class);
+        KeycloakAdminService keycloak = mock(KeycloakAdminService.class);
+        when(employeeRepo.existsByTenantIdAndEmployeeNumber(1L, "E900")).thenReturn(false);
+        when(keycloak.createUser("staff900", "staff900@example.com", "Staff", "Inactive",
+                "initialPass123", false, "EMPLOYEE", false)).thenReturn("kc-900");
+        when(employeeRepo.save(any(Employee.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        HrService service = new HrService(employeeRepo, mock(DepartmentRepository.class),
+                mock(AttendanceRepository.class), mock(LeaveRequestRepository.class),
+                mock(GoalRepository.class), mock(PayslipRepository.class),
+                mock(DesignationRepository.class), keycloak);
+        Employee employee = new Employee();
+        employee.setEmployeeNumber("E900");
+        employee.setFirstName("Staff");
+        employee.setLastName("Inactive");
+        employee.setEmail("staff900@example.com");
+        employee.setUsername("staff900");
+        employee.setPassword("initialPass123");
+        employee.setRole("EMPLOYEE");
+        employee.setStatus("INACTIVE");
+        employee.setAccountEnabled(true);
+
+        Employee saved = service.createEmployee(employee, false);
+
+        assertEquals("INACTIVE", saved.getStatus());
+        assertEquals(false, saved.getAccountEnabled());
+        verify(keycloak).createUser("staff900", "staff900@example.com", "Staff", "Inactive",
+                "initialPass123", false, "EMPLOYEE", false);
+    }
     @Test
     void employeeOnlyReceivesOwnHrRecords() {
         EmployeeRepository employeeRepo = mock(EmployeeRepository.class);
