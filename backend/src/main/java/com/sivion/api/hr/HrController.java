@@ -35,10 +35,17 @@ public class HrController {
     @GetMapping("/dashboard")
     @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')")
     public Map<String, Object> dashboard(Authentication authentication) {
+        List<Employee> visibleEmployees = service.employees(authentication);
+        long activeEmployees = visibleEmployees.stream()
+                .filter(employee -> "ACTIVE".equals(employee.getStatus()))
+                .count();
+        boolean canViewOrganization = authentication.getAuthorities().stream()
+                .anyMatch(authority -> List.of("ROLE_ADMIN", "ROLE_HR_ADMIN", "ROLE_HR_USER", "ROLE_MANAGER")
+                        .contains(authority.getAuthority()));
         return Map.of(
-                "activeEmployees", service.activeEmployees(),
-                "employees", service.employees(authentication).size(),
-                "departments", service.departments().size());
+                "activeEmployees", activeEmployees,
+                "employees", visibleEmployees.size(),
+                "departments", canViewOrganization ? service.departments().size() : 0);
     }
 
     @GetMapping("/employees")
