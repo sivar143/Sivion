@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Employee, HrApi, Payslip } from '../../services/hr-api.service';
@@ -14,6 +14,7 @@ import { Employee, HrApi, Payslip } from '../../services/hr-api.service';
 export class PayrollComponent implements OnInit {
   private readonly api = inject(HrApi);
   private readonly auth = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
   employees: Array<Pick<Employee, 'id' | 'employeeNumber' | 'firstName' | 'lastName'>> = [];
   payslips: Payslip[] = [];
   loadError = '';
@@ -31,9 +32,9 @@ export class PayrollComponent implements OnInit {
   async reload(): Promise<void> {
     this.loadError = '';
     const requests = [
-      this.api.payslips().then(value => { this.payslips = value; })
+      this.api.payslips().then(value => { this.payslips = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Payslips could not be loaded.')),
-      this.api.payrollEmployees().then(value => { this.employees = value; })
+      this.api.payrollEmployees().then(value => { this.employees = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Employee names could not be loaded.'))
     ];
     await Promise.all(requests);
@@ -41,6 +42,7 @@ export class PayrollComponent implements OnInit {
 
   private addLoadError(message: string): void {
     this.loadError = this.loadError ? `${this.loadError} ${message}` : message;
+    this.cdr.markForCheck();
   }
 
   employeeName(id: number): string {
@@ -58,9 +60,11 @@ export class PayrollComponent implements OnInit {
       if (this.editing && this.draft.id) await this.api.updatePayslip(this.draft.id, this.draft);
       else await this.api.createPayslip(this.draft);
       this.closeModal();
+      this.cdr.markForCheck();
       await this.reload();
     } catch (error: any) {
       this.formError = error?.error?.error ?? error?.message ?? 'Unable to save payslip.';
+      this.cdr.markForCheck();
     }
   }
 
