@@ -10,6 +10,7 @@ describe('HrComponent', () => {
 
   const api: any = {
     employees: async () => [],
+    payrollEmployees: async () => [],
     departments: async () => [],
     designations: async () => [],
     attendance: async () => [],
