@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Department, Designation, Employee, HrApi } from '../../services/hr-api.service';
@@ -14,6 +14,7 @@ import { Department, Designation, Employee, HrApi } from '../../services/hr-api.
 export class EmployeesComponent implements OnInit {
   private readonly api = inject(HrApi);
   private readonly auth = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
   employees: Employee[] = [];
   departments: Department[] = [];
   designations: Designation[] = [];
@@ -62,11 +63,11 @@ export class EmployeesComponent implements OnInit {
   async reload(): Promise<void> {
     this.loadError = '';
     const requests = [
-      this.api.employees().then(value => { this.employees = value; })
+      this.api.employees().then(value => { this.employees = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Employee records could not be loaded.')),
-      this.api.departments().then(value => { this.departments = value; })
+      this.api.departments().then(value => { this.departments = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Departments could not be loaded.')),
-      this.api.designations().then(value => { this.designations = value; })
+      this.api.designations().then(value => { this.designations = value; this.cdr.markForCheck(); })
         .catch(() => this.addLoadError('Designations could not be loaded.'))
     ];
     await Promise.all(requests);
@@ -99,14 +100,17 @@ export class EmployeesComponent implements OnInit {
       if (this.editing && this.draft.id) await this.api.updateEmployee(this.draft.id, this.draft);
       else await this.api.createEmployee(this.draft);
       this.closeModal();
+      this.cdr.markForCheck();
       await this.reload();
     } catch (error: any) {
       this.formError = error?.error?.error ?? error?.message ?? 'Unable to save staff account.';
+      this.cdr.markForCheck();
     }
   }
 
   private addLoadError(message: string): void {
     this.loadError = this.loadError ? `${this.loadError} ${message}` : message;
+    this.cdr.markForCheck();
   }
 
   private emptyEmployee(): Employee {
