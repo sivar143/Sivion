@@ -35,6 +35,7 @@ export class InventoryComponent implements OnInit  {
   dispatches:any[]=[];
   transactions:InventoryTransaction[]=[];
   loadError='';
+  private readonly loadFailures = new Set<string>();
   mode='';
   selectedId=0;
   warehouseId=0;
@@ -58,25 +59,26 @@ export class InventoryComponent implements OnInit  {
       this.api.warehouses(),
       this.crm.customers('')
     ]);
-    const failures: string[] = [];
-
     if (warehouses.status === 'fulfilled') {
       this.warehouses = warehouses.value;
       this.warehouseId = this.warehouses.find(w => w.status === 'ACTIVE')?.id || 0;
-    } else {
-      failures.push('warehouses');
     }
+    this.setLoadFailure('warehouses', warehouses.status === 'rejected');
 
     if (customers.status === 'fulfilled') this.customers = customers.value;
-    else failures.push('customers');
+    this.setLoadFailure('customers', customers.status === 'rejected');
 
     this.draft.warehouseId = this.warehouseId;
-    this.loadError = failures.length
-      ? `Unable to load ${failures.join(', ')}. Other available inventory data is still shown.`
-      : '';
-
     await this.reload();
   }
+  private setLoadFailure(source: string, failed: boolean): void {
+    if (failed) this.loadFailures.add(source);
+    else this.loadFailures.delete(source);
+    this.loadError = this.loadFailures.size
+      ? `Unable to load ${Array.from(this.loadFailures).join(', ')}. Other available data is still shown.`
+      : '';
+  }
+
   get warehouseName() {
     return this.warehouses.find(w=>w.id===this.warehouseId)?.name||'Not configured';
   }
@@ -102,22 +104,17 @@ export class InventoryComponent implements OnInit  {
       this.api.history(),
       this.api.transactions()
     ]);
-    const failures: string[] = [];
-
     if (results[0].status === 'fulfilled') this.materials = results[0].value;
-    else failures.push('materials and stock balances');
+    this.setLoadFailure('materials and stock balances', results[0].status === 'rejected');
     if (results[1].status === 'fulfilled') this.dispatches = results[1].value;
-    else failures.push('dispatch history');
+    this.setLoadFailure('dispatch history', results[1].status === 'rejected');
     if (results[2].status === 'fulfilled') this.transactions = results[2].value;
-    else failures.push('stock transactions');
+    this.setLoadFailure('stock transactions', results[2].status === 'rejected');
 
-    if (!this.warehouseId && this.warehouses.length === 0) {
-      failures.push('no warehouse is configured');
-    }
-
-    this.loadError = failures.length
-      ? `Unable to load ${failures.join(', ')}. Other available inventory data is still shown.`
-      : '';
+    this.setLoadFailure(
+      'no warehouse is configured',
+      !this.warehouseId && this.warehouses.length === 0 && !this.loadFailures.has('warehouses')
+    );
   }
   startDispatch() {
     this.dispatchLines=[ {

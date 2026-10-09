@@ -30,6 +30,7 @@ export class FinanceComponent implements OnInit {
   expenses: any[] = [];
   customers: Customer[] = [];
   loadError = '';
+  private readonly loadFailures = new Set<string>();
 
   mode = '';
   draft: any = {};
@@ -41,21 +42,18 @@ export class FinanceComponent implements OnInit {
   private async loadCustomers(): Promise<void> {
     try {
       this.customers = await this.crm.customers('');
-      this.refreshLoadError();
+      this.setLoadFailure('customers', false);
     } catch {
-      this.addLoadError('customers');
+      this.setLoadFailure('customers', true);
     }
   }
 
-  private addLoadError(source: string): void {
-    const messages = this.loadError ? [this.loadError] : [];
-    const message = `Unable to load ${source}.`;
-    if (!messages.some(existing => existing.includes(message))) messages.push(message);
-    this.loadError = messages.join(' ');
-  }
-
-  private refreshLoadError(): void {
-    // Keep errors from other requests until a complete reload succeeds.
+  private setLoadFailure(source: string, failed: boolean): void {
+    if (failed) this.loadFailures.add(source);
+    else this.loadFailures.delete(source);
+    this.loadError = this.loadFailures.size
+      ? `Unable to load ${Array.from(this.loadFailures).join(', ')}. Other available data is still shown.`
+      : '';
   }
 
   private async requestOptions(): Promise<{ headers: HttpHeaders }> {
@@ -77,20 +75,14 @@ export class FinanceComponent implements OnInit {
         firstValueFrom(this.http.get<any[]>(`${this.baseUrl}/payments`, options)),
         firstValueFrom(this.http.get<any[]>(`${this.baseUrl}/expenses`, options))
       ]);
-      const failures: string[] = [];
-
       if (results[0].status === 'fulfilled') this.invoices = results[0].value;
-      else failures.push('invoices');
+      this.setLoadFailure('invoices', results[0].status === 'rejected');
       if (results[1].status === 'fulfilled') this.payments = results[1].value;
-      else failures.push('payments');
+      this.setLoadFailure('payments', results[1].status === 'rejected');
       if (results[2].status === 'fulfilled') this.expenses = results[2].value;
-      else failures.push('expenses');
-
-      this.loadError = failures.length
-        ? `Unable to load ${failures.join(', ')}. Other available finance data is still shown.`
-        : '';
+      this.setLoadFailure('expenses', results[2].status === 'rejected');
     } catch {
-      this.addLoadError('finance data (authentication or API request failed)');
+      this.setLoadFailure('finance data (authentication or API request failed)', true);
     }
   }
 
