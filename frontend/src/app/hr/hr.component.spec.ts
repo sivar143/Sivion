@@ -54,6 +54,7 @@ describe('HrComponent', () => {
   it('should render a load error accessibly', async () => {
     fixture.detectChanges();
     await fixture.whenStable();
+    await component.reload();
 
     component.loadError = 'Some HR data could not be loaded.';
     fixture.detectChanges();
