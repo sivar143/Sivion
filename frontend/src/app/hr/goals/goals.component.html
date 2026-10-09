@@ -1,5 +1,7 @@
 <section class="panel">
-  <div class="toolbar"><div><h2>Goals</h2><p>Track employee targets, progress, and due dates.</p></div></div>
+  <div class="toolbar"><div><h2>Goals</h2><p>Track employee targets, progress, and due dates.</p></div>
+    <button type="button" (click)="openForm()">+ New goal</button>
+  </div>
   <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
   <table>
     <thead><tr><th>Employee</th><th>Goal</th><th>Progress</th><th>Due</th></tr></thead>
@@ -12,3 +14,29 @@
     </tbody>
   </table>
 </section>
+
+<div *ngIf="formOpen" class="modal">
+  <form (ngSubmit)="saveGoal()">
+    <h2>New goal</h2>
+    <p *ngIf="actionError" class="form-error" role="alert">{{ actionError }}</p>
+    <label *ngIf="canAssignOthers">Employee
+      <select required [(ngModel)]="draft.employeeId" name="employee">
+        <option [ngValue]="0">Select employee</option>
+        <option *ngFor="let employee of employees" [ngValue]="employee.id">
+          {{ employee.employeeNumber }} — {{ employee.firstName }} {{ employee.lastName }}
+        </option>
+      </select>
+    </label>
+    <input *ngIf="!canAssignOthers" type="hidden" [(ngModel)]="draft.employeeId" name="employee">
+    <input required maxlength="200" placeholder="Goal title" [(ngModel)]="draft.title" name="title">
+    <textarea maxlength="1000" placeholder="Description" [(ngModel)]="draft.description" name="description"></textarea>
+    <div class="form-grid">
+      <label>Target value<input type="number" min="0" step="0.01" [(ngModel)]="draft.targetValue" name="target"></label>
+      <label>Due date<input type="date" [(ngModel)]="draft.dueDate" name="dueDate"></label>
+    </div>
+    <div class="actions">
+      <button type="button" (click)="closeForm()">Cancel</button>
+      <button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Create goal' }}</button>
+    </div>
+  </form>
+</div>
