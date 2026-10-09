@@ -83,6 +83,7 @@ describe('AppComponent', () => {
     expect(component.isHr).toBe(true);
     component.activeItem = 'reports';
     expect(component.isHr).toBe(false);
+    expect(component.isCrmItem).toBe(false);
   });
 
   it('should calculate open leads and win rate', () => {
