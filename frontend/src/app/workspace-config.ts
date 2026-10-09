@@ -67,7 +67,7 @@ export const WORKSPACES: Record<WorkspaceId, WorkspaceDefinition> = {
   },
   'sales-user': {
     id: 'sales-user',
-    label: 'Sales',
+    label: 'Sales User',
     role: 'SALES_USER',
     items: [
       { id: 'overview', label: 'Dashboard', description: 'My sales workspace' },
