@@ -13,7 +13,10 @@
         <td>{{ employee.username || '—' }}</td><td>{{ departmentName(employee.departmentId) }}</td>
         <td>{{ employee.designation || '—' }}</td><td>{{ employee.role || 'EMPLOYEE' }}</td>
         <td><span class="pill" [class.inactive-pill]="!employee.accountEnabled">{{ employee.accountEnabled ? 'Enabled' : 'Disabled' }}</span></td>
-        <td><button type="button" (click)="openEdit(employee)">Manage</button></td>
+        <td>
+          <button *ngIf="canManageEmployee(employee)" type="button" (click)="openEdit(employee)">Manage</button>
+          <span *ngIf="!canManageEmployee(employee)" class="hint">Admin only</span>
+        </td>
       </tr>
       <tr *ngIf="!employees.length"><td colspan="8" class="empty">No employees configured.</td></tr>
     </tbody>
