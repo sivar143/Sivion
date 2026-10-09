@@ -12,6 +12,8 @@
       </ng-container>
     </div>
   </div>
+  <p *ngIf="loadError" class="form-error" role="alert">{{loadError}}</p>
+
   <div class="cards">
     <article><span>Employees</span><strong>{{employees.length}}</strong><small>People in tenant</small></article>
     <article><span>Departments</span><strong>{{departments.length}}</strong><small>Organization units</small></article>
