@@ -51,11 +51,9 @@ describe('HrComponent', () => {
     expect(buttons.some(button => button.textContent?.includes('+ Designation'))).toBe(true);
   });
 
-  it('should render a load error accessibly', async () => {
-    fixture.detectChanges();
-    await fixture.whenStable();
-    await component.reload();
-
+  it('should render a load error accessibly', () => {
+    // Isolate template rendering from ngOnInit's asynchronous data reload.
+    component.ngOnInit = async () => {};
     component.loadError = 'Some HR data could not be loaded.';
     fixture.detectChanges();
 
