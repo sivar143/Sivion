@@ -3,7 +3,6 @@
     <div><h2>Organization structure</h2><p>Manage departments, designations and reporting hierarchy.</p></div>
     <div class="hr-actions" *ngIf="canModifyHr">
       <button type="button" (click)="openNewDepartment()">+ Department</button>
-      <button type="button" (click)="openNewDesignation()">+ Designation</button>
     </div>
   </div>
   <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
