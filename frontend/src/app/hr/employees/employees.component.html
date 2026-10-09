@@ -1,0 +1,52 @@
+<section class="panel">
+  <div class="toolbar">
+    <div><h2>Employee & staff accounts</h2><p>Create and manage employee records and Keycloak login access.</p></div>
+    <button type="button" (click)="openNew()">+ Staff Login</button>
+  </div>
+  <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
+  <table>
+    <thead><tr><th>Number</th><th>Name</th><th>Username</th><th>Department</th><th>Designation</th><th>Role</th><th>Account</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let employee of employees">
+        <td>{{ employee.employeeNumber }}</td>
+        <td><b>{{ employee.firstName }} {{ employee.lastName }}</b><br><small>{{ employee.email }}</small></td>
+        <td>{{ employee.username || '—' }}</td><td>{{ departmentName(employee.departmentId) }}</td>
+        <td>{{ employee.designation || '—' }}</td><td>{{ employee.role || 'EMPLOYEE' }}</td>
+        <td><span class="pill" [class.inactive-pill]="!employee.accountEnabled">{{ employee.accountEnabled ? 'Enabled' : 'Disabled' }}</span></td>
+        <td><button type="button" (click)="openEdit(employee)">Manage</button></td>
+      </tr>
+      <tr *ngIf="!employees.length"><td colspan="8" class="empty">No employees configured.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div *ngIf="modalOpen" class="modal">
+  <form (ngSubmit)="save()">
+    <h2>{{ editing ? 'Manage staff login' : 'Create staff login' }}</h2>
+    <p class="hint">Passwords are sent only to Keycloak and are never stored in Sivion.</p>
+    <p *ngIf="formError" class="form-error" role="alert">{{ formError }}</p>
+    <input required maxlength="40" placeholder="Employee number" [(ngModel)]="draft.employeeNumber" name="number">
+    <input required placeholder="First name" [(ngModel)]="draft.firstName" name="first">
+    <input required placeholder="Last name" [(ngModel)]="draft.lastName" name="last">
+    <input required type="email" placeholder="Email" [(ngModel)]="draft.email" name="email">
+    <input placeholder="Phone" [(ngModel)]="draft.phone" name="phone">
+    <select [(ngModel)]="draft.departmentId" name="department">
+      <option [ngValue]="undefined">No department</option>
+      <option *ngFor="let item of departments" [ngValue]="item.id">{{ item.name }}</option>
+    </select>
+    <select [(ngModel)]="draft.designationId" name="designation">
+      <option [ngValue]="undefined">No designation</option>
+      <option *ngFor="let item of designations" [ngValue]="item.id">{{ item.name }}</option>
+    </select>
+    <div class="form-grid">
+      <input required placeholder="Username" [(ngModel)]="draft.username" name="username">
+      <select [(ngModel)]="draft.role" name="role"><option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option></select>
+    </div>
+    <input type="password" [required]="!editing" minlength="8"
+      [placeholder]="editing ? 'New password (leave blank to keep current)' : 'Initial password'"
+      [(ngModel)]="draft.password" name="password">
+    <label class="check"><input type="checkbox" [(ngModel)]="draft.temporaryPassword" name="temporary"> Force password change at first login</label>
+    <label class="check"><input type="checkbox" [(ngModel)]="draft.accountEnabled" name="enabled"> Login enabled</label>
+    <div class="actions"><button type="button" (click)="closeModal()">Cancel</button><button type="submit">{{ editing ? 'Save changes' : 'Create staff & login' }}</button></div>
+  </form>
+</div>
