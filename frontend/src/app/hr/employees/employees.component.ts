@@ -39,6 +39,11 @@ export class EmployeesComponent implements OnInit {
     }
   }
 
+  onEmploymentStatusChange(status: string): void {
+    this.draft.status = status;
+    if (status === 'INACTIVE') this.draft.accountEnabled = false;
+  }
+
   get availableRoles(): string[] {
     return this.auth.hasRole('ADMIN')
       ? ['ADMIN', 'HR_ADMIN', 'HR_USER', 'MANAGER', 'EMPLOYEE', 'SALES_MANAGER', 'SALES_USER',
