@@ -56,6 +56,10 @@ public class HrService {
         designations=ds;
         keycloak=k;
     }
+    public List<Employee> payrollEmployees() {
+        return employees.findByTenantIdOrderByLastNameAscFirstNameAsc(TENANT_ID);
+    }
+
     public List<Employee> employees(Authentication authentication) {
         List<Employee> all = employees.findByTenantIdOrderByLastNameAscFirstNameAsc(TENANT_ID);
         if (hasAnyRole(authentication, "ADMIN", "HR_ADMIN", "HR_USER")) return all;
