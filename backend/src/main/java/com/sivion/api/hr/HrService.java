@@ -181,8 +181,9 @@ catch (RuntimeException ex) {
         if (input.getDesignationId()!=null) {
             validateDesignationAssignment(input);
         }
-        prepareEmployee(input);
-        String role=input.getRole()==null?current.getRole(): input.getRole();
+        normalizeEmployeeStrings(input);
+        String role=input.getRole()==null || input.getRole().isBlank()
+                ? current.getRole() : input.getRole().trim();
         validateAccountRole(role);
         if (!admin && !Set.of("HR_USER", "MANAGER", "EMPLOYEE").contains(role)
                 && !Objects.equals(role, current.getRole())) {
@@ -236,7 +237,8 @@ catch (RuntimeException ex) {
         current.setDesignationId(input.getDesignationId());
         current.setManagerId(input.getManagerId());
         current.setJoiningDate(input.getJoiningDate());
-        current.setStatus(input.getStatus()==null? "ACTIVE": input.getStatus());
+        current.setStatus(input.getStatus()==null || input.getStatus().isBlank()
+                ? current.getStatus() : input.getStatus().trim().toUpperCase(Locale.ROOT));
         current.setUsername(username);
         current.setRole(role);
         current.setAccountEnabled(enabled);
@@ -252,11 +254,16 @@ catch (RuntimeException ex) {
         }
     }
 
-    private void prepareEmployee(Employee e) {
+    private void normalizeEmployeeStrings(Employee e) {
         if (e.getFirstName() != null) e.setFirstName(e.getFirstName().trim());
         if (e.getLastName() != null) e.setLastName(e.getLastName().trim());
         if (e.getEmail() != null) e.setEmail(e.getEmail().trim());
         if (e.getEmployeeNumber() != null) e.setEmployeeNumber(e.getEmployeeNumber().trim());
+        if (e.getUsername() != null) e.setUsername(e.getUsername().trim());
+    }
+
+    private void prepareEmployee(Employee e) {
+        normalizeEmployeeStrings(e);
         if (e.getStatus()==null) {
             e.setStatus( "ACTIVE");
         }
