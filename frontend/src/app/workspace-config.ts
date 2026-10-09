@@ -33,17 +33,17 @@ export const WORKSPACES: Record<WorkspaceId, WorkspaceDefinition> = {
     role: 'ADMIN',
     items: [
       { id: 'overview', label: 'Overview', description: 'Platform command center' },
-      { id: 'marketing', label: 'Marketing', description: 'Campaigns, marketing leads and analytics' },
-      { id: 'sales', label: 'Sales', description: 'Customers, leads, opportunities and orders' },
-      { id: 'employees', label: 'Employees', description: 'People, employee directory, staff logins and status' },
+      { id: 'administration', label: 'Administration', description: 'Users, roles, permissions and configuration' },
       { id: 'organization', label: 'Organization', description: 'Departments, reporting hierarchy and designations' },
+      { id: 'employees', label: 'Employees', description: 'People, employee directory, staff logins and status' },
       { id: 'attendance', label: 'Attendance', description: 'Employee attendance management' },
       { id: 'leaves', label: 'Leave Management', description: 'Employee leave requests and approvals' },
       { id: 'payroll', label: 'Payroll & Payslips', description: 'Employee payroll and payslip management' },
+      { id: 'marketing', label: 'Marketing', description: 'Campaigns, marketing leads and analytics' },
+      { id: 'sales', label: 'Sales', description: 'Customers, leads, opportunities and orders' },
       { id: 'inventory', label: 'Inventory', description: 'Materials, stock, dispatch and history' },
       { id: 'procurement', label: 'Procurement', description: 'Suppliers, purchasing and goods received' },
-      { id: 'finance', label: 'Finance', description: 'Invoices, payments, expenses and reports' },
-      { id: 'administration', label: 'Administration', description: 'Users, roles, permissions and configuration' }
+      { id: 'finance', label: 'Finance', description: 'Invoices, payments, expenses and reports' }
     ]
   },
   'sales-manager': {
