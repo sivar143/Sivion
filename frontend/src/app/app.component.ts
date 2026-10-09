@@ -136,7 +136,8 @@ export class AppComponent implements OnInit  {
     return this.workspace.items.find(x => x.id === this.activeItem);
   }
   get isCrmItem()  {
-    return [
+    const crmWorkspaces = ['sales-manager', 'sales-user', 'marketing'];
+    return crmWorkspaces.includes(this.workspace.id) && [
     'sales',
     'customers',
     'contacts',
