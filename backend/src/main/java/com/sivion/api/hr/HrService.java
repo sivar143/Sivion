@@ -191,8 +191,7 @@ catch (RuntimeException ex) {
                 ? current.getRole() : input.getRole().trim().toUpperCase(Locale.ROOT);
         String targetStatus = normalizeEmployeeStatus(input.getStatus(), current.getStatus());
         validateAccountRole(role);
-        if (!admin && !Set.of("HR_USER", "MANAGER", "EMPLOYEE").contains(role)
-                && !Objects.equals(role, current.getRole())) {
+        if (!admin && !Set.of("HR_USER", "MANAGER", "EMPLOYEE").contains(role)) {
             throw new IllegalArgumentException("HR can assign only HR_USER, MANAGER or EMPLOYEE roles");
         }
         validateOrganizationAssignments(input);

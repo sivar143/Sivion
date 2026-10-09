@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { AppComponent } from './app.component';
 import { CrmApi } from './services/crm-api.service';
 import { AuthService } from './services/auth.service';
+import { WORKSPACES } from './workspace-config';
 
 describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
@@ -57,6 +58,32 @@ describe('AppComponent', () => {
   it('should map the sales workspace entry to customers', () => {
     component.select('sales');
     expect(component.activeItem).toBe('customers');
+  });
+
+  it('routes shared goals and reports to CRM in sales workspaces, not HR', () => {
+    component.workspace = WORKSPACES['sales-manager'];
+    component.activeItem = 'goals';
+    expect(component.isHr).toBe(false);
+    expect(component.isCrmItem).toBe(true);
+
+    component.activeItem = 'reports';
+    expect(component.isHr).toBe(false);
+    expect(component.isCrmItem).toBe(true);
+  });
+
+  it('keeps employee goals in the HR module', () => {
+    component.workspace = WORKSPACES.employee;
+    component.activeItem = 'goals';
+    expect(component.isHr).toBe(true);
+  });
+
+  it('routes only payroll, not finance reports, through the HR shell', () => {
+    component.workspace = WORKSPACES.finance;
+    component.activeItem = 'payroll';
+    expect(component.isHr).toBe(true);
+    component.activeItem = 'reports';
+    expect(component.isHr).toBe(false);
+    expect(component.isCrmItem).toBe(false);
   });
 
   it('should calculate open leads and win rate', () => {

@@ -136,7 +136,8 @@ export class AppComponent implements OnInit  {
     return this.workspace.items.find(x => x.id === this.activeItem);
   }
   get isCrmItem()  {
-    return [
+    const crmWorkspaces = ['sales-manager', 'sales-user', 'marketing'];
+    return crmWorkspaces.includes(this.workspace.id) && [
     'sales',
     'customers',
     'contacts',
@@ -161,7 +162,14 @@ export class AppComponent implements OnInit  {
     ].includes(this.activeItem);
   }
   get isHr()  {
-    return [
+    // Several section IDs (goals, meetings, reports) are shared with CRM.
+    // Only route them to HR when the active workspace actually owns HR workflows.
+    if (this.workspace.id === 'finance') {
+      // Finance has read-only payroll, but its reports belong to the finance workspace.
+      return this.activeItem === 'payroll';
+    }
+    const hrWorkspaces = ['admin', 'hr-admin', 'hr-user', 'manager', 'employee'];
+    return hrWorkspaces.includes(this.workspace.id) && [
     'employees',
     'organization',
     'attendance',
