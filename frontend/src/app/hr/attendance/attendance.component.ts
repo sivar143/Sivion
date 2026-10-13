@@ -9,12 +9,13 @@ import { HrApi, Attendance, Employee } from '../../services/hr-api.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './attendance.component.html',
-  styleUrls: ['../hr.component.scss']
+  styleUrls: ['./attendance.component.scss']
 })
 export class AttendanceComponent implements OnInit {
   private readonly api = inject(HrApi);
   private readonly auth = inject(AuthService);
   private readonly cdr = inject(ChangeDetectorRef);
+
   attendance: Attendance[] = [];
   employees: Employee[] = [];
   loadError = '';
@@ -33,7 +34,11 @@ export class AttendanceComponent implements OnInit {
     this.draft = this.emptyAttendance();
     const current = this.employees.find(employee => employee.username === this.auth.username)
       ?? (this.employees.length === 1 ? this.employees[0] : undefined);
-    if (current?.id) this.draft.employeeId = current.id;
+
+    if (current?.id) {
+      this.draft.employeeId = current.id;
+    }
+
     this.actionError = '';
     this.formOpen = true;
   }
@@ -45,17 +50,25 @@ export class AttendanceComponent implements OnInit {
 
   async saveAttendance(): Promise<void> {
     this.actionError = '';
+
     if (!this.draft.employeeId || !this.draft.attendanceDate) {
       this.actionError = 'Please select an employee and attendance date.';
       return;
     }
+
     if (this.draft.checkIn && this.draft.checkOut && this.draft.checkOut < this.draft.checkIn) {
       this.actionError = 'Check-out time cannot be earlier than check-in time.';
       return;
     }
+
     this.saving = true;
+
     try {
-      await this.api.markAttendance({ ...this.draft, checkIn: this.draft.checkIn || undefined, checkOut: this.draft.checkOut || undefined });
+      await this.api.markAttendance({
+        ...this.draft,
+        checkIn: this.draft.checkIn || undefined,
+        checkOut: this.draft.checkOut || undefined
+      });
       this.closeForm();
       this.cdr.markForCheck();
       await this.reload();
@@ -94,17 +107,28 @@ export class AttendanceComponent implements OnInit {
 
   async reload(): Promise<void> {
     this.loadError = '';
+
     if (this.fromDate && this.toDate && this.fromDate > this.toDate) {
       this.loadError = 'The start date must be on or before the end date.';
       this.cdr.markForCheck();
       return;
     }
+
     const requests = [
-      this.api.attendance(this.fromDate || undefined, this.toDate || undefined).then(value => { this.attendance = value; this.cdr.markForCheck(); })
+      this.api.attendance(this.fromDate || undefined, this.toDate || undefined)
+        .then(value => {
+          this.attendance = value;
+          this.cdr.markForCheck();
+        })
         .catch(() => this.addLoadError('Attendance records could not be loaded.')),
-      this.api.employees().then(value => { this.employees = value; this.cdr.markForCheck(); })
+      this.api.employees()
+        .then(value => {
+          this.employees = value;
+          this.cdr.markForCheck();
+        })
         .catch(() => this.addLoadError('Employee names could not be loaded.'))
     ];
+
     await Promise.all(requests);
   }
 
