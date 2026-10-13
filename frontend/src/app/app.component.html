@@ -20,6 +20,14 @@
     <div class="workspace-label">
       {{workspace.label}}
     </div>
+    <div class="role-box">
+      <small>
+        ROLE
+      </small>
+      <strong>
+        {{workspace.role}}
+      </strong>
+    </div>
     <nav aria-label="Workspace navigation">
       <button
         *ngFor="let item of workspace.items"
@@ -31,17 +39,6 @@
         {{item.label}}
       </button>
     </nav>
-    <div class="role-box">
-      <small>
-        ROLE
-      </small>
-      <strong>
-        {{workspace.role}}
-      </strong>
-    </div>
-    <button class="logout" (click)="auth.logout()">
-      Sign out
-    </button>
   </aside>
   <main>
     <header>
@@ -58,9 +55,28 @@
           </p>
         </div>
       </div>
-      <span class="user">
-        {{auth.username}}
-      </span>
+      <div class="account-menu">
+        <button
+          class="user user-menu-trigger"
+          type="button"
+          (click)="toggleUserMenu()"
+          [attr.aria-expanded]="userMenuOpen"
+          aria-haspopup="true"
+          aria-label="Open account menu"
+        >
+          <span>{{auth.username}}</span>
+          <span class="account-menu-chevron" aria-hidden="true">{{userMenuOpen ? '▴' : '▾'}}</span>
+        </button>
+        <div class="account-menu-panel" *ngIf="userMenuOpen">
+          <div class="account-menu-details">
+            <strong>{{auth.username}}</strong>
+            <span>{{workspace.role}}</span>
+          </div>
+          <button class="account-sign-out" type="button" (click)="auth.logout()">
+            Sign out
+          </button>
+        </div>
+      </div>
     </header>
     <section *ngIf="activeItem==='overview'" class="cards">
       <article>
