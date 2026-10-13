@@ -155,6 +155,56 @@ public class RabbitTopology {
     }
 
     @Bean
+    Queue notificationDomainEventsQueue() {
+        return eventQueue("sivion.notifications.domain-events", "sivion.notifications.domain-events.dlq");
+    }
+
+    @Bean
+    Binding notificationSalesConfirmedBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("sales.order.confirmed");
+    }
+
+    @Bean
+    Binding notificationSalesCancelledBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("sales.order.cancelled");
+    }
+
+    @Bean
+    Binding notificationInventoryReservedBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("inventory.order.reserved");
+    }
+
+    @Bean
+    Binding notificationReservationFailedBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("inventory.order.reservation-failed");
+    }
+
+    @Bean
+    Binding notificationInventoryDispatchedBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("inventory.order.dispatched");
+    }
+
+    @Bean
+    Binding notificationGoodsReceivedBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("procurement.goods-received");
+    }
+
+    @Bean
+    Queue notificationDomainEventsDlq() {
+        return deadLetterQueue("sivion.notifications.domain-events.dlq");
+    }
+
+    @Bean
+    Binding notificationDomainEventsDlqBinding(
+        Queue notificationDomainEventsDlq,
+        DirectExchange sivionDeadLetterExchange
+    ) {
+        return BindingBuilder.bind(notificationDomainEventsDlq)
+            .to(sivionDeadLetterExchange)
+            .with("sivion.notifications.domain-events.dlq");
+    }
+
+    @Bean
     Queue inventoryOrdersDlq() {
         return deadLetterQueue("sivion.inventory.sales-orders.dlq");
     }
