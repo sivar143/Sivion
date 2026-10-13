@@ -50,6 +50,9 @@ describe('HrComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('app-hr-organization')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-hr-employees')).toBeFalsy();
+    expect(fixture.nativeElement.textContent).not.toContain('People & HR');
+
     const buttons = Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[];
     expect(buttons.some(button => button.textContent?.includes('+ Department'))).toBe(true);
     expect(buttons.some(button => button.textContent?.includes('+ Designation'))).toBe(true);
@@ -65,6 +68,29 @@ describe('HrComponent', () => {
   ])('renders the dedicated component for the %s section', (section, selector) => {
     fixture.componentRef.setInput('section', section);
     fixture.detectChanges();
+
     expect(fixture.nativeElement.querySelector(selector)).toBeTruthy();
+    expect(fixture.nativeElement.textContent).not.toContain('People & HR');
+  });
+
+  it.each([
+    ['employees', 'Employees'],
+    ['organization', 'Organization'],
+    ['attendance', 'Attendance'],
+    ['leaves', 'Leave Management'],
+    ['payroll', 'Payroll & Payslips']
+  ])('uses the correct menu label for the %s section', (section, expectedLabel) => {
+    fixture.componentRef.setInput('section', section);
+    fixture.detectChanges();
+
+    expect(component.sectionTitle).toBe(expectedLabel);
+  });
+
+  it('shows a section-specific title for placeholder workflows', () => {
+    fixture.componentRef.setInput('section', 'knowledge');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Knowledge Development');
+    expect(fixture.nativeElement.textContent).not.toContain('People & HR');
   });
 });
