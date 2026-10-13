@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuditApi } from './audit-api.service';
+import { AuditApi, AuditRecord } from './audit-api.service';
 import { AuditComponent } from './audit.component';
 
 describe('AuditComponent', () => {
@@ -8,7 +8,7 @@ describe('AuditComponent', () => {
   let component: AuditComponent;
 
   const api = {
-    records: vi.fn(async () => [])
+    records: vi.fn(async (): Promise<AuditRecord[]> => [])
   };
 
   beforeEach(async () => {

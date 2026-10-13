@@ -3,7 +3,6 @@ package com.sivion.api.audit;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,7 @@ class AuditLogFilterTest {
     @Test
     void recordsWriteRequestMetadataWithoutRequiringARequestBody() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("siva", "not-used"));
+                new UsernamePasswordAuthenticationToken("siva", "not-used", java.util.List.of()));
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v1/hr/leaves");
         request.addHeader("X-Tenant-ID", "tenant-7");
         request.setRemoteAddr("127.0.0.1");
