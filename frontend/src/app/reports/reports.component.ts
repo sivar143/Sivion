@@ -206,11 +206,11 @@ export class ReportsComponent implements OnInit {
     };
   }
 
-  private valueOrEmpty<T>(
-    result: PromiseSettledResult<T[]>,
+  private valueOrEmpty(
+    result: PromiseSettledResult<any>,
     label: string,
     failures: string[]
-  ): T[] {
+  ): any[] {
     if (result.status === 'fulfilled') return result.value;
     failures.push(label);
     return [];
