@@ -34,6 +34,7 @@ import {
 import {
   AuditComponent
 } from './audit/audit.component';
+import { NotificationCenterComponent } from './notifications/notification-center.component';
 
 @Component({
   selector: 'app-root',
@@ -46,7 +47,8 @@ import {
     ProcurementComponent,
     FinanceComponent,
     SalesOrderComponent,
-    AuditComponent
+    AuditComponent,
+    NotificationCenterComponent
   ],
   templateUrl: './app.component.html'
 })

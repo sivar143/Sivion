@@ -1,0 +1,53 @@
+<div class="notification-center">
+  <button
+    type="button"
+    class="notification-trigger"
+    (click)="toggle()"
+    [attr.aria-expanded]="isOpen"
+    aria-label="Open notifications"
+  >
+    <span aria-hidden="true">♧</span>
+    <span>Notifications</span>
+    <span class="notification-count" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+  </button>
+
+  <section class="notification-panel" *ngIf="isOpen" aria-label="Notifications">
+    <div class="notification-heading">
+      <div>
+        <h2>Notifications</h2>
+        <p>{{ unreadCount }} unread</p>
+      </div>
+      <div class="notification-actions">
+        <button type="button" (click)="refresh()" [disabled]="loading">Refresh</button>
+        <button type="button" (click)="markAllRead()" [disabled]="unreadCount === 0">Mark all read</button>
+      </div>
+    </div>
+
+    <p class="notification-message error" *ngIf="error">{{ error }}</p>
+    <p class="notification-message" *ngIf="loading">Loading notifications…</p>
+    <p class="notification-message" *ngIf="!loading && !error && notifications.length === 0">
+      You are all caught up. No notifications yet.
+    </p>
+
+    <article
+      class="notification-item"
+      *ngFor="let notification of notifications"
+      [class.unread]="!notification.readAt"
+    >
+      <div>
+        <strong>{{ notification.title }}</strong>
+        <p>{{ notification.message }}</p>
+        <time [attr.datetime]="notification.createdAt">{{ notification.createdAt | date:'medium' }}</time>
+      </div>
+      <button
+        type="button"
+        *ngIf="!notification.readAt"
+        (click)="markRead(notification)"
+        [attr.aria-label]="'Mark ' + notification.title + ' as read'"
+      >
+        Mark read
+      </button>
+      <span class="read-label" *ngIf="notification.readAt">Read</span>
+    </article>
+  </section>
+</div>
