@@ -1,0 +1,48 @@
+.audit-panel {
+  min-width: 0;
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.endpoint {
+  min-width: 220px;
+  overflow-wrap: anywhere;
+}
+
+.method {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.status {
+  display: inline-flex;
+  min-width: 3rem;
+  justify-content: center;
+  border-radius: 0.375rem;
+  padding: 0.2rem 0.45rem;
+  font-weight: 600;
+}
+
+.status-success {
+  color: var(--success-text, #166534);
+  background: var(--success-surface, #dcfce7);
+}
+
+.status-warning {
+  color: var(--warning-text, #92400e);
+  background: var(--warning-surface, #fef3c7);
+}
+
+.status-error {
+  color: var(--danger-text, #991b1b);
+  background: var(--danger-surface, #fee2e2);
+}
+
+.audit-note {
+  margin-top: 1rem;
+  color: var(--muted, #64748b);
+  font-size: 0.875rem;
+}

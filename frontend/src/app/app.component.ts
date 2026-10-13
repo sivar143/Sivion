@@ -31,6 +31,9 @@ import {
 import {
   SalesOrderComponent
 } from './sales-order/sales-order.component';
+import {
+  AuditComponent
+} from './audit/audit.component';
 
 @Component({
   selector: 'app-root',
@@ -42,7 +45,8 @@ import {
     HrComponent,
     ProcurementComponent,
     FinanceComponent,
-    SalesOrderComponent
+    SalesOrderComponent,
+    AuditComponent
   ],
   templateUrl: './app.component.html'
 })
@@ -209,6 +213,11 @@ export class AppComponent implements OnInit {
 
   get isSalesOrders() {
     return this.activeItem === 'sales-orders';
+  }
+
+  // Audit history is an administrative capability and is exposed only in the admin workspace.
+  get isAudit(): boolean {
+    return this.workspace.id === 'admin' && this.activeItem === 'audit';
   }
 
   get openLeads() {

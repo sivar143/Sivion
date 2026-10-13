@@ -1,0 +1,45 @@
+<section class="panel audit-panel">
+  <div class="toolbar">
+    <div>
+      <h2>Audit trail</h2>
+      <p>Recent write operations recorded by the Sivion API. Request bodies are not stored.</p>
+    </div>
+    <button type="button" (click)="reload()" [disabled]="loading">
+      {{ loading ? 'Refreshing…' : 'Refresh' }}
+    </button>
+  </div>
+
+  <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
+  <p *ngIf="loading" role="status">Loading audit history…</p>
+
+  <div class="table-scroll" *ngIf="!loading && !loadError">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Actor</th>
+          <th>Operation</th>
+          <th>Endpoint</th>
+          <th>Result</th>
+          <th>Client address</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of records">
+          <td>{{ record.occurredAt | date:'medium' }}</td>
+          <td>{{ record.actor }}</td>
+          <td><span class="method">{{ record.method }}</span></td>
+          <td class="endpoint">{{ record.endpoint }}</td>
+          <td>
+            <span class="status" [ngClass]="statusClass(record.statusCode)">
+              {{ record.statusCode }}
+            </span>
+          </td>
+          <td>{{ record.clientAddress || '—' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="empty" *ngIf="records.length === 0">No write operations have been recorded for this tenant yet.</p>
+  </div>
+  <p class="audit-note">Showing up to 100 most recent records. This view is restricted to administrators.</p>
+</section>

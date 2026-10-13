@@ -127,6 +127,16 @@ describe('AppComponent', () => {
     expect(component.isCrmItem).toBe(false);
   });
 
+  it('shows the audit trail only for the admin workspace', () => {
+    component.workspace = WORKSPACES.admin;
+    component.select('audit');
+    expect(component.isAudit).toBe(true);
+    expect(component.activeNavigationItem).toBe('audit');
+
+    component.workspace = WORKSPACES.employee;
+    expect(component.isAudit).toBe(false);
+  });
+
   it('should calculate open leads and win rate', () => {
     component.leads = [
       { status: 'NEW' } as any,

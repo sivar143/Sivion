@@ -34,6 +34,7 @@ export const WORKSPACES: Record<WorkspaceId, WorkspaceDefinition> = {
     items: [
       { id: 'overview', label: 'Overview', description: 'Platform command center' },
       { id: 'administration', label: 'Administration', description: 'Users, roles, permissions and configuration' },
+      { id: 'audit', label: 'Audit Trail', description: 'Review recorded administrative and business changes' },
       { id: 'organization', label: 'Organization', description: 'Departments, reporting hierarchy and designations' },
       { id: 'employees', label: 'Employees', description: 'People, employee directory, staff logins and status' },
       { id: 'attendance', label: 'Attendance', description: 'Employee attendance management' },
