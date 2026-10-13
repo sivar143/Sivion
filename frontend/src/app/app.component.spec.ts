@@ -55,9 +55,30 @@ describe('AppComponent', () => {
     expect(component.sidebarCollapsed).toBe(true);
   });
 
-  it('should map the sales workspace entry to customers', () => {
+  it('should map the sales workspace entry to customers and keep it highlighted', () => {
+    component.workspace = WORKSPACES['sales-manager'];
     component.select('sales');
     expect(component.activeItem).toBe('customers');
+    expect(component.activeNavigationItem).toBe('customers');
+  });
+
+  it('maps the procurement and finance shortcuts to their active sections', () => {
+    component.workspace = WORKSPACES.admin;
+
+    component.select('procurement');
+    expect(component.activeNavigationItem).toBe('suppliers');
+
+    component.select('finance');
+    expect(component.activeNavigationItem).toBe('invoices');
+  });
+
+  it('keeps the selected navigation item highlighted until another section is selected', () => {
+    component.workspace = WORKSPACES.admin;
+    component.select('attendance');
+    expect(component.activeNavigationItem).toBe('attendance');
+
+    component.select('employees');
+    expect(component.activeNavigationItem).toBe('employees');
   });
 
   it('routes shared goals and reports to CRM in sales workspaces, not HR', () => {
