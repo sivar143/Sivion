@@ -122,7 +122,11 @@ export class AppComponent implements OnInit {
   }
 
   get currentItem() {
-    return this.workspace.items.find(item => item.id === this.activeItem);
+    // In the Administration workspace, nested screens retain the parent module heading.
+    // Workspaces with direct navigation (for example, Sales Management) keep their own item heading.
+    const headerItemId = this.activeNavigationItem;
+    return this.workspace.items.find(item => item.id === headerItemId)
+      || this.workspace.items.find(item => item.id === this.activeItem);
   }
 
   // Resolve nested module sections back to their parent menu item when the workspace uses module-level navigation.
