@@ -57,7 +57,7 @@
   <h3>Role responsibilities</h3>
   <div class="role-grid">
     <article *ngFor="let role of roles">
-      <div><strong>{{ role.role }}</strong><span>{{ roleCounts.find(item => item.role === role.role)?.count || 0 }} accounts</span></div>
+      <div><strong>{{ role.role }}</strong><span>{{ roleCount(role.role) }} accounts</span></div>
       <p>{{ role.purpose }}</p>
     </article>
   </div>

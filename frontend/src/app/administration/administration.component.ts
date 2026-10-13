@@ -44,6 +44,10 @@ export class AdministrationComponent implements OnInit {
     return this.employees.filter(employee => employee.accountEnabled !== false && employee.status !== 'INACTIVE').length;
   }
 
+  roleCount(role: string): number {
+    return this.roleCounts.find(item => item.role === role)?.count || 0;
+  }
+
   get roleCounts(): Array<{ role: string; count: number }> {
     const counts = new Map<string, number>();
     this.employees.forEach(employee => {

@@ -8,7 +8,7 @@ describe('AdministrationComponent', () => {
   let component: AdministrationComponent;
 
   const api = {
-    employees: vi.fn(async () => [
+    employees: vi.fn(async (): Promise<any[]> => [
       { id: 1, employeeNumber: 'EMP-1', firstName: 'Ada', lastName: 'Lovelace', role: 'HR_USER', status: 'ACTIVE', accountEnabled: true },
       { id: 2, employeeNumber: 'EMP-2', firstName: 'Grace', lastName: 'Hopper', role: 'EMPLOYEE', status: 'INACTIVE', accountEnabled: false }
     ])
