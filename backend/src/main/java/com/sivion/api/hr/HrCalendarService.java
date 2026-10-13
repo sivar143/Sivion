@@ -33,7 +33,7 @@ public class HrCalendarService {
         input.setTitle(input.getTitle().trim());
         input.setDescription(input.getDescription() == null ? null : input.getDescription().trim());
         input.setStatus(normalizeStatus(input.getStatus()));
-        input.createdBy = actor;
+        input.setCreatedBy(actor);
         return repository.save(input);
     }
 

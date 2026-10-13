@@ -47,7 +47,7 @@ public class HrCalendarEntry {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
-    protected HrCalendarEntry() {
+    public HrCalendarEntry() {
     }
 
     public Long getId() { return id; }
@@ -66,5 +66,6 @@ public class HrCalendarEntry {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
     public Instant getCreatedAt() { return createdAt; }
 }
