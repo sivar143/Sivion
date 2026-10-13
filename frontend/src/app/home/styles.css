@@ -84,3 +84,54 @@ header>div:first-child{min-width:0}
     margin-top: 6px;
   }
 }
+
+
+/* Subtle, dark-theme scrollbar for the sidebar menu (avoid the browser-default chunky track). */
+.app-shell > aside nav {
+  scrollbar-width: thin;
+  scrollbar-color: #475467 transparent;
+}
+
+.app-shell > aside nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.app-shell > aside nav::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 6px;
+}
+
+.app-shell > aside nav::-webkit-scrollbar-thumb {
+  background: #475467;
+  border: 1px solid #101828;
+  border-radius: 999px;
+}
+
+.app-shell > aside nav::-webkit-scrollbar-thumb:hover {
+  background: #667085;
+}
+
+/* Match the collapse control to Sivion's compact dark navigation styling. */
+.sidebar-toggle {
+  width: 34px;
+  height: 34px;
+  top: 126px;
+  left: 211px;
+  border-color: #344054;
+  border-radius: 8px;
+  background: #172033;
+  color: #e4e7ec;
+  box-shadow: 0 2px 6px #0002;
+  font-size: 18px;
+}
+
+.sidebar-toggle:hover {
+  background: #25364b;
+  color: #ffffff;
+}
+
+.app-shell.sidebar-collapsed .sidebar-toggle {
+  left: 8px;
+  top: 126px;
+  border-radius: 8px;
+}
