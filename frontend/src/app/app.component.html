@@ -151,6 +151,7 @@
     <app-audit *ngIf="isAudit"/>
     <app-reports *ngIf="isReports" [workspaceId]="workspace.id" />
     <app-marketing-campaigns *ngIf="isMarketingCampaigns" />
+    <app-administration *ngIf="isAdministration" (manageStaff)="select('employees')" />
     <ng-container *ngIf="isCrmItem">
       <section *ngIf="activeItem==='customers'" class="panel">
         <div class="toolbar">
@@ -448,7 +449,7 @@
       </section>
     </ng-container>
     <section
-      *ngIf="!isCrmItem&&!isInventory&&!isHr&&!isProcurement&&!isFinance&&!isSalesOrders&&!isReports&&!isMarketingCampaigns&&activeItem!=='overview'"
+      *ngIf="!isCrmItem&&!isInventory&&!isHr&&!isProcurement&&!isFinance&&!isSalesOrders&&!isReports&&!isMarketingCampaigns&&!isAdministration&&activeItem!=='overview'"
       class="panel"
     >
       <h2>

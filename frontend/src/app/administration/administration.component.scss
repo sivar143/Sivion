@@ -1,0 +1,99 @@
+.administration-toolbar,
+.administration-toolbar .actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.administration-toolbar h2 {
+  margin: 0;
+}
+
+.administration-toolbar p,
+.administration-note {
+  color: var(--muted-color, #667085);
+  line-height: 1.5;
+}
+
+.administration-toolbar .actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.administration-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.8rem;
+  margin: 1.25rem 0;
+}
+
+.administration-summary article {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color, #e4e7ec);
+  border-radius: 0.75rem;
+}
+
+.administration-summary span,
+.role-grid article span {
+  color: var(--muted-color, #667085);
+  font-size: 0.85rem;
+}
+
+.administration-summary strong {
+  font-size: 1.6rem;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+td small {
+  display: block;
+  color: var(--muted-color, #667085);
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 0.75rem;
+}
+
+.role-grid article {
+  min-width: 0;
+  padding: 0.9rem;
+  border: 1px solid var(--border-color, #e4e7ec);
+  border-radius: 0.65rem;
+}
+
+.role-grid article div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.role-grid article p {
+  margin-bottom: 0;
+  color: var(--muted-color, #667085);
+  line-height: 1.45;
+}
+
+.administration-error {
+  color: #b42318;
+}
+
+.administration-note {
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 680px) {
+  .administration-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

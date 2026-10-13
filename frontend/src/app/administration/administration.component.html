@@ -1,0 +1,68 @@
+<section class="panel administration-panel">
+  <div class="administration-toolbar">
+    <div>
+      <h2>Administration</h2>
+      <p>Review staff accounts, assigned roles and access responsibilities.</p>
+    </div>
+    <div class="actions">
+      <button type="button" (click)="reload()" [disabled]="loading">Refresh</button>
+      <button type="button" (click)="manageStaff.emit()">Manage staff logins</button>
+    </div>
+  </div>
+
+  <p class="administration-error" *ngIf="error" role="alert">{{ error }}</p>
+  <div class="administration-summary">
+    <article>
+      <span>Staff accounts</span>
+      <strong>{{ employees.length }}</strong>
+    </article>
+    <article>
+      <span>Enabled accounts</span>
+      <strong>{{ enabledAccounts }}</strong>
+    </article>
+    <article>
+      <span>Roles in use</span>
+      <strong>{{ roleCounts.length }}</strong>
+    </article>
+  </div>
+
+  <h3>Staff accounts</h3>
+  <p *ngIf="loading">Loading staff accounts…</p>
+  <div class="table-scroll" *ngIf="!loading && employees.length">
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Username</th>
+          <th>Department</th>
+          <th>Role</th>
+          <th>Employee status</th>
+          <th>Login status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let employee of employees; trackBy: trackEmployee">
+          <td><strong>{{ employee.firstName }} {{ employee.lastName }}</strong><small>{{ employee.employeeNumber }}</small></td>
+          <td>{{ employee.username || 'Not linked' }}</td>
+          <td>{{ employee.departmentId ?? '—' }}</td>
+          <td>{{ employee.role || 'UNASSIGNED' }}</td>
+          <td>{{ employee.status || 'UNKNOWN' }}</td>
+          <td>{{ employee.accountEnabled === false || employee.status === 'INACTIVE' ? 'Disabled' : 'Enabled' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p *ngIf="!loading && !employees.length && !error">No employee accounts were returned.</p>
+
+  <h3>Role responsibilities</h3>
+  <div class="role-grid">
+    <article *ngFor="let role of roles">
+      <div><strong>{{ role.role }}</strong><span>{{ roleCounts.find(item => item.role === role.role)?.count || 0 }} accounts</span></div>
+      <p>{{ role.purpose }}</p>
+    </article>
+  </div>
+
+  <p class="administration-note">
+    Role definitions shown here describe the workspace model. Actual permissions are enforced by backend authorization; role assignment is managed through the staff-login workflow.
+  </p>
+</section>
