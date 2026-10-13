@@ -135,3 +135,35 @@ header>div:first-child{min-width:0}
   top: 126px;
   border-radius: 8px;
 }
+
+
+/* Apply the sidebar's compact, rounded scrollbar consistently to all scrollable components. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #475467 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 6px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #475467;
+  border: 1px solid #f5f7fb;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #667085;
+}
+
+/* Preserve the sidebar's dark border so its scrollbar matches the navigation background. */
+.app-shell > aside nav::-webkit-scrollbar-thumb {
+  border-color: #101828;
+}
