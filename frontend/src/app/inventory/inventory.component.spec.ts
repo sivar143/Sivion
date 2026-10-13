@@ -25,6 +25,15 @@ describe('InventoryComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('keeps the warehouse selector and stock-in action in a dedicated toolbar group', () => {
+    fixture.detectChanges();
+
+    const actions = fixture.nativeElement.querySelector('.warehouse-actions');
+    expect(actions).toBeTruthy();
+    expect(actions.querySelector('.warehouse')).toBeTruthy();
+    expect(actions.querySelector('.stock-in-button')).toBeTruthy();
+  });
+
   it('should calculate total and low stock counts', () => {
     component.materials = [
       { quantity: 10, reorderLevel: 5 } as any,
