@@ -1,24 +1,23 @@
-<section class="panel">
-  <div class="toolbar">
-    <div>
-      <h2>People & HR</h2>
-      <p>Employees, organization, attendance, leave, payroll and goals.</p>
+<ng-container [ngSwitch]="section">
+  <app-hr-employees *ngSwitchCase="'employees'"></app-hr-employees>
+  <app-hr-organization *ngSwitchCase="'organization'"></app-hr-organization>
+  <app-hr-attendance *ngSwitchCase="'attendance'"></app-hr-attendance>
+  <app-hr-leaves *ngSwitchCase="'leaves'"></app-hr-leaves>
+  <app-hr-payroll *ngSwitchCase="'payroll'"></app-hr-payroll>
+  <app-hr-goals *ngSwitchCase="'goals'"></app-hr-goals>
+  <app-hr-reports *ngSwitchCase="'reports'"></app-hr-reports>
+  <section *ngSwitchDefault class="panel">
+    <div class="toolbar">
+      <div>
+        <h2>{{ sectionTitle }}</h2>
+        <p>{{ sectionDescription }}</p>
+      </div>
     </div>
-  </div>
-
-  <ng-container [ngSwitch]="section">
-    <app-hr-employees *ngSwitchCase="'employees'"></app-hr-employees>
-    <app-hr-organization *ngSwitchCase="'organization'"></app-hr-organization>
-    <app-hr-attendance *ngSwitchCase="'attendance'"></app-hr-attendance>
-    <app-hr-leaves *ngSwitchCase="'leaves'"></app-hr-leaves>
-    <app-hr-payroll *ngSwitchCase="'payroll'"></app-hr-payroll>
-    <app-hr-goals *ngSwitchCase="'goals'"></app-hr-goals>
-    <app-hr-reports *ngSwitchCase="'reports'"></app-hr-reports>
-    <div *ngSwitchDefault class="feature-list">
+    <div class="feature-list">
       <div>
         <strong>{{ sectionTitle }}</strong>
         <span>This HR section is available in the role-aware workspace and will have its dedicated workflow.</span>
       </div>
     </div>
-  </ng-container>
-</section>
+  </section>
+</ng-container>
