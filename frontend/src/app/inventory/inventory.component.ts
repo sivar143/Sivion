@@ -1,5 +1,5 @@
 import  {
-  Component, inject, OnInit
+  ChangeDetectorRef, Component, inject, OnInit
 }
 from '@angular/core';
 import  {
@@ -112,6 +112,7 @@ interface DispatchLine  {
 export class InventoryComponent implements OnInit  {
   api=inject(InventoryApi);
   crm=inject(CrmApi);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   materials:Material[]=[];
   warehouses:Warehouse[]=[];
   customers:Customer[]=[];
@@ -174,6 +175,10 @@ export class InventoryComponent implements OnInit  {
     this.loadError = this.loadFailures.size
       ? `Unable to load ${Array.from(this.loadFailures).join(', ')}. Other available data is still shown.`
       : '';
+
+    // Angular's zoneless change detection does not automatically refresh the
+    // view for ordinary property changes made in Promise callbacks.
+    this.changeDetector.markForCheck();
   }
 
   get warehouseName() {
