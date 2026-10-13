@@ -138,25 +138,35 @@ export class InventoryComponent implements OnInit  {
   dispatchLines:DispatchLine[]=[ {
     productId:0,warehouseId:0,quantity:1
   }];
-  async ngOnInit() {
-    const [warehouses, customers] = await Promise.allSettled([
-      this.api.warehouses(),
-      this.crm.customers('')
-    ]);
-    if (warehouses.status === 'fulfilled') {
-      this.warehouses = warehouses.value;
-      this.warehouseId = this.warehouses.find(w => w.status === 'ACTIVE')?.id
-        || this.warehouses[0]?.id
-        || 0;
-    }
-    this.warehousesLoaded = true;
-    this.setLoadFailure('warehouses', warehouses.status === 'rejected');
+  async ngOnInit(): Promise<void> {
+    // Load independent resources separately so slow CRM/customer data cannot
+    // delay the warehouse selector or the first stock refresh.
+    const warehouseLoad = this.api.warehouses()
+      .then(async warehouses => {
+        this.warehouses = warehouses;
+        this.warehouseId = this.warehouses.find(w => w.status === 'ACTIVE')?.id
+          || this.warehouses[0]?.id
+          || 0;
+        this.warehousesLoaded = true;
+        this.setLoadFailure('warehouses', false);
+        this.draft.warehouseId = this.warehouseId;
 
-    if (customers.status === 'fulfilled') this.customers = customers.value;
-    this.setLoadFailure('customers', customers.status === 'rejected');
+        // Start stock requests as soon as the selected warehouse is known.
+        await this.reload();
+      })
+      .catch(() => {
+        this.warehousesLoaded = true;
+        this.setLoadFailure('warehouses', true);
+      });
 
-    this.draft.warehouseId = this.warehouseId;
-    await this.reload();
+    const customerLoad = this.crm.customers('')
+      .then(customers => {
+        this.customers = customers;
+        this.setLoadFailure('customers', false);
+      })
+      .catch(() => this.setLoadFailure('customers', true));
+
+    await Promise.all([warehouseLoad, customerLoad]);
   }
   private setLoadFailure(source: string, failed: boolean): void {
     if (failed) this.loadFailures.add(source);
