@@ -1,0 +1,108 @@
+<section class="panel campaign-panel">
+  <div class="campaign-toolbar">
+    <div>
+      <h2>Marketing campaigns</h2>
+      <p>Plan and maintain campaign channels, budgets, dates and goals.</p>
+    </div>
+    <button type="button" (click)="startCreate()">+ New campaign</button>
+  </div>
+
+  <div class="campaign-summary">
+    <article>
+      <span>Total campaigns</span>
+      <strong>{{ campaigns.length }}</strong>
+    </article>
+    <article>
+      <span>Active campaigns</span>
+      <strong>{{ activeCount }}</strong>
+    </article>
+    <article>
+      <span>Planned and active budget</span>
+      <strong>{{ plannedBudget | currency:'INR':'symbol':'1.0-0' }}</strong>
+    </article>
+  </div>
+
+  <p class="campaign-message error" *ngIf="error" role="alert">{{ error }}</p>
+  <p class="campaign-message success" *ngIf="success" role="status">{{ success }}</p>
+  <p *ngIf="loading">Loading campaigns…</p>
+  <p *ngIf="!loading && campaigns.length === 0">No campaigns yet. Create a campaign to get started.</p>
+
+  <div class="table-scroll" *ngIf="campaigns.length">
+    <table>
+      <thead>
+        <tr>
+          <th>Campaign</th>
+          <th>Channel</th>
+          <th>Budget</th>
+          <th>Schedule</th>
+          <th>Status</th>
+          <th>Goal</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let campaign of campaigns">
+          <td><strong>{{ campaign.name }}</strong></td>
+          <td>{{ campaign.channel }}</td>
+          <td>{{ campaign.budget | currency:'INR':'symbol':'1.0-0' }}</td>
+          <td>{{ campaign.startDate || '—' }} – {{ campaign.endDate || '—' }}</td>
+          <td><span class="status">{{ campaign.status }}</span></td>
+          <td>{{ campaign.goal || '—' }}</td>
+          <td><button type="button" (click)="edit(campaign)">Edit</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <form class="campaign-form" *ngIf="editingId !== undefined || draft.name !== '' || !campaigns.length" (ngSubmit)="save()">
+    <h3>{{ editingId ? 'Edit campaign' : 'New campaign' }}</h3>
+    <div class="form-grid">
+      <label>
+        Campaign name
+        <input name="name" required maxlength="160" [(ngModel)]="draft.name">
+      </label>
+      <label>
+        Channel
+        <select name="channel" [(ngModel)]="draft.channel">
+          <option value="EMAIL">Email</option>
+          <option value="SOCIAL">Social</option>
+          <option value="SEARCH">Search</option>
+          <option value="EVENT">Event</option>
+          <option value="PARTNER">Partner</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </label>
+      <label>
+        Budget (INR)
+        <input name="budget" type="number" min="0" step="0.01" required [(ngModel)]="draft.budget">
+      </label>
+      <label>
+        Status
+        <select name="status" [(ngModel)]="draft.status">
+          <option value="DRAFT">Draft</option>
+          <option value="PLANNED">Planned</option>
+          <option value="ACTIVE">Active</option>
+          <option value="PAUSED">Paused</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+      </label>
+      <label>
+        Start date
+        <input name="startDate" type="date" [(ngModel)]="draft.startDate">
+      </label>
+      <label>
+        End date
+        <input name="endDate" type="date" [(ngModel)]="draft.endDate">
+      </label>
+      <label class="wide">
+        Goal / notes
+        <textarea name="goal" maxlength="1000" rows="3" [(ngModel)]="draft.goal"></textarea>
+      </label>
+    </div>
+    <div class="form-actions">
+      <button type="button" (click)="cancelEdit()">Cancel</button>
+      <button type="submit">{{ editingId ? 'Save changes' : 'Create campaign' }}</button>
+    </div>
+  </form>
+</section>
