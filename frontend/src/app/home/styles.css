@@ -722,3 +722,36 @@ h1 {
     padding-top: 108px;
   }
 }
+
+
+/*
+ * Keep the selected workspace module aligned to the top-left of the content
+ * area beneath the fixed toolbar. The original global main rule used auto
+ * margins, which can center the main grid item when a module has less content.
+ */
+.app-shell > main {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  justify-self: stretch;
+  align-self: stretch;
+}
+
+/* Every module starts at the same content edge and flows from the toolbar down. */
+.app-shell > main > app-inventory,
+.app-shell > main > app-hr,
+.app-shell > main > app-procurement,
+.app-shell > main > app-finance,
+.app-shell > main > app-sales-orders,
+.app-shell > main > app-audit,
+.app-shell > main > app-reports,
+.app-shell > main > app-marketing-campaigns,
+.app-shell > main > app-administration,
+.app-shell > main > section,
+.app-shell > main > ng-container {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-inline: 0;
+}
