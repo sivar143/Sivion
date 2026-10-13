@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,7 +19,7 @@ import java.util.Set;
 @EnableMethodSecurity
 public class SecurityConfig  {
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception  {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, TenantIsolationFilter tenantIsolationFilter) throws Exception  {
         http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
         .requestMatchers(
@@ -38,6 +39,7 @@ public class SecurityConfig  {
         )
         )
         );
+        http.addFilterAfter(tenantIsolationFilter, BearerTokenAuthenticationFilter.class);
         return http.build();
     }
     @Bean
