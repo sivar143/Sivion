@@ -599,3 +599,42 @@ h1 {
     margin-left: 0;
   }
 }
+
+
+/*
+ * Keep the shared workspace header anchored consistently across HR and CRM modules.
+ * Use the same responsive gutter variables as the main content so changing module
+ * content or viewport size does not shift the header's sticky boundary.
+ */
+.app-shell > main > header {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  margin-top: calc(-1 * clamp(18px, 2.5vw, 38px));
+  margin-right: calc(-1 * var(--workspace-gutter));
+  margin-bottom: 28px;
+  margin-left: calc(-1 * var(--workspace-gutter));
+  box-sizing: border-box;
+  isolation: isolate;
+  z-index: 100;
+}
+
+@media (max-width: 900px) {
+  .app-shell > main > header {
+    top: 0;
+    margin-top: calc(-1 * clamp(18px, 2.5vw, 38px));
+    margin-right: calc(-1 * var(--workspace-gutter));
+    margin-bottom: 24px;
+    margin-left: calc(-1 * var(--workspace-gutter));
+  }
+}
+
+@media (max-width: 600px) {
+  .app-shell > main > header {
+    top: 0;
+    margin-top: -20px;
+    margin-right: calc(-1 * var(--workspace-gutter));
+    margin-bottom: 24px;
+    margin-left: calc(-1 * var(--workspace-gutter));
+  }
+}
