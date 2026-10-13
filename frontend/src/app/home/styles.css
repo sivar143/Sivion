@@ -447,3 +447,61 @@ h1 {
     right: 0;
   }
 }
+
+
+/* Keep Overview module shortcuts visually consistent with the application's standard action controls. */
+.module-grid {
+  align-items: stretch;
+  gap: 12px;
+}
+
+.module-card {
+  width: 100%;
+  min-width: 0;
+  min-height: 104px;
+  padding: 16px;
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #172033;
+  text-align: left;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 8px;
+  font: inherit;
+  box-shadow: 0 1px 2px #1018280a;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.module-card strong {
+  color: #172033;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.module-card span {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.module-card:hover {
+  background: #f9fafb;
+  border-color: #d0d5dd;
+  box-shadow: 0 2px 5px #10182812;
+}
+
+.module-card:focus-visible {
+  outline: 2px solid #84caff;
+  outline-offset: 2px;
+  border-color: #84caff;
+}
+
+@media (max-width: 600px) {
+  .module-card {
+    min-height: 0;
+    padding: 14px;
+  }
+}
