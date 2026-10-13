@@ -7,7 +7,7 @@
     aria-label="Open notifications"
   >
     <span aria-hidden="true">🔔</span>
-    <span>Notifications</span>
+    <span *ngIf="isOpen">Notifications</span>
     <span class="notification-count" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
   </button>
 
