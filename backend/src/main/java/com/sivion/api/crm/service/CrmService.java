@@ -3,6 +3,8 @@ package com.sivion.api.crm.service;
 import com.sivion.api.config.CacheConfig;
 import com.sivion.api.crm.domain.*;
 import com.sivion.api.crm.repo.*;
+import com.sivion.api.marketing.CampaignRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -25,14 +27,23 @@ public class CrmService {
     private final LeadRepository leads;
     private final OpportunityRepository opportunities;
     private final ActivityRepository activities;
+    private final CampaignRepository campaigns;
 
+    @Autowired
     public CrmService(CustomerRepository customers, ContactRepository contacts, LeadRepository leads,
-                      OpportunityRepository opportunities, ActivityRepository activities) {
+                      OpportunityRepository opportunities, ActivityRepository activities,
+                      CampaignRepository campaigns) {
         this.customers = customers;
         this.contacts = contacts;
         this.leads = leads;
         this.opportunities = opportunities;
         this.activities = activities;
+        this.campaigns = campaigns;
+    }
+
+    public CrmService(CustomerRepository customers, ContactRepository contacts, LeadRepository leads,
+                      OpportunityRepository opportunities, ActivityRepository activities) {
+        this(customers, contacts, leads, opportunities, activities, null);
     }
 
     @Cacheable(cacheNames = CacheConfig.CUSTOMER_SEARCH_CACHE, key = "#tenantId + ':' + (#q == null ? '' : #q.trim().toLowerCase())")
@@ -110,7 +121,7 @@ public class CrmService {
 
     public Lead saveLead(long tenantId, Lead lead) {
         requireTenant(tenantId);
-        validateLead(lead);
+        validateLead(tenantId, lead);
         lead.setTenantId(tenantId);
         if (lead.getLeadNumber() == null || lead.getLeadNumber().isBlank()) {
             lead.setLeadNumber("LEAD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
@@ -188,9 +199,17 @@ public class CrmService {
         requireOneOf("status", customer.getStatus(), CUSTOMER_STATUSES);
     }
 
-    private void validateLead(Lead lead) {
+    private void validateLead(long tenantId, Lead lead) {
         if (lead.getName() == null || lead.getName().isBlank()) throw new IllegalArgumentException("name is required");
         requireOneOf("source", lead.getSource(), LEAD_SOURCES);
+        if (lead.getCampaignId() != null) {
+            if (!"CAMPAIGN".equals(lead.getSource())) {
+                throw new IllegalArgumentException("Only campaign-source leads can be linked to a campaign");
+            }
+            if (campaigns != null && campaigns.findByIdAndTenantId(lead.getCampaignId(), tenantId).isEmpty()) {
+                throw new IllegalArgumentException("Campaign not found for this tenant");
+            }
+        }
         requireOneOf("status", lead.getStatus(), LEAD_STATUSES);
         requireOneOf("rating", lead.getRating(), LEAD_RATINGS);
         if (lead.getEstimatedValue() != null && lead.getEstimatedValue().signum() < 0) throw new IllegalArgumentException("estimatedValue cannot be negative");

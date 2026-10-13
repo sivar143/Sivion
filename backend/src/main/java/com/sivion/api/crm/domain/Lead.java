@@ -12,6 +12,7 @@ public class Lead  {
     @Column(length=40) String phone;
     @Column(name="company_name",length=200) String companyName;
     @Column(length=40,nullable=false) String source="OTHER";
+    @Column(name="campaign_id") Long campaignId;
     @Column(length=40,nullable=false) String status="NEW";
     @Column(length=40,nullable=false) String rating="WARM";
     @Column(precision=18,scale=4) BigDecimal estimatedValue;
@@ -71,6 +72,8 @@ public class Lead  {
     public void setSource(String v) {
         source=v;
     }
+    public Long getCampaignId() { return campaignId; }
+    public void setCampaignId(Long v) { campaignId = v; }
     public String getStatus() {
         return status;
     }
