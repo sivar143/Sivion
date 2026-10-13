@@ -48,6 +48,30 @@ describe('InventoryComponent', () => {
     expect(stockInButton.disabled).toBe(true);
   });
 
+  it('loads the warehouse selector without waiting for customer data', async () => {
+    component.api = {
+      warehouses: async () => [
+        { id: 7, code: 'MAIN', name: 'Main Warehouse', status: 'ACTIVE' }
+      ],
+      materials: async () => [],
+      history: async () => [],
+      transactions: async () => []
+    } as any;
+    component.crm = {
+      customers: () => new Promise(() => undefined)
+    } as any;
+
+    const initialization = component.ngOnInit();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(component.warehousesLoaded).toBe(true);
+    expect(component.warehouseId).toBe(7);
+    expect(component.warehouseName).toBe('MAIN — Main Warehouse');
+
+    // The CRM promise intentionally remains pending; don't wait for it in this test.
+    void initialization;
+  });
+
   it('should calculate total and low stock counts', () => {
     component.materials = [
       { quantity: 10, reorderLevel: 5 } as any,
