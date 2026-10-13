@@ -12,7 +12,12 @@ describe('InventoryComponent', () => {
     await TestBed.configureTestingModule({
       imports: [InventoryComponent],
       providers: [
-        { provide: InventoryApi, useValue: {} },
+        { provide: InventoryApi, useValue: {
+          warehouses: async () => [],
+          materials: async () => [],
+          history: async () => [],
+          transactions: async () => []
+        } },
         { provide: CrmApi, useValue: { customers: async () => [] } }
       ]
     }).compileComponents();
@@ -25,13 +30,22 @@ describe('InventoryComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('keeps the warehouse selector and stock-in action in a dedicated toolbar group', () => {
+  it('shows a meaningful placeholder instead of a blank warehouse selector', () => {
     fixture.detectChanges();
 
-    const actions = fixture.nativeElement.querySelector('.warehouse-actions');
-    expect(actions).toBeTruthy();
-    expect(actions.querySelector('.warehouse')).toBeTruthy();
-    expect(actions.querySelector('.stock-in-button')).toBeTruthy();
+    const selector: HTMLSelectElement = fixture.nativeElement.querySelector('.warehouse');
+    expect(selector).toBeTruthy();
+    expect(selector.options[0].textContent.trim()).toBe('Loading warehouses…');
+  });
+
+  it('shows an empty-state message and disables stock-in when no warehouse exists', async () => {
+    component.warehousesLoaded = true;
+    fixture.detectChanges();
+
+    const selector: HTMLSelectElement = fixture.nativeElement.querySelector('.warehouse');
+    const stockInButton: HTMLButtonElement = fixture.nativeElement.querySelector('.stock-in-button');
+    expect(selector.options[0].textContent.trim()).toBe('No warehouses available — add a warehouse');
+    expect(stockInButton.disabled).toBe(true);
   });
 
   it('should calculate total and low stock counts', () => {
