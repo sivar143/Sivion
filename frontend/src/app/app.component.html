@@ -55,29 +55,31 @@
           </p>
         </div>
       </div>
-      <div class="account-menu">
-        <button
-          class="user user-menu-trigger"
-          type="button"
-          (click)="toggleUserMenu()"
-          [attr.aria-expanded]="userMenuOpen"
-          aria-haspopup="true"
-          aria-label="Open account menu"
-        >
-          <span>{{auth.username}}</span>
-          <span class="account-menu-chevron" aria-hidden="true">{{userMenuOpen ? '▴' : '▾'}}</span>
-        </button>
-        <div class="account-menu-panel" *ngIf="userMenuOpen">
-          <div class="account-menu-details">
-            <strong>{{auth.username}}</strong>
-            <span>{{workspace.role}}</span>
-          </div>
-          <button class="account-sign-out" type="button" (click)="auth.logout()">
-            Sign out
+      <div class="header-actions">
+        <app-notification-center />
+        <div class="account-menu">
+          <button
+            class="user user-menu-trigger"
+            type="button"
+            (click)="toggleUserMenu()"
+            [attr.aria-expanded]="userMenuOpen"
+            aria-haspopup="true"
+            aria-label="Open account menu"
+          >
+            <span>{{auth.username}}</span>
+            <span class="account-menu-chevron" aria-hidden="true">{{userMenuOpen ? '▴' : '▾'}}</span>
           </button>
+          <div class="account-menu-panel" *ngIf="userMenuOpen">
+            <div class="account-menu-details">
+              <strong>{{auth.username}}</strong>
+              <span>{{workspace.role}}</span>
+            </div>
+            <button class="account-sign-out" type="button" (click)="auth.logout()">
+              Sign out
+            </button>
+          </div>
         </div>
       </div>
-      <app-notification-center />
     </header>
     <section *ngIf="activeItem==='overview'" class="cards">
       <article>
