@@ -101,7 +101,7 @@ describe('AppComponent', () => {
     expect(component.activeNavigationItem).toBe('employees');
   });
 
-  it('routes shared goals and reports to CRM in sales workspaces, not HR', () => {
+  it('routes sales reports to the dedicated reports component, not HR or the generic CRM view', () => {
     component.workspace = WORKSPACES['sales-manager'];
     component.activeItem = 'goals';
     expect(component.isHr).toBe(false);
@@ -109,7 +109,8 @@ describe('AppComponent', () => {
 
     component.activeItem = 'reports';
     expect(component.isHr).toBe(false);
-    expect(component.isCrmItem).toBe(true);
+    expect(component.isReports).toBe(true);
+    expect(component.isCrmItem).toBe(false);
   });
 
   it('keeps employee goals in the HR module', () => {
