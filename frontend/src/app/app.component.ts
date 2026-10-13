@@ -139,7 +139,7 @@ export class AppComponent implements OnInit {
       }
     }
 
-    return menuIds.has(this.activeItem) ? this.activeItem : this.activeItem;
+    return this.activeItem;
   }
 
   get isCrmItem() {
