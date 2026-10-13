@@ -35,6 +35,7 @@ import {
   AuditComponent
 } from './audit/audit.component';
 import { NotificationCenterComponent } from './notifications/notification-center.component';
+import { ReportsComponent } from './reports/reports.component';
 
 @Component({
   selector: 'app-root',
@@ -48,7 +49,8 @@ import { NotificationCenterComponent } from './notifications/notification-center
     FinanceComponent,
     SalesOrderComponent,
     AuditComponent,
-    NotificationCenterComponent
+    NotificationCenterComponent,
+    ReportsComponent
   ],
   templateUrl: './app.component.html'
 })
@@ -165,8 +167,7 @@ export class AppComponent implements OnInit {
       'meetings',
       'goals',
       'performance',
-      'team',
-      'reports'
+      'team'
     ].includes(this.activeItem) && !this.isHr;
   }
 
@@ -218,6 +219,10 @@ export class AppComponent implements OnInit {
   }
 
   // Audit history is an administrative capability and is exposed only in the admin workspace.
+  get isReports(): boolean {
+    return this.activeItem === 'reports' && !this.isHr;
+  }
+
   get isAudit(): boolean {
     return this.workspace.id === 'admin' && this.activeItem === 'audit';
   }

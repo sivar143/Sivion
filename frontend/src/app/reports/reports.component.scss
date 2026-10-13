@@ -1,0 +1,77 @@
+.report-panel {
+  min-width: 0;
+}
+
+.report-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.report-toolbar h2 {
+  margin: 0;
+}
+
+.report-toolbar p,
+.report-note {
+  color: var(--muted-color, #667085);
+  font-size: 0.9rem;
+}
+
+.report-toolbar button {
+  flex: 0 0 auto;
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 1rem;
+}
+
+.report-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--border-color, #e4e7ec);
+  border-radius: 0.75rem;
+  background: var(--surface, #fff);
+}
+
+.report-metric span {
+  color: var(--muted-color, #667085);
+  font-size: 0.9rem;
+}
+
+.report-metric strong {
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  overflow-wrap: anywhere;
+}
+
+.report-metric small {
+  color: var(--muted-color, #667085);
+  line-height: 1.4;
+}
+
+.report-error {
+  color: #b42318;
+}
+
+.report-loading,
+.report-empty {
+  padding: 1.25rem 0;
+}
+
+.report-note {
+  margin-top: 1.25rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .report-toolbar {
+    flex-direction: column;
+  }
+}
