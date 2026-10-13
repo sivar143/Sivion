@@ -42,6 +42,7 @@ export interface Lead  {
   phone?:string;
   companyName?:string;
   source:string;
+  campaignId?:number;
   status:string;
   rating:string;
   estimatedValue?:number;

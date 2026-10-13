@@ -592,7 +592,7 @@
         <input placeholder="Company" [(ngModel)]="leadDraft.companyName" name="company">
         <input type="email" placeholder="Email" [(ngModel)]="leadDraft.email" name="email">
         <input placeholder="Phone" [(ngModel)]="leadDraft.phone" name="phone">
-        <select [(ngModel)]="leadDraft.source" name="source">
+        <select [ngModel]="leadDraft.source" (ngModelChange)="onLeadSourceChange($event)" name="source">
           <option>
             WEBSITE
           </option>
@@ -612,6 +612,14 @@
             OTHER
           </option>
         </select>
+        <label *ngIf="workspace.id==='marketing' && leadDraft.source==='CAMPAIGN'">
+          Campaign
+          <select [(ngModel)]="leadDraft.campaignId" name="campaignId" required>
+            <option [ngValue]="undefined">Select campaign</option>
+            <option *ngFor="let campaign of campaigns" [ngValue]="campaign.id">{{ campaign.name }} ({{ campaign.status }})</option>
+          </select>
+          <small *ngIf="campaignLoadError">{{ campaignLoadError }}</small>
+        </label>
         <select [(ngModel)]="leadDraft.rating" name="rating">
           <option>
             HOT

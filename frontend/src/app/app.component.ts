@@ -37,6 +37,7 @@ import {
 import { NotificationCenterComponent } from './notifications/notification-center.component';
 import { ReportsComponent } from './reports/reports.component';
 import { MarketingCampaignsComponent } from './marketing/marketing-campaigns.component';
+import { MarketingCampaign, MarketingCampaignsApi } from './marketing/marketing-campaigns-api.service';
 import { AdministrationComponent } from './administration/administration.component';
 
 @Component({
@@ -63,6 +64,7 @@ export class AppComponent implements OnInit {
   sidebarCollapsed = false;
   userMenuOpen = false;
   auth = inject(AuthService);
+  private readonly campaignApi = inject(MarketingCampaignsApi);
   activeItem = 'overview';
   workspace: WorkspaceDefinition = WORKSPACES.employee;
   customers: Customer[] = [];
@@ -70,6 +72,8 @@ export class AppComponent implements OnInit {
   leads: Lead[] = [];
   opportunities: Opportunity[] = [];
   activities: Activity[] = [];
+  campaigns: MarketingCampaign[] = [];
+  campaignLoadError = '';
   customerQuery = '';
   newCustomer = false;
   newContact = false;
@@ -116,11 +120,15 @@ export class AppComponent implements OnInit {
     const id = this.resolveWorkspace();
     this.workspace = WORKSPACES[id];
     this.activeItem = this.workspace.items[0]?.id || 'overview';
-    await Promise.all([
+    const initialLoads: Promise<void>[] = [
       this.loadCustomers(),
       this.loadLeads(),
       this.loadOpps()
-    ]);
+    ];
+    if (id === 'marketing') {
+      initialLoads.push(this.loadCampaigns());
+    }
+    await Promise.all(initialLoads);
   }
 
   // Resolve the first workspace granted by Keycloak. Backend authorization remains authoritative.
@@ -333,6 +341,23 @@ export class AppComponent implements OnInit {
     this.opportunities = await this.api.opportunities();
   }
 
+  async loadCampaigns(): Promise<void> {
+    try {
+      this.campaigns = await this.campaignApi.list();
+      this.campaignLoadError = '';
+    } catch {
+      this.campaigns = [];
+      this.campaignLoadError = 'Campaign options could not be loaded.';
+    }
+  }
+
+  onLeadSourceChange(source: string): void {
+    this.leadDraft.source = source;
+    if (source !== 'CAMPAIGN') {
+      this.leadDraft.campaignId = undefined;
+    }
+  }
+
   async loadActivities() {
     this.activities = await this.api.activities();
   }
@@ -354,7 +379,7 @@ export class AppComponent implements OnInit {
   async saveLead() {
     await this.api.createLead(this.leadDraft);
     this.newLead = false;
-    this.leadDraft = { name: '', source: 'WEBSITE', status: 'NEW', rating: 'WARM' };
+    this.leadDraft = { name: '', source: 'WEBSITE', campaignId: undefined, status: 'NEW', rating: 'WARM' };
     await this.loadLeads();
   }
 
