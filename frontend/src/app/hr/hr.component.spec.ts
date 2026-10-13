@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { HrComponent } from './hr.component';
 import { HrApi } from '../services/hr-api.service';
 import { AuthService } from '../services/auth.service';
+import { HrCalendarApi } from './calendar/hr-calendar-api.service';
+import { HrWorkspaceRecordsApi } from './workspace-records/hr-workspace-records-api.service';
+import { EmployeeDocumentsApi } from './documents/employee-documents-api.service';
 
 describe('HrComponent', () => {
   let fixture: ComponentFixture<HrComponent>;
@@ -27,14 +30,17 @@ describe('HrComponent', () => {
     createPayslip: async () => {},
     updatePayslip: async () => {}
   };
-  const auth = { hasRole: (role: string) => role === 'ADMIN' };
+  const auth = { roles: ['ADMIN'], hasRole: (role: string) => role === 'ADMIN', token: async () => 'test-token' };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HrComponent],
       providers: [
         { provide: HrApi, useValue: api },
-        { provide: AuthService, useValue: auth }
+        { provide: AuthService, useValue: auth },
+        { provide: HrCalendarApi, useValue: { list: async () => [], create: async (entry: any) => entry, update: async (entry: any) => entry } },
+        { provide: HrWorkspaceRecordsApi, useValue: { list: async () => [], create: async (entry: any) => entry, update: async (entry: any) => entry } },
+        { provide: EmployeeDocumentsApi, useValue: { list: async () => [], upload: async () => ({}), download: async () => new Blob() } }
       ]
     }).compileComponents();
     fixture = TestBed.createComponent(HrComponent);
