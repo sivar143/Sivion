@@ -86,6 +86,11 @@ export class HrWorkspaceRecordsComponent implements OnInit {
     this.draft = this.emptyDraft();
   }
 
+  employeeName(id: number | undefined): string {
+    const employee = this.employees.find(item => item.id === id);
+    return employee ? `${employee.firstName} ${employee.lastName}` : `Employee #${id ?? '—'}`;
+  }
+
   async save(): Promise<void> {
     this.error = '';
     if (!this.draft.title.trim()) {
