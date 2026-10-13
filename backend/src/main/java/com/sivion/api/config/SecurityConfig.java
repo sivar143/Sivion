@@ -1,5 +1,6 @@
 package com.sivion.api.config;
 import org.springframework.context.annotation.Bean;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -42,6 +43,16 @@ public class SecurityConfig  {
         http.addFilterAfter(tenantIsolationFilter, BearerTokenAuthenticationFilter.class);
         return http.build();
     }
+    @Bean
+    FilterRegistrationBean<TenantIsolationFilter> tenantIsolationFilterRegistration(
+            TenantIsolationFilter tenantIsolationFilter) {
+        FilterRegistrationBean<TenantIsolationFilter> registration =
+                new FilterRegistrationBean<>(tenantIsolationFilter);
+        // Run after JWT authentication inside Spring Security, not once before it as a servlet filter.
+        registration.setEnabled(false);
+        return registration;
+    }
+
     @Bean
     Converter<Jwt, ? extends AbstractAuthenticationToken> keycloakConverter()  {
         return jwt ->  {
