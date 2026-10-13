@@ -4,6 +4,7 @@ import { AppComponent } from './app.component';
 import { CrmApi } from './services/crm-api.service';
 import { AuthService } from './services/auth.service';
 import { WORKSPACES } from './workspace-config';
+import { MarketingCampaignsApi } from './marketing/marketing-campaigns-api.service';
 
 describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
@@ -37,7 +38,8 @@ describe('AppComponent', () => {
       imports: [AppComponent],
       providers: [
         { provide: CrmApi, useValue: crmApi },
-        { provide: AuthService, useValue: auth }
+        { provide: AuthService, useValue: auth },
+        { provide: MarketingCampaignsApi, useValue: { list: async () => [] } }
       ]
     }).compileComponents();
 
