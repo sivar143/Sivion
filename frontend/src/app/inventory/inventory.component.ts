@@ -24,7 +24,90 @@ interface DispatchLine  {
   quantity:number
 }
 @Component( {
-  selector:'app-inventory',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./inventory.component.html',styles:[`.sub{margin-top:28px}.inventory-cards{margin-bottom:10px}.muted{font-size:12px;color:#667085}.warehouse{padding:9px;border:1px solid #d0d5dd;border-radius:8px}textarea{width:100%;min-height:80px;padding:11px;font:inherit}.line{display:grid;grid-template-columns:1fr 130px auto;gap:8px;margin-bottom:8px}.negative{font-weight:700}`]
+  selector:'app-inventory',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./inventory.component.html',styles: [`
+    .sub {
+      margin-top: 28px;
+    }
+
+    .inventory-cards {
+      margin-bottom: 10px;
+    }
+
+    .muted {
+      font-size: 12px;
+      color: #667085;
+    }
+
+    .stock-toolbar {
+      align-items: center;
+      gap: 16px;
+    }
+
+    .stock-toolbar-heading {
+      min-width: 0;
+    }
+
+    .warehouse-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      min-width: 0;
+      flex: 0 1 auto;
+    }
+
+    .warehouse {
+      width: auto;
+      min-width: 220px;
+      max-width: min(32vw, 360px);
+      padding: 9px 12px;
+      border: 1px solid #d0d5dd;
+      border-radius: 8px;
+      color: #344054;
+      background: #ffffff;
+    }
+
+    .stock-in-button {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 11px;
+      font: inherit;
+    }
+
+    .line {
+      display: grid;
+      grid-template-columns: 1fr 130px auto;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .negative {
+      font-weight: 700;
+    }
+
+    @media (max-width: 680px) {
+      .stock-toolbar {
+        align-items: stretch;
+      }
+
+      .warehouse-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .warehouse {
+        flex: 1 1 220px;
+        min-width: 0;
+        max-width: 100%;
+      }
+    }
+  `]
 })
 export class InventoryComponent implements OnInit  {
   api=inject(InventoryApi);
