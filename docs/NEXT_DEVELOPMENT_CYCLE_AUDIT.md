@@ -60,7 +60,7 @@ The following increments have now been added on `integration` after the original
 
 1. **Tenant architecture:** the current services still use tenant 1 in several places. A global guard now rejects client-selected tenant IDs other than 1 and rejects JWT tenant claims that identify another tenant. This is a safe single-tenant guard, not multi-tenant support. Before enabling more tenants, all services and repositories must resolve an authoritative tenant membership from trusted identity claims and apply it consistently.
 2. **Administration:** implement auditable role assignment/permission editing, system configuration, and broader Keycloak user management if those capabilities are required beyond the existing HR staff-login flow.
-3. **Marketing:** connect campaigns to lead attribution, campaign spend, conversion, and ROI using explicit relationships and validated backend aggregation.
+3. **Marketing:** campaign-to-lead attribution is implemented with tenant-validated campaign IDs. Build validated conversion, spend attribution, and ROI aggregations next.
 4. **Notification reliability:** add durable event idempotency/outbox handling and operational visibility for retries/dead-letter events. The current event listener is recipient-aware but does not yet provide end-to-end exactly-once delivery.
 5. **Audit history:** add business-level before/after records for critical fields, retention policy, and tenant-aware administrative access when the application becomes multi-tenant.
 6. **Deployment hardening:** mount the employee-document storage path on persistent protected storage, back it up, and define retention/access policies.
