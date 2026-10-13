@@ -105,6 +105,7 @@ export class ReportsComponent implements OnInit {
       0
     );
     const campaignLeads = leads.filter(lead => lead.source === 'CAMPAIGN');
+    const linkedCampaignLeads = leads.filter(lead => lead.campaignId !== undefined && lead.campaignId !== null);
 
     this.metrics = [
       { label: 'Total leads', value: leads.length, detail: 'Leads returned by the current user’s authorized CRM scope' },
@@ -113,11 +114,18 @@ export class ReportsComponent implements OnInit {
       { label: 'Weighted pipeline', value: this.money.format(weightedPipeline), detail: 'Open opportunity amount weighted by probability' }
     ];
     if (this.workspaceId === 'marketing') {
-      this.metrics.push({
-        label: 'Campaign-source leads',
-        value: campaignLeads.length,
-        detail: 'Leads whose recorded source is CAMPAIGN; not a campaign attribution model'
-      });
+      this.metrics.push(
+        {
+          label: 'Campaign-source leads',
+          value: campaignLeads.length,
+          detail: 'Leads whose recorded source is CAMPAIGN'
+        },
+        {
+          label: 'Campaign-linked leads',
+          value: linkedCampaignLeads.length,
+          detail: 'Leads explicitly attributed to a campaign record'
+        }
+      );
     }
     if (failures.length) this.loadError = `Unable to load ${failures.join(' and ')}; displayed metrics use available data.`;
   }

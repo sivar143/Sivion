@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MarketingCampaignsApi } from './marketing-campaigns-api.service';
+import { CrmApi } from '../services/crm-api.service';
 import { MarketingCampaignsComponent } from './marketing-campaigns.component';
 
 describe('MarketingCampaignsComponent', () => {
@@ -18,7 +19,10 @@ describe('MarketingCampaignsComponent', () => {
     api.list.mockResolvedValue([]);
     await TestBed.configureTestingModule({
       imports: [MarketingCampaignsComponent],
-      providers: [{ provide: MarketingCampaignsApi, useValue: api }]
+      providers: [
+        { provide: MarketingCampaignsApi, useValue: api },
+        { provide: CrmApi, useValue: { leads: vi.fn(async () => []) } }
+      ]
     }).compileComponents();
     fixture = TestBed.createComponent(MarketingCampaignsComponent);
     component = fixture.componentInstance;
@@ -29,6 +33,16 @@ describe('MarketingCampaignsComponent', () => {
     await component.save();
     expect(component.error).toContain('campaign name');
     expect(api.create).not.toHaveBeenCalled();
+  });
+
+  it('counts leads explicitly linked to a campaign', () => {
+    component.leads = [
+      { name: 'Lead A', source: 'CAMPAIGN', campaignId: 1, status: 'NEW', rating: 'WARM' },
+      { name: 'Lead B', source: 'CAMPAIGN', campaignId: 1, status: 'NEW', rating: 'WARM' },
+      { name: 'Lead C', source: 'CAMPAIGN', status: 'NEW', rating: 'WARM' }
+    ];
+    expect(component.leadCount(1)).toBe(2);
+    expect(component.linkedLeadCount).toBe(2);
   });
 
   it('calculates the active campaign count and planned budget', () => {
