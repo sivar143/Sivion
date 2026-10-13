@@ -6,6 +6,8 @@
   <app-hr-payroll *ngSwitchCase="'payroll'"></app-hr-payroll>
   <app-hr-goals *ngSwitchCase="'goals'"></app-hr-goals>
   <app-hr-reports *ngSwitchCase="'reports'"></app-hr-reports>
+  <app-hr-calendar *ngSwitchCase="'holidays'" [section]="'holidays'"></app-hr-calendar>
+  <app-hr-calendar *ngSwitchCase="'meetings'" [section]="'meetings'"></app-hr-calendar>
   <section *ngSwitchDefault class="panel">
     <div class="toolbar">
       <div>

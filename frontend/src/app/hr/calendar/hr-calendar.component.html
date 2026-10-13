@@ -1,0 +1,79 @@
+<section class="panel hr-calendar-panel">
+  <div class="toolbar">
+    <div>
+      <h2>{{ heading }}</h2>
+      <p>{{ description }}</p>
+    </div>
+    <div class="calendar-actions">
+      <button type="button" (click)="reload()" [disabled]="loading">Refresh</button>
+      <button type="button" (click)="startCreate()">+ Add {{ section === 'holidays' ? 'holiday' : 'meeting' }}</button>
+    </div>
+  </div>
+
+  <p class="calendar-error" *ngIf="error" role="alert">{{ error }}</p>
+  <p *ngIf="loading">Loading {{ section }}…</p>
+  <p *ngIf="!loading && entries.length === 0">No {{ section }} have been added yet.</p>
+
+  <div class="table-scroll" *ngIf="entries.length">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Status</th>
+          <th>Details</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of entries">
+          <td><strong>{{ entry.title }}</strong></td>
+          <td>{{ entry.startsOn | date:'mediumDate' }}</td>
+          <td>{{ entry.endsOn | date:'mediumDate' }}</td>
+          <td><span class="calendar-status" [class.cancelled]="entry.status === 'CANCELLED'">{{ entry.status }}</span></td>
+          <td>{{ entry.description || '—' }}</td>
+          <td>
+            <button type="button" (click)="edit(entry)">Edit</button>
+            <button type="button" (click)="toggleStatus(entry)">
+              {{ entry.status === 'ACTIVE' ? 'Cancel' : 'Restore' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <form class="calendar-form" *ngIf="formOpen" (ngSubmit)="save()">
+    <h3>{{ editingId ? 'Edit entry' : 'Add entry' }}</h3>
+    <div class="calendar-form-grid">
+      <label>
+        Title
+        <input name="title" required maxlength="160" [(ngModel)]="draft.title">
+      </label>
+      <label>
+        Start date
+        <input name="startsOn" type="date" required [(ngModel)]="draft.startsOn">
+      </label>
+      <label>
+        End date
+        <input name="endsOn" type="date" required [(ngModel)]="draft.endsOn">
+      </label>
+      <label>
+        Status
+        <select name="status" [(ngModel)]="draft.status">
+          <option value="ACTIVE">Active</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+      </label>
+      <label class="wide">
+        Description
+        <textarea name="description" maxlength="2000" rows="3" [(ngModel)]="draft.description"></textarea>
+      </label>
+    </div>
+    <div class="calendar-form-actions">
+      <button type="button" (click)="cancel()">Cancel</button>
+      <button type="submit">Save</button>
+    </div>
+  </form>
+</section>

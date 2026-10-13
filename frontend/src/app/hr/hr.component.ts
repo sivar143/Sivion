@@ -7,6 +7,7 @@ import { LeavesComponent } from './leaves/leaves.component';
 import { OrganizationComponent } from './organization/organization.component';
 import { PayrollComponent } from './payroll/payroll.component';
 import { ReportsComponent } from './reports/reports.component';
+import { HrCalendarComponent } from './calendar/hr-calendar.component';
 
 @Component({
   selector: 'app-hr',
@@ -19,7 +20,8 @@ import { ReportsComponent } from './reports/reports.component';
     LeavesComponent,
     PayrollComponent,
     GoalsComponent,
-    ReportsComponent
+    ReportsComponent,
+    HrCalendarComponent
   ],
   templateUrl: './hr.component.html',
   styleUrls: ['./hr.component.scss']
