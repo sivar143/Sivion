@@ -638,3 +638,87 @@ h1 {
     margin-left: calc(-1 * var(--workspace-gutter));
   }
 }
+
+
+/*
+ * Anchor the application toolbar to the viewport rather than to the height and
+ * scroll context of whichever feature component is currently rendered.
+ * Fixed positioning avoids component-specific overflow/scroll containers changing
+ * the toolbar's vertical position between Organization, HR, Marketing and Sales.
+ */
+.app-shell > main > header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: var(--sidebar-width);
+  width: auto;
+  height: 104px;
+  min-height: 104px;
+  margin: 0;
+  padding: 20px var(--workspace-gutter);
+  box-sizing: border-box;
+  z-index: 1200;
+  overflow: visible;
+}
+
+/* Reserve space for the fixed toolbar so page content never renders underneath it. */
+.app-shell > main {
+  padding-top: calc(clamp(18px, 2.5vw, 38px) + 104px);
+}
+
+.app-shell.sidebar-collapsed > main > header {
+  left: 0;
+}
+
+.app-shell.sidebar-collapsed > main {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .app-shell > main > header {
+    left: 0;
+    right: 0;
+    height: 88px;
+    min-height: 88px;
+    padding: 16px var(--workspace-gutter);
+  }
+
+  .app-shell > main {
+    padding-top: calc(clamp(18px, 2.5vw, 38px) + 88px);
+  }
+}
+
+@media (max-width: 600px) {
+  .app-shell > main > header {
+    height: auto;
+    min-height: 88px;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+    padding: 12px var(--workspace-gutter);
+  }
+
+  .app-shell > main > header .header-content {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .app-shell > main > header .header-content h1 {
+    margin: 3px 0;
+    font-size: 1.15rem;
+  }
+
+  .app-shell > main > header .header-content p {
+    display: none;
+  }
+
+  .app-shell > main > header .header-actions {
+    flex: 0 0 auto;
+    gap: 8px;
+    margin-left: 0;
+  }
+
+  .app-shell > main {
+    padding-top: 108px;
+  }
+}
