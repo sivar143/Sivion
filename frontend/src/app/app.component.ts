@@ -124,17 +124,22 @@ export class AppComponent implements OnInit {
     return this.workspace.items.find(item => item.id === this.activeItem);
   }
 
-  // Keep the menu highlight aligned with the visible module when a top-level shortcut maps to a default section.
+  // Resolve nested module sections back to their parent menu item when the workspace uses module-level navigation.
   get activeNavigationItem(): string {
-    const aliases: Record<string, string> = {
-      sales: 'customers',
-      procurement: 'suppliers',
-      finance: 'invoices'
+    const menuIds = new Set(this.workspace.items.map(item => item.id));
+    const sectionGroups: Record<string, string[]> = {
+      sales: ['customers', 'contacts', 'leads', 'opportunities', 'activities', 'meetings', 'sales-orders'],
+      procurement: ['suppliers', 'requests', 'orders', 'goods-received'],
+      finance: ['invoices', 'payments', 'expenses']
     };
-    const resolvedItem = aliases[this.activeItem] ?? this.activeItem;
-    return this.workspace.items.some(item => item.id === resolvedItem)
-      ? resolvedItem
-      : this.activeItem;
+
+    for (const [parentId, sectionIds] of Object.entries(sectionGroups)) {
+      if (menuIds.has(parentId) && (this.activeItem === parentId || sectionIds.includes(this.activeItem))) {
+        return parentId;
+      }
+    }
+
+    return menuIds.has(this.activeItem) ? this.activeItem : this.activeItem;
   }
 
   get isCrmItem() {
