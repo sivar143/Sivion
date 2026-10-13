@@ -92,11 +92,11 @@ describe('HrComponent', () => {
     expect(component.sectionTitle).toBe(expectedLabel);
   });
 
-  it('shows a section-specific title for placeholder workflows', () => {
+  it('renders the dedicated learning workflow for the knowledge section', () => {
     fixture.componentRef.setInput('section', 'knowledge');
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Knowledge Development');
+    expect(fixture.nativeElement.textContent).toContain('Learning and development');
     expect(fixture.nativeElement.textContent).not.toContain('People & HR');
   });
 });
