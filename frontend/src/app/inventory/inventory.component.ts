@@ -122,6 +122,7 @@ export class InventoryComponent implements OnInit  {
   mode='';
   selectedId=0;
   warehouseId=0;
+  warehousesLoaded = false;
   quantity=0;
   reference='';
   customerId=0;
@@ -144,8 +145,11 @@ export class InventoryComponent implements OnInit  {
     ]);
     if (warehouses.status === 'fulfilled') {
       this.warehouses = warehouses.value;
-      this.warehouseId = this.warehouses.find(w => w.status === 'ACTIVE')?.id || 0;
+      this.warehouseId = this.warehouses.find(w => w.status === 'ACTIVE')?.id
+        || this.warehouses[0]?.id
+        || 0;
     }
+    this.warehousesLoaded = true;
     this.setLoadFailure('warehouses', warehouses.status === 'rejected');
 
     if (customers.status === 'fulfilled') this.customers = customers.value;
@@ -163,7 +167,18 @@ export class InventoryComponent implements OnInit  {
   }
 
   get warehouseName() {
-    return this.warehouses.find(w=>w.id===this.warehouseId)?.name||'Not configured';
+    const selectedWarehouse = this.warehouses.find(w => w.id === this.warehouseId);
+    return selectedWarehouse
+      ? `${selectedWarehouse.code} — ${selectedWarehouse.name}`
+      : this.warehousesLoaded
+        ? 'No warehouse selected'
+        : 'Loading warehouse…';
+  }
+
+  get warehousePlaceholder(): string {
+    if (!this.warehousesLoaded) return 'Loading warehouses…';
+    if (this.loadFailures.has('warehouses')) return 'Unable to load warehouses';
+    return 'No warehouses available — add a warehouse';
   }
   get totalStock() {
     return this.materials.reduce((a,m)=>a+(m.quantity||0),0);
