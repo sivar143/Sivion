@@ -41,3 +41,29 @@ Tenant isolation must be reviewed alongside the existing tenant-context implemen
 - Verify that read-only requests do not create audit records.
 - Verify that failed writes are recorded with their HTTP status.
 - Confirm the generated `audit_log` table in the target database and review retention needs.
+
+
+## Current implementation status — 2026-10-13
+
+The following increments have now been added on `integration` after the original audit:
+
+- **Audit trail:** request-metadata auditing and an admin-only UI are implemented. It is not field-level before/after history.
+- **Notifications:** persistent recipient-specific inbox, unread/read state, and administrator-sent notifications are implemented. HR leave requests/decisions and the existing sales/inventory/procurement domain events now create inbox notifications through a dedicated RabbitMQ queue.
+- **Reporting:** operational summary screens now read from the existing Sales/CRM, Inventory, Procurement, and Finance APIs. These are operational indicators, not audited financial statements or a reconciliation ledger.
+- **HR calendar:** holidays and organization meetings are persisted and role-checked.
+- **HR performance and learning:** performance reviews and learning-resource records are persisted; employee-visible records are scoped through the HR service's existing employee visibility rules.
+- **HR employee documents:** file upload/download and metadata are implemented with a 10 MB limit, an allowlist of document MIME types, and employee-scope checks. Configure a persistent, access-controlled storage path for deployment; the default local filesystem path is not a substitute for a managed backup/retention policy.
+- **Administration:** a staff-account and role-responsibility overview is implemented and links to the existing staff-login workflow. This is not yet a full permissions editor or general Keycloak user-management console.
+- **Marketing:** campaign create/list/edit is implemented with persistent records, date validation, budgets, channels, and status. Campaign-to-lead attribution and campaign conversion reporting are still not modeled as first-class relationships.
+
+## Remaining gaps after these increments
+
+1. **Tenant architecture:** the current services still use tenant 1 in several places. A global guard now rejects client-selected tenant IDs other than 1 and rejects JWT tenant claims that identify another tenant. This is a safe single-tenant guard, not multi-tenant support. Before enabling more tenants, all services and repositories must resolve an authoritative tenant membership from trusted identity claims and apply it consistently.
+2. **Administration:** implement auditable role assignment/permission editing, system configuration, and broader Keycloak user management if those capabilities are required beyond the existing HR staff-login flow.
+3. **Marketing:** connect campaigns to lead attribution, campaign spend, conversion, and ROI using explicit relationships and validated backend aggregation.
+4. **Notification reliability:** add durable event idempotency/outbox handling and operational visibility for retries/dead-letter events. The current event listener is recipient-aware but does not yet provide end-to-end exactly-once delivery.
+5. **Audit history:** add business-level before/after records for critical fields, retention policy, and tenant-aware administrative access when the application becomes multi-tenant.
+6. **Deployment hardening:** mount the employee-document storage path on persistent protected storage, back it up, and define retention/access policies.
+7. **Regression verification:** rerun backend tests, frontend tests/build, and both Compose validations after the latest commits; inspect the final CI run before declaring the batch complete.
+
+The implementation intentionally does not claim that the remaining items above are complete.
