@@ -1,0 +1,104 @@
+<section class="panel workspace-records-panel">
+  <div class="toolbar">
+    <div>
+      <h2>{{ heading }}</h2>
+      <p>{{ description }}</p>
+    </div>
+    <div class="records-actions">
+      <button type="button" (click)="reload()" [disabled]="loading">Refresh</button>
+      <button type="button" *ngIf="canManage" (click)="startCreate()">+ Add {{ type === 'PERFORMANCE' ? 'review' : 'resource' }}</button>
+    </div>
+  </div>
+
+  <p class="records-error" *ngIf="error" role="alert">{{ error }}</p>
+  <p *ngIf="loading">Loading records…</p>
+  <p *ngIf="!loading && !records.length">No records have been added yet.</p>
+
+  <div class="table-scroll" *ngIf="records.length">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th *ngIf="type === 'PERFORMANCE'">Employee ID</th>
+          <th *ngIf="type === 'PERFORMANCE'">Score</th>
+          <th *ngIf="type === 'LEARNING'">Resource</th>
+          <th>Due date</th>
+          <th>Status</th>
+          <th>Details</th>
+          <th *ngIf="canManage">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of records">
+          <td><strong>{{ record.title }}</strong></td>
+          <td *ngIf="type === 'PERFORMANCE'">{{ employeeName(record.employeeId) }}</td>
+          <td *ngIf="type === 'PERFORMANCE'">{{ record.score }} / 5</td>
+          <td *ngIf="type === 'LEARNING'">
+            <a *ngIf="record.resourceUrl" [href]="record.resourceUrl" target="_blank" rel="noopener noreferrer">Open resource</a>
+            <span *ngIf="!record.resourceUrl">—</span>
+          </td>
+          <td>{{ record.dueDate ? (record.dueDate | date:'mediumDate') : '—' }}</td>
+          <td>{{ record.status }}</td>
+          <td>{{ record.description || '—' }}</td>
+          <td *ngIf="canManage"><button type="button" (click)="edit(record)">Edit</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <form class="records-form" *ngIf="formOpen" (ngSubmit)="save()">
+    <h3>{{ editingId ? 'Edit record' : 'Add record' }}</h3>
+    <div class="records-form-grid">
+      <label>
+        Title
+        <input name="title" required maxlength="180" [(ngModel)]="draft.title">
+      </label>
+      <label *ngIf="type === 'PERFORMANCE'">
+        Employee
+        <select name="employeeId" required [(ngModel)]="draft.employeeId">
+          <option [ngValue]="undefined">Select employee</option>
+          <option *ngFor="let employee of employees" [ngValue]="employee.id">
+            {{ employee.employeeNumber }} — {{ employee.firstName }} {{ employee.lastName }}
+          </option>
+        </select>
+      </label>
+      <label *ngIf="type === 'PERFORMANCE'">
+        Score (1–5)
+        <select name="score" required [(ngModel)]="draft.score">
+          <option [ngValue]="1">1 — Needs improvement</option>
+          <option [ngValue]="2">2</option>
+          <option [ngValue]="3">3 — Meets expectations</option>
+          <option [ngValue]="4">4</option>
+          <option [ngValue]="5">5 — Excellent</option>
+        </select>
+      </label>
+      <label *ngIf="type === 'LEARNING'">
+        Resource URL
+        <input name="resourceUrl" type="url" placeholder="https://…" [(ngModel)]="draft.resourceUrl">
+      </label>
+      <label>
+        Due date
+        <input name="dueDate" type="date" [(ngModel)]="draft.dueDate">
+      </label>
+      <label>
+        Status
+        <select name="status" [(ngModel)]="draft.status">
+          <option value="DRAFT" *ngIf="type === 'PERFORMANCE'">Draft</option>
+          <option value="SUBMITTED" *ngIf="type === 'PERFORMANCE'">Submitted</option>
+          <option value="REVIEWED" *ngIf="type === 'PERFORMANCE'">Reviewed</option>
+          <option value="ACTIVE">Active</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="ARCHIVED">Archived</option>
+        </select>
+      </label>
+      <label class="wide">
+        Details
+        <textarea name="description" rows="3" maxlength="3000" [(ngModel)]="draft.description"></textarea>
+      </label>
+    </div>
+    <div class="records-form-actions">
+      <button type="button" (click)="cancel()">Cancel</button>
+      <button type="submit">Save</button>
+    </div>
+  </form>
+</section>

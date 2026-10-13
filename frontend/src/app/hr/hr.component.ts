@@ -8,6 +8,7 @@ import { OrganizationComponent } from './organization/organization.component';
 import { PayrollComponent } from './payroll/payroll.component';
 import { ReportsComponent } from './reports/reports.component';
 import { HrCalendarComponent } from './calendar/hr-calendar.component';
+import { HrWorkspaceRecordsComponent } from './workspace-records/hr-workspace-records.component';
 
 @Component({
   selector: 'app-hr',
@@ -21,7 +22,8 @@ import { HrCalendarComponent } from './calendar/hr-calendar.component';
     PayrollComponent,
     GoalsComponent,
     ReportsComponent,
-    HrCalendarComponent
+    HrCalendarComponent,
+    HrWorkspaceRecordsComponent
   ],
   templateUrl: './hr.component.html',
   styleUrls: ['./hr.component.scss']
