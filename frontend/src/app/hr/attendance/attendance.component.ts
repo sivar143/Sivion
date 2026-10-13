@@ -9,7 +9,7 @@ import { HrApi, Attendance, Employee } from '../../services/hr-api.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './attendance.component.html',
-  styleUrls: ['./attendance.component.scss']
+  styleUrls: ['../hr.component.scss', './attendance.component.scss']
 })
 export class AttendanceComponent implements OnInit {
   private readonly api = inject(HrApi);
