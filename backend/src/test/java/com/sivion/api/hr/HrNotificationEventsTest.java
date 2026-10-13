@@ -16,11 +16,9 @@ class HrNotificationEventsTest {
         EmployeeRepository repository = org.mockito.Mockito.mock(EmployeeRepository.class);
         NotificationService notifications = org.mockito.Mockito.mock(NotificationService.class);
         Employee hr = new Employee();
-        hr.setId(4L);
         hr.setUsername("hr-user");
         hr.setRole("HR_USER");
         Employee employee = new Employee();
-        employee.setId(5L);
         employee.setUsername("employee");
         employee.setRole("EMPLOYEE");
         when(repository.findByTenantIdOrderByLastNameAscFirstNameAsc(1L)).thenReturn(List.of(hr, employee));

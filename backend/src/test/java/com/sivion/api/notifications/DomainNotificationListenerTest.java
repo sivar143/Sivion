@@ -15,11 +15,9 @@ class DomainNotificationListenerTest {
         EmployeeRepository repository = org.mockito.Mockito.mock(EmployeeRepository.class);
         NotificationService notifications = org.mockito.Mockito.mock(NotificationService.class);
         Employee inventoryUser = new Employee();
-        inventoryUser.setId(1L);
         inventoryUser.setUsername("stock-user");
         inventoryUser.setRole("INVENTORY_USER");
         Employee salesUser = new Employee();
-        salesUser.setId(2L);
         salesUser.setUsername("sales-user");
         salesUser.setRole("SALES_USER");
         when(repository.findByTenantIdOrderByLastNameAscFirstNameAsc(1L))
