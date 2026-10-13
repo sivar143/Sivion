@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MarketingCampaign, MarketingCampaignsApi } from './marketing-campaigns-api.service';
+import { CrmApi, Lead } from '../services/crm-api.service';
 
 @Component({
   selector: 'app-marketing-campaigns',
@@ -12,9 +13,11 @@ import { MarketingCampaign, MarketingCampaignsApi } from './marketing-campaigns-
 })
 export class MarketingCampaignsComponent implements OnInit {
   private readonly api = inject(MarketingCampaignsApi);
+  private readonly crm = inject(CrmApi);
   private readonly cdr = inject(ChangeDetectorRef);
 
   campaigns: MarketingCampaign[] = [];
+  leads: Lead[] = [];
   loading = false;
   error = '';
   success = '';
@@ -24,6 +27,14 @@ export class MarketingCampaignsComponent implements OnInit {
 
   get activeCount(): number {
     return this.campaigns.filter(campaign => campaign.status === 'ACTIVE').length;
+  }
+
+  leadCount(campaignId: number | undefined): number {
+    return campaignId ? this.leads.filter(lead => lead.campaignId === campaignId).length : 0;
+  }
+
+  get linkedLeadCount(): number {
+    return this.leads.filter(lead => lead.campaignId !== undefined && lead.campaignId !== null).length;
   }
 
   get plannedBudget(): number {
@@ -40,7 +51,15 @@ export class MarketingCampaignsComponent implements OnInit {
     this.loading = true;
     this.error = '';
     try {
-      this.campaigns = await this.api.list();
+      const [campaignResult, leadResult] = await Promise.allSettled([
+        this.api.list(),
+        this.crm.leads()
+      ]);
+      if (campaignResult.status === 'rejected') {
+        throw campaignResult.reason;
+      }
+      this.campaigns = campaignResult.value;
+      this.leads = leadResult.status === 'fulfilled' ? leadResult.value : [];
     } catch {
       this.error = 'Campaigns could not be loaded. Check your access and try again.';
     } finally {

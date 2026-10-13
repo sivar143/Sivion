@@ -20,6 +20,10 @@
       <span>Planned and active budget</span>
       <strong>{{ plannedBudget | currency:'INR':'symbol':'1.0-0' }}</strong>
     </article>
+    <article>
+      <span>Campaign-linked leads</span>
+      <strong>{{ linkedLeadCount }}</strong>
+    </article>
   </div>
 
   <p class="campaign-message error" *ngIf="error" role="alert">{{ error }}</p>
@@ -36,6 +40,7 @@
           <th>Budget</th>
           <th>Schedule</th>
           <th>Status</th>
+          <th>Linked leads</th>
           <th>Goal</th>
           <th>Actions</th>
         </tr>
@@ -47,6 +52,7 @@
           <td>{{ campaign.budget | currency:'INR':'symbol':'1.0-0' }}</td>
           <td>{{ campaign.startDate || '—' }} – {{ campaign.endDate || '—' }}</td>
           <td><span class="status">{{ campaign.status }}</span></td>
+          <td>{{ leadCount(campaign.id) }}</td>
           <td>{{ campaign.goal || '—' }}</td>
           <td><button type="button" (click)="edit(campaign)">Edit</button></td>
         </tr>
