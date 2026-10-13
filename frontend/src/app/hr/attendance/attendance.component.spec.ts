@@ -87,4 +87,17 @@ describe('AttendanceComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('2026-10-01');
     expect(fixture.nativeElement.textContent).toContain('Ravi Kumar');
   });
+
+  it('uses a scoped responsive dialog for recording attendance', () => {
+    component.formOpen = true;
+    fixture.detectChanges();
+
+    const dialog = fixture.nativeElement.querySelector('.attendance-modal');
+    const form = fixture.nativeElement.querySelector('.attendance-form');
+
+    expect(dialog).not.toBeNull();
+    expect(form).not.toBeNull();
+    expect(form.querySelector('input[name="checkIn"]')).not.toBeNull();
+    expect(form.querySelector('input[name="checkOut"]')).not.toBeNull();
+  });
 });
