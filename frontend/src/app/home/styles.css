@@ -32,3 +32,55 @@ header>div:first-child{min-width:0}
   outline: 2px solid #84caff;
   outline-offset: 2px;
 }
+
+
+/* Keep account actions visible at the bottom of the viewport while long pages scroll. */
+.app-shell > aside {
+  height: 100vh;
+  min-height: 0;
+  align-self: start;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+}
+
+.app-shell > aside nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.app-shell > aside .role-box {
+  flex: 0 0 auto;
+  margin-top: auto;
+}
+
+.app-shell > aside .logout {
+  flex: 0 0 auto;
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 900px) {
+  .app-shell > aside {
+    height: auto;
+    min-height: 0;
+    position: static;
+    overflow: visible;
+  }
+
+  .app-shell > aside nav {
+    flex: initial;
+    min-height: auto;
+    overflow-y: visible;
+  }
+
+  .app-shell > aside .role-box {
+    margin-top: 16px;
+  }
+
+  .app-shell > aside .logout {
+    margin-top: 6px;
+  }
+}
