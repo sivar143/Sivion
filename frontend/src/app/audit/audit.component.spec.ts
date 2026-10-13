@@ -56,4 +56,4 @@ describe('AuditComponent', () => {
     expect(component.statusClass(403)).toBe('status-warning');
     expect(component.statusClass(500)).toBe('status-error');
   });
-}
+});
