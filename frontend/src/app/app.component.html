@@ -64,8 +64,7 @@
             (click)="toggleUserMenu()"
             [attr.aria-expanded]="userMenuOpen"
             aria-haspopup="true"
-            aria-label="Open account menu"
-          >
+            aria-label="Open account menu">
             <span>{{auth.username}}</span>
             <span class="account-menu-chevron" aria-hidden="true">{{userMenuOpen ? '▴' : '▾'}}</span>
           </button>
