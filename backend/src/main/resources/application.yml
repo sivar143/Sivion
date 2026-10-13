@@ -1,6 +1,10 @@
 spring:
   application:
     name: sivion-api
+  servlet:
+    multipart:
+      max-file-size: ${SIVION_DOCUMENTS_MAX_FILE_SIZE:10MB}
+      max-request-size: ${SIVION_DOCUMENTS_MAX_REQUEST_SIZE:11MB}
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/sivion}
     username: ${SPRING_DATASOURCE_USERNAME:sivion}
@@ -42,6 +46,8 @@ springdoc:
 
 
 sivion:
+  documents:
+    storage-path: ${SIVION_DOCUMENTS_STORAGE_PATH:./data/employee-documents}
   keycloak:
     realm: ${SIVION_KEYCLOAK_REALM:sivion}
     admin-base-url: ${SIVION_KEYCLOAK_ADMIN_BASE_URL:http://localhost:8081}

@@ -69,8 +69,11 @@ services:
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8081/realms/sivion
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/sivion/protocol/openid-connect/certs
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SIVION_DOCUMENTS_STORAGE_PATH: /app/data/employee-documents
     ports:
       - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - employee-documents:/app/data/employee-documents
     depends_on:
       mysql:
         condition: service_healthy
@@ -90,3 +93,4 @@ services:
 
 volumes:
   mysql-data:
+  employee-documents:
