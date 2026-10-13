@@ -49,6 +49,7 @@ import {
 export class AppComponent implements OnInit {
   api = inject(CrmApi);
   sidebarCollapsed = false;
+  userMenuOpen = false;
   auth = inject(AuthService);
   activeItem = 'overview';
   workspace: WorkspaceDefinition = WORKSPACES.employee;
@@ -238,6 +239,11 @@ export class AppComponent implements OnInit {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
+  // Keep account actions in the top-right account menu instead of the workspace navigation.
+  toggleUserMenu() {
+    this.userMenuOpen = !this.userMenuOpen;
+  }
+
   // Clear transient forms when switching modules so stale drafts are not carried into another workflow.
   select(id: string) {
     if (id === 'sales') {
@@ -251,6 +257,7 @@ export class AppComponent implements OnInit {
     }
 
     this.activeItem = id;
+    this.userMenuOpen = false;
     this.newCustomer = false;
     this.newContact = false;
     this.newLead = false;
