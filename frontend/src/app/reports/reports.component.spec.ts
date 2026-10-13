@@ -52,5 +52,4 @@ describe('ReportsComponent', () => {
 
     expect(component.metrics.find(metric => metric.label === 'Total leads')?.value).toBe(2);
     expect(component.loadError).toContain('opportunities');
-  });
-}
+  });});

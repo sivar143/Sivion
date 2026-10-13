@@ -30,6 +30,19 @@ export class ReportsComponent implements OnInit {
 
   metrics: ReportMetric[] = [];
   loading = false;
+
+  get workspaceTitle(): string {
+    const labels: Record<string, string> = {
+      'sales-manager': 'Sales management',
+      'sales-user': 'Sales',
+      marketing: 'Marketing',
+      'inventory-manager': 'Inventory management',
+      'inventory-user': 'Inventory',
+      procurement: 'Procurement',
+      finance: 'Finance'
+    };
+    return labels[this.workspaceId] || 'Workspace';
+  }
   loadError = '';
   readonly money = new Intl.NumberFormat('en-IN', {
     style: 'currency',
