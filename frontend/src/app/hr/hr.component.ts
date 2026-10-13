@@ -27,8 +27,36 @@ import { ReportsComponent } from './reports/reports.component';
 export class HrComponent {
   @Input() section = 'employees';
 
+  // Use the menu's actual label rather than showing the same generic HR heading on every section.
+  private readonly sectionLabels: Record<string, string> = {
+    employees: 'Employees',
+    organization: 'Organization',
+    attendance: 'Attendance',
+    leaves: 'Leave Management',
+    payroll: 'Payroll & Payslips',
+    holidays: 'Holidays',
+    meetings: 'Meetings',
+    goals: 'Goals',
+    performance: 'Performance',
+    knowledge: 'Knowledge Development',
+    documents: 'Employee Documents',
+    reports: 'Reports'
+  };
+
+  private readonly sectionDescriptions: Record<string, string> = {
+    holidays: 'Maintain the organization holiday calendar.',
+    meetings: 'Coordinate organization and employee meetings.',
+    performance: 'Review employee performance and review cycles.',
+    knowledge: 'Manage learning and development activities.',
+    documents: 'Manage employee-related documents and records.'
+  };
+
   get sectionTitle(): string {
-    return this.section ? this.section[0].toUpperCase() + this.section.slice(1) : 'HR';
+    return this.sectionLabels[this.section] || 'HR';
+  }
+
+  get sectionDescription(): string {
+    return this.sectionDescriptions[this.section] || 'Manage this HR workflow.';
   }
 
   get isPlaceholderSection(): boolean {
