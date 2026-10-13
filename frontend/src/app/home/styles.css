@@ -18,3 +18,17 @@ header>div:first-child{min-width:0}
  .app-shell.sidebar-collapsed{grid-template-columns:0 minmax(0,1fr)}
  main{min-width:0}
 }
+
+
+/* Make the currently selected workspace section unmistakable and keyboard accessible. */
+.app-shell aside nav button.active {
+  background: #25364b;
+  color: #ffffff;
+  box-shadow: inset 3px 0 0 #84caff;
+  font-weight: 700;
+}
+
+.app-shell aside nav button:focus-visible {
+  outline: 2px solid #84caff;
+  outline-offset: 2px;
+}
