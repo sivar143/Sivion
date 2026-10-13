@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,9 +28,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class HrController {
 
     private final HrService service;
+    private final HrNotificationEvents notificationEvents;
 
-    public HrController(HrService service) {
+    @Autowired
+    public HrController(HrService service, HrNotificationEvents notificationEvents) {
         this.service = service;
+        this.notificationEvents = notificationEvents;
+    }
+
+    // Keeps the controller directly constructible in focused unit tests.
+    public HrController(HrService service) {
+        this(service, null);
     }
 
     @GetMapping("/dashboard")
@@ -116,7 +125,11 @@ public class HrController {
     @PostMapping("/leaves")
     @PreAuthorize("hasAnyRole('ADMIN','HR_ADMIN','HR_USER','MANAGER','EMPLOYEE')")
     public LeaveRequest requestLeave(@RequestBody LeaveRequest leave, Authentication authentication) {
-        return service.requestLeave(leave, authentication);
+        LeaveRequest saved = service.requestLeave(leave, authentication);
+        if (notificationEvents != null) {
+            notificationEvents.leaveRequested(saved);
+        }
+        return saved;
     }
 
     @PatchMapping("/leaves/{id}")
@@ -125,7 +138,11 @@ public class HrController {
             @PathVariable Long id,
             @RequestParam String status,
             Authentication authentication) {
-        return service.updateLeave(id, status, null, authentication);
+        LeaveRequest updated = service.updateLeave(id, status, null, authentication);
+        if (notificationEvents != null) {
+            notificationEvents.leaveDecision(updated);
+        }
+        return updated;
     }
 
     @GetMapping("/goals")
