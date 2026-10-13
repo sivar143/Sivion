@@ -62,14 +62,26 @@ describe('AppComponent', () => {
     expect(component.activeNavigationItem).toBe('customers');
   });
 
-  it('maps the procurement and finance shortcuts to their active sections', () => {
+  it('keeps Sales, Procurement and Finance highlighted for nested module sections in the admin menu', () => {
     component.workspace = WORKSPACES.admin;
 
+    component.select('sales');
+    expect(component.activeNavigationItem).toBe('sales');
+
+    component.select('leads');
+    expect(component.activeNavigationItem).toBe('sales');
+
     component.select('procurement');
-    expect(component.activeNavigationItem).toBe('suppliers');
+    expect(component.activeNavigationItem).toBe('procurement');
+
+    component.select('goods-received');
+    expect(component.activeNavigationItem).toBe('procurement');
 
     component.select('finance');
-    expect(component.activeNavigationItem).toBe('invoices');
+    expect(component.activeNavigationItem).toBe('finance');
+
+    component.select('payments');
+    expect(component.activeNavigationItem).toBe('finance');
   });
 
   it('keeps the selected navigation item highlighted until another section is selected', () => {
