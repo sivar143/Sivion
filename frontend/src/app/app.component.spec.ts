@@ -70,18 +70,26 @@ describe('AppComponent', () => {
 
     component.select('leads');
     expect(component.activeNavigationItem).toBe('sales');
+    expect(component.currentItem?.label).toBe('Sales');
+    expect(component.currentItem?.description).toBe('Customers, leads, opportunities and orders');
 
     component.select('procurement');
     expect(component.activeNavigationItem).toBe('procurement');
+    expect(component.currentItem?.label).toBe('Procurement');
+    expect(component.currentItem?.description).toBe('Suppliers, purchasing and goods received');
 
     component.select('goods-received');
     expect(component.activeNavigationItem).toBe('procurement');
+    expect(component.currentItem?.label).toBe('Procurement');
 
     component.select('finance');
     expect(component.activeNavigationItem).toBe('finance');
+    expect(component.currentItem?.label).toBe('Finance');
+    expect(component.currentItem?.description).toBe('Invoices, payments, expenses and reports');
 
     component.select('payments');
     expect(component.activeNavigationItem).toBe('finance');
+    expect(component.currentItem?.label).toBe('Finance');
   });
 
   it('keeps the selected navigation item highlighted until another section is selected', () => {
