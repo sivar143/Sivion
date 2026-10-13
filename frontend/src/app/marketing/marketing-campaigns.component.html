@@ -54,7 +54,7 @@
     </table>
   </div>
 
-  <form class="campaign-form" *ngIf="editingId !== undefined || draft.name !== '' || !campaigns.length" (ngSubmit)="save()">
+  <form class="campaign-form" *ngIf="formOpen" (ngSubmit)="save()">
     <h3>{{ editingId ? 'Edit campaign' : 'New campaign' }}</h3>
     <div class="form-grid">
       <label>

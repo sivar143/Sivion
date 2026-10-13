@@ -19,6 +19,7 @@ export class MarketingCampaignsComponent implements OnInit {
   error = '';
   success = '';
   editingId: number | undefined;
+  formOpen = false;
   draft: MarketingCampaign = this.emptyDraft();
 
   get activeCount(): number {
@@ -49,6 +50,7 @@ export class MarketingCampaignsComponent implements OnInit {
   }
 
   startCreate(): void {
+    this.formOpen = true;
     this.editingId = undefined;
     this.draft = this.emptyDraft();
     this.success = '';
@@ -56,6 +58,7 @@ export class MarketingCampaignsComponent implements OnInit {
   }
 
   edit(campaign: MarketingCampaign): void {
+    this.formOpen = true;
     this.editingId = campaign.id;
     this.draft = { ...campaign };
     this.success = '';
@@ -63,6 +66,7 @@ export class MarketingCampaignsComponent implements OnInit {
   }
 
   cancelEdit(): void {
+    this.formOpen = false;
     this.editingId = undefined;
     this.draft = this.emptyDraft();
   }

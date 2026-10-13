@@ -28,6 +28,9 @@ public class CampaignService {
     public Campaign create(Long tenantId, Campaign input) {
         validate(input);
         input.setTenantId(tenantId);
+        input.setName(input.getName().trim());
+        input.setChannel(input.getChannel().trim().toUpperCase(Locale.ROOT));
+        input.setGoal(input.getGoal() == null ? null : input.getGoal().trim());
         input.setStatus(normalizeStatus(input.getStatus()));
         input.setBudget(normalizeBudget(input.getBudget()));
         return repository.save(input);
