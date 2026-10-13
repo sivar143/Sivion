@@ -1,0 +1,29 @@
+<section class="panel report-panel">
+  <div class="report-toolbar">
+    <div>
+      <h2>{{ workspaceTitle }} report</h2>
+      <p>Live summary based on records returned by the existing module APIs.</p>
+    </div>
+    <button type="button" (click)="reload()" [disabled]="loading">
+      {{ loading ? 'Refreshing…' : 'Refresh report' }}
+    </button>
+  </div>
+
+  <p class="report-error" *ngIf="loadError" role="status">{{ loadError }}</p>
+  <div class="report-loading" *ngIf="loading">Loading report data…</div>
+
+  <div class="report-grid" *ngIf="!loading && metrics.length">
+    <article class="report-metric" *ngFor="let metric of metrics">
+      <span>{{ metric.label }}</span>
+      <strong>{{ metric.value }}</strong>
+      <small>{{ metric.detail }}</small>
+    </article>
+  </div>
+
+  <p class="report-empty" *ngIf="!loading && !metrics.length && !loadError">
+    No report data is available yet.
+  </p>
+  <p class="report-note">
+    These summaries are operational indicators, not audited financial statements or a substitute for role-specific approval and reconciliation workflows.
+  </p>
+</section>
