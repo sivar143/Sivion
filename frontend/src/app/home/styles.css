@@ -345,3 +345,105 @@ h1 {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* Keep the current role near the top of the sidebar, before workspace navigation. */
+.app-shell > aside > .role-box {
+  order: 0;
+  margin: 12px 0 8px;
+}
+
+.app-shell > aside > nav {
+  order: 1;
+}
+
+.app-shell > aside > .role-box + nav {
+  margin-top: 0;
+}
+
+/* Account actions are available from the user control in the top-right header. */
+.account-menu {
+  position: relative;
+  flex: 0 0 auto;
+  z-index: 1100;
+}
+
+.user-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #344054;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.user-menu-trigger:hover,
+.user-menu-trigger:focus-visible {
+  background: #f9fafb;
+  border-color: #98a2b3;
+}
+
+.user-menu-trigger:focus-visible {
+  outline: 2px solid #84caff;
+  outline-offset: 2px;
+}
+
+.account-menu-chevron {
+  color: #667085;
+  font-size: 11px;
+}
+
+.account-menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(240px, calc(100vw - 32px));
+  padding: 8px;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px #10182826;
+}
+
+.account-menu-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 10px 12px;
+  border-bottom: 1px solid #eaecf0;
+  overflow-wrap: anywhere;
+}
+
+.account-menu-details strong {
+  color: #172033;
+  font-size: 13px;
+}
+
+.account-menu-details span {
+  color: #667085;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.account-menu-panel .account-sign-out {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #b42318;
+  text-align: left;
+}
+
+.account-menu-panel .account-sign-out:hover {
+  background: #fef3f2;
+}
+
+@media (max-width: 600px) {
+  .account-menu-panel {
+    right: 0;
+  }
+}
