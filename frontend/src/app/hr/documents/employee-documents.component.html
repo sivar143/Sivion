@@ -1,0 +1,69 @@
+<section class="panel employee-documents-panel">
+  <div class="toolbar">
+    <div>
+      <h2>Employee documents</h2>
+      <p>Upload and retrieve employee documents with role-aware access checks.</p>
+    </div>
+    <button type="button" (click)="reload()" [disabled]="loading">Refresh</button>
+  </div>
+
+  <p class="document-error" *ngIf="error" role="alert">{{ error }}</p>
+  <p class="document-success" *ngIf="success" role="status">{{ success }}</p>
+
+  <form class="document-upload" *ngIf="canUpload" (ngSubmit)="upload()">
+    <h3>Upload document</h3>
+    <div class="document-form-grid">
+      <label>
+        Employee
+        <select name="employeeId" required [(ngModel)]="selectedEmployeeId">
+          <option [ngValue]="undefined">Select employee</option>
+          <option *ngFor="let employee of employees" [ngValue]="employee.id">
+            {{ employee.employeeNumber }} — {{ employee.firstName }} {{ employee.lastName }}
+          </option>
+        </select>
+      </label>
+      <label>
+        Description
+        <input name="description" maxlength="1000" [(ngModel)]="description" placeholder="e.g. Employment contract">
+      </label>
+      <label class="wide">
+        File (PDF, JPG, PNG, DOC, DOCX or XLSX; up to 10 MB)
+        <input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xlsx" (change)="onFileSelected($event)">
+      </label>
+    </div>
+    <div class="document-form-actions">
+      <span>{{ selectedFile?.name || 'No file selected' }}</span>
+      <button type="submit">Upload document</button>
+    </div>
+  </form>
+
+  <h3>Available documents</h3>
+  <p *ngIf="loading">Loading documents…</p>
+  <p *ngIf="!loading && records.length === 0">No documents are available for your employee scope.</p>
+  <div class="table-scroll" *ngIf="records.length">
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Employee</th>
+          <th>Size</th>
+          <th>Description</th>
+          <th>Uploaded by</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of records">
+          <td><strong>{{ record.originalName }}</strong></td>
+          <td>{{ employeeName(record.employeeId) }}</td>
+          <td>{{ (record.fileSize / 1024) | number:'1.0-0' }} KB</td>
+          <td>{{ record.description || '—' }}</td>
+          <td>{{ record.uploadedBy }}</td>
+          <td>{{ record.createdAt | date:'mediumDate' }}</td>
+          <td><button type="button" (click)="download(record)">Download</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
