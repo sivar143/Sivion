@@ -1,22 +1,511 @@
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f7fb;color:#172033}.app-shell{min-height:100vh;display:grid;grid-template-columns:250px 1fr}aside{background:#101828;color:#fff;padding:28px 18px;display:flex;flex-direction:column;gap:6px}.brand{font-size:24px;font-weight:800;letter-spacing:.12em}.muted{color:#98a2b3;font-size:12px;margin:0 0 18px 4px}.workspace-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#98a2b3;margin:8px 4px}nav{display:grid;gap:5px}nav button,.logout{border:0;background:transparent;color:#c7d0df;text-align:left;padding:11px 14px;border-radius:9px;font-size:14px;cursor:pointer}nav button.active,nav button:hover{background:#1d2939;color:#fff}.role-box{margin-top:16px;padding:12px;border:1px solid #344054;border-radius:10px;background:#172033;display:flex;flex-direction:column;gap:4px}.role-box small{font-size:9px;color:#98a2b3;letter-spacing:.12em}.role-box strong{font-size:11px}.logout{margin-top:auto}.logout:hover{background:#1d2939}main{padding:32px 38px;max-width:100vw;width:100%;margin:auto}header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;color:#667085}h1{margin:5px 0;font-size:32px}h2{margin:0 0 6px;font-size:20px}h3{font-size:13px;margin:0 0 12px;color:#667085}header p,.panel>p{color:#667085}.user{background:#fff;border:1px solid #e4e7ec;padding:9px 13px;border-radius:20px;font-size:13px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.cards article{background:#fff;border:1px solid #eaecf0;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:8px}.cards strong{font-size:28px}.cards span,.cards small{color:#667085}.wide{grid-column:1/-1}.panel{background:#fff;border:1px solid #eaecf0;border-radius:14px;padding:24px}.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}button{border:1px solid #d0d5dd;background:#fff;border-radius:8px;padding:9px 13px;cursor:pointer;font-weight:600}button:hover{background:#f9fafb}.actions{display:flex;gap:10px;margin-top:18px}.actions button:last-child{background:#111827;color:#fff;border-color:#111827}.search,input,select{width:100%;border:1px solid #d0d5dd;border-radius:8px;padding:11px 12px;font:inherit;background:#fff}.search{margin-bottom:18px}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:13px 10px;border-bottom:1px solid #eaecf0;font-size:13px}th{color:#667085;font-weight:600}.pill{padding:4px 8px;border-radius:12px;background:#ecfdf3;color:#027a48;font-size:11px}.empty{padding:30px;text-align:center;color:#667085}.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;overflow:auto}.stage{background:#f8fafc;border:1px solid #eaecf0;border-radius:10px;padding:12px;min-width:180px}.stage article{background:#fff;border:1px solid #eaecf0;border-radius:9px;padding:13px;margin-bottom:9px;display:flex;flex-direction:column;gap:5px;box-shadow:0 1px 2px #0000000a}.stage article span,.stage article small{color:#667085;font-size:12px}.module-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}.module-card{text-align:left;display:flex;flex-direction:column;gap:6px;min-height:90px}.module-card span,.feature-list span{color:#667085;font-size:12px;font-weight:400}.feature-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}.feature-list>div{border:1px solid #eaecf0;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:7px;background:#f8fafc}.feature-list strong{font-size:13px}.modal{position:fixed;inset:0;background:#0006;display:grid;place-items:center;padding:20px}.modal form{background:#fff;width:min(460px,100%);border-radius:14px;padding:25px;display:grid;gap:12px;box-shadow:0 20px 60px #0003}.modal h2{margin-bottom:5px}@media(max-width:1100px){.module-grid,.feature-list{grid-template-columns:repeat(2,1fr)}}@media(max-width:900px){.app-shell{grid-template-columns:1fr}aside{position:static;display:block}nav{display:flex;overflow:auto;margin:15px 0}.logout{margin:0}.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){main{padding:22px 16px}.cards,.module-grid,.feature-list{grid-template-columns:1fr}header{display:block}.user{display:inline-block;margin-top:12px}.kanban{grid-template-columns:repeat(4,minmax(200px,1fr))}}
+* {
+  box-sizing: border-box
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f7fb;
+  color: #172033
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 250px 1fr
+}
+
+aside {
+  background: #101828;
+  color: #fff;
+  padding: 28px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px
+}
+
+.brand {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: .12em
+}
+
+.muted {
+  color: #98a2b3;
+  font-size: 12px;
+  margin: 0 0 18px 4px
+}
+
+.workspace-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: #98a2b3;
+  margin: 8px 4px
+}
+
+nav {
+  display: grid;
+  gap: 5px
+}
+
+nav button,
+.logout {
+  border: 0;
+  background: transparent;
+  color: #c7d0df;
+  text-align: left;
+  padding: 11px 14px;
+  border-radius: 9px;
+  font-size: 14px;
+  cursor: pointer
+}
+
+nav button.active,
+nav button:hover {
+  background: #1d2939;
+  color: #fff
+}
+
+.role-box {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #344054;
+  border-radius: 10px;
+  background: #172033;
+  display: flex;
+  flex-direction: column;
+  gap: 4px
+}
+
+.role-box small {
+  font-size: 9px;
+  color: #98a2b3;
+  letter-spacing: .12em
+}
+
+.role-box strong {
+  font-size: 11px
+}
+
+.logout {
+  margin-top: auto
+}
+
+.logout:hover {
+  background: #1d2939
+}
+
+main {
+  padding: 32px 38px;
+  max-width: 100vw;
+  width: 100%;
+  margin: auto
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  color: #667085
+}
+
+h1 {
+  margin: 5px 0;
+  font-size: 32px
+}
+
+h2 {
+  margin: 0 0 6px;
+  font-size: 20px
+}
+
+h3 {
+  font-size: 13px;
+  margin: 0 0 12px;
+  color: #667085
+}
+
+header p,
+.panel>p {
+  color: #667085
+}
+
+.user {
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  padding: 9px 13px;
+  border-radius: 20px;
+  font-size: 13px
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px
+}
+
+.cards article {
+  background: #fff;
+  border: 1px solid #eaecf0;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px
+}
+
+.cards strong {
+  font-size: 28px
+}
+
+.cards span,
+.cards small {
+  color: #667085
+}
+
+.wide {
+  grid-column: 1/-1
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #eaecf0;
+  border-radius: 14px;
+  padding: 24px
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px
+}
+
+button {
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  border-radius: 8px;
+  padding: 9px 13px;
+  cursor: pointer;
+  font-weight: 600
+}
+
+button:hover {
+  background: #f9fafb
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px
+}
+
+.actions button:last-child {
+  background: #111827;
+  color: #fff;
+  border-color: #111827
+}
+
+.search,
+input,
+select {
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  padding: 11px 12px;
+  font: inherit;
+  background: #fff
+}
+
+.search {
+  margin-bottom: 18px
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse
+}
+
+th,
+td {
+  text-align: left;
+  padding: 13px 10px;
+  border-bottom: 1px solid #eaecf0;
+  font-size: 13px
+}
+
+th {
+  color: #667085;
+  font-weight: 600
+}
+
+.pill {
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: #ecfdf3;
+  color: #027a48;
+  font-size: 11px
+}
+
+.empty {
+  padding: 30px;
+  text-align: center;
+  color: #667085
+}
+
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  overflow: auto
+}
+
+.stage {
+  background: #f8fafc;
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  padding: 12px;
+  min-width: 180px
+}
+
+.stage article {
+  background: #fff;
+  border: 1px solid #eaecf0;
+  border-radius: 9px;
+  padding: 13px;
+  margin-bottom: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: 0 1px 2px #0000000a
+}
+
+.stage article span,
+.stage article small {
+  color: #667085;
+  font-size: 12px
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 20px
+}
+
+.module-card {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 90px
+}
+
+.module-card span,
+.feature-list span {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 400
+}
+
+.feature-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 22px
+}
+
+.feature-list>div {
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: #f8fafc
+}
+
+.feature-list strong {
+  font-size: 13px
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: #0006;
+  display: grid;
+  place-items: center;
+  padding: 20px
+}
+
+.modal form {
+  background: #fff;
+  width: min(460px, 100%);
+  border-radius: 14px;
+  padding: 25px;
+  display: grid;
+  gap: 12px;
+  box-shadow: 0 20px 60px #0003
+}
+
+.modal h2 {
+  margin-bottom: 5px
+}
+
+@media(max-width:1100px) {
+
+  .module-grid,
+  .feature-list {
+    grid-template-columns: repeat(2, 1fr)
+  }
+}
+
+@media(max-width:900px) {
+  .app-shell {
+    grid-template-columns: 1fr
+  }
+
+  aside {
+    position: static;
+    display: block
+  }
+
+  nav {
+    display: flex;
+    overflow: auto;
+    margin: 15px 0
+  }
+
+  .logout {
+    margin: 0
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr)
+  }
+}
+
+@media(max-width:600px) {
+  main {
+    padding: 22px 16px
+  }
+
+  .cards,
+  .module-grid,
+  .feature-list {
+    grid-template-columns: 1fr
+  }
+
+  header {
+    display: block
+  }
+
+  .user {
+    display: inline-block;
+    margin-top: 12px
+  }
+
+  .kanban {
+    grid-template-columns: repeat(4, minmax(200px, 1fr))
+  }
+}
 
 
 /* Full-screen collapsible side navigation */
-.app-shell{grid-template-columns:250px minmax(0,1fr);transition:grid-template-columns .22s ease}
-.app-shell.sidebar-collapsed{grid-template-columns:0 minmax(0,1fr)}
-.app-shell>aside{position:relative;overflow:hidden;min-width:0;padding-left:18px;padding-right:18px;transition:padding .22s ease,opacity .18s ease}
-.app-shell.sidebar-collapsed>aside{padding-left:0;padding-right:0;opacity:0;visibility:hidden;pointer-events:none}
-.app-shell.sidebar-collapsed>aside>*{visibility:hidden}
-.sidebar-toggle{position:fixed;z-index:1000;top:16px;left:214px;width:36px;height:36px;border:1px solid #344054;border-radius:8px;background:#172033;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:21px;line-height:1;box-shadow:0 4px 12px #0003;transition:left .22s ease,transform .22s ease,background .15s ease}
-.sidebar-toggle:hover{background:#243044}
-.sidebar-toggle:focus-visible{outline:3px solid rgba(132,202,255,.55);outline-offset:2px}
-.app-shell.sidebar-collapsed .sidebar-toggle{left:0;transform:translateX(0)}
-.app-shell.sidebar-collapsed .sidebar-toggle span{display:inline-block}
-header>div:first-child{min-width:0}
-@media(max-width:900px){
- .app-shell{grid-template-columns:250px minmax(0,1fr)}
- .app-shell.sidebar-collapsed{grid-template-columns:0 minmax(0,1fr)}
- main{min-width:0}
+.app-shell {
+  grid-template-columns: 250px minmax(0, 1fr);
+  transition: grid-template-columns .22s ease
+}
+
+.app-shell.sidebar-collapsed {
+  grid-template-columns: 0 minmax(0, 1fr)
+}
+
+.app-shell>aside {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  padding-left: 18px;
+  padding-right: 18px;
+  transition: padding .22s ease, opacity .18s ease
+}
+
+.app-shell.sidebar-collapsed>aside {
+  padding-left: 0;
+  padding-right: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none
+}
+
+.app-shell.sidebar-collapsed>aside>* {
+  visibility: hidden
+}
+
+.sidebar-toggle {
+  position: fixed;
+  z-index: 1000;
+  top: 16px;
+  left: 214px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #344054;
+  border-radius: 8px;
+  background: #172033;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  line-height: 1;
+  box-shadow: 0 4px 12px #0003;
+  transition: left .22s ease, transform .22s ease, background .15s ease
+}
+
+.sidebar-toggle:hover {
+  background: #243044
+}
+
+.sidebar-toggle:focus-visible {
+  outline: 3px solid rgba(132, 202, 255, .55);
+  outline-offset: 2px
+}
+
+.app-shell.sidebar-collapsed .sidebar-toggle {
+  left: 0;
+  transform: translateX(0)
+}
+
+.app-shell.sidebar-collapsed .sidebar-toggle span {
+  display: inline-block
+}
+
+header>div:first-child {
+  min-width: 0
+}
+
+@media(max-width:900px) {
+  .app-shell {
+    grid-template-columns: 250px minmax(0, 1fr)
+  }
+
+  .app-shell.sidebar-collapsed {
+    grid-template-columns: 0 minmax(0, 1fr)
+  }
+
+  main {
+    min-width: 0
+  }
 }
 
 
@@ -35,7 +524,7 @@ header>div:first-child{min-width:0}
 
 
 /* Keep account actions visible at the bottom of the viewport while long pages scroll. */
-.app-shell > aside {
+.app-shell>aside {
   height: 100vh;
   min-height: 0;
   align-self: start;
@@ -44,70 +533,70 @@ header>div:first-child{min-width:0}
   overflow: hidden;
 }
 
-.app-shell > aside nav {
+.app-shell>aside nav {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
-.app-shell > aside .role-box {
+.app-shell>aside .role-box {
   flex: 0 0 auto;
   margin-top: auto;
 }
 
-.app-shell > aside .logout {
+.app-shell>aside .logout {
   flex: 0 0 auto;
   margin-top: 6px;
   margin-bottom: 4px;
 }
 
 @media (max-width: 900px) {
-  .app-shell > aside {
+  .app-shell>aside {
     height: auto;
     min-height: 0;
     position: static;
     overflow: visible;
   }
 
-  .app-shell > aside nav {
+  .app-shell>aside nav {
     flex: initial;
     min-height: auto;
     overflow-y: visible;
   }
 
-  .app-shell > aside .role-box {
+  .app-shell>aside .role-box {
     margin-top: 16px;
   }
 
-  .app-shell > aside .logout {
+  .app-shell>aside .logout {
     margin-top: 6px;
   }
 }
 
 
 /* Subtle, dark-theme scrollbar for the sidebar menu (avoid the browser-default chunky track). */
-.app-shell > aside nav {
+.app-shell>aside nav {
   scrollbar-width: thin;
   scrollbar-color: #475467 transparent;
 }
 
-.app-shell > aside nav::-webkit-scrollbar {
+.app-shell>aside nav::-webkit-scrollbar {
   width: 6px;
 }
 
-.app-shell > aside nav::-webkit-scrollbar-track {
+.app-shell>aside nav::-webkit-scrollbar-track {
   background: transparent;
   margin-block: 6px;
 }
 
-.app-shell > aside nav::-webkit-scrollbar-thumb {
+.app-shell>aside nav::-webkit-scrollbar-thumb {
   background: #475467;
   border: 1px solid #101828;
   border-radius: 999px;
 }
 
-.app-shell > aside nav::-webkit-scrollbar-thumb:hover {
+.app-shell>aside nav::-webkit-scrollbar-thumb:hover {
   background: #667085;
 }
 
@@ -164,7 +653,7 @@ header>div:first-child{min-width:0}
 }
 
 /* Preserve the sidebar's dark border so its scrollbar matches the navigation background. */
-.app-shell > aside nav::-webkit-scrollbar-thumb {
+.app-shell>aside nav::-webkit-scrollbar-thumb {
   border-color: #101828;
 }
 
@@ -217,17 +706,17 @@ h1 {
 }
 
 /* Keep navigation controls clear of the scrollable menu and its scrollbar. */
-.app-shell > aside {
+.app-shell>aside {
   width: var(--sidebar-width);
 }
 
-.app-shell > aside nav {
+.app-shell>aside nav {
   min-width: 0;
   padding-right: 4px;
 }
 
 @media (min-width: 901px) {
-  .app-shell > aside {
+  .app-shell>aside {
     width: auto;
   }
 
@@ -242,23 +731,24 @@ h1 {
 }
 
 @media (max-width: 900px) {
+
   .app-shell,
   .app-shell.sidebar-collapsed {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .app-shell > aside {
+  .app-shell>aside {
     width: auto;
     height: auto;
     max-height: none;
     padding: 22px 16px 14px;
   }
 
-  .app-shell.sidebar-collapsed > aside {
+  .app-shell.sidebar-collapsed>aside {
     display: none;
   }
 
-  .app-shell > aside nav {
+  .app-shell>aside nav {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -267,7 +757,7 @@ h1 {
     margin: 12px 0;
   }
 
-  .app-shell > aside nav button {
+  .app-shell>aside nav button {
     flex: 0 0 auto;
     white-space: nowrap;
   }
@@ -279,11 +769,11 @@ h1 {
     right: 16px;
   }
 
-  .app-shell > aside .role-box {
+  .app-shell>aside .role-box {
     margin-top: 10px;
   }
 
-  .app-shell > aside .logout {
+  .app-shell>aside .logout {
     margin-top: 6px;
   }
 
@@ -308,7 +798,7 @@ h1 {
     --workspace-gutter: 14px;
   }
 
-  .app-shell > aside {
+  .app-shell>aside {
     padding: 18px 14px 12px;
   }
 
@@ -321,7 +811,7 @@ h1 {
     flex-wrap: wrap;
   }
 
-  header > div:first-child {
+  header>div:first-child {
     padding-right: 34px;
   }
 
@@ -348,16 +838,16 @@ h1 {
 
 
 /* Keep the current role near the top of the sidebar, before workspace navigation. */
-.app-shell > aside > .role-box {
+.app-shell>aside>.role-box {
   order: 0;
   margin: 12px 0 8px;
 }
 
-.app-shell > aside > nav {
+.app-shell>aside>nav {
   order: 1;
 }
 
-.app-shell > aside > .role-box + nav {
+.app-shell>aside>.role-box+nav {
   margin-top: 0;
 }
 
@@ -508,11 +998,11 @@ h1 {
 
 
 /* Stable page header: keep its position and height independent of module content. */
-.app-shell > main {
+.app-shell>main {
   min-width: 0;
 }
 
-.app-shell > main > header {
+.app-shell>main>header {
   position: sticky;
   top: 0;
   z-index: 50;
@@ -528,20 +1018,20 @@ h1 {
   backdrop-filter: blur(12px);
 }
 
-.app-shell > main > header .header-content {
+.app-shell>main>header .header-content {
   flex: 1 1 auto;
   min-width: 0;
 }
 
-.app-shell > main > header .header-content h1 {
+.app-shell>main>header .header-content h1 {
   line-height: 1.2;
 }
 
-.app-shell > main > header .header-content p {
+.app-shell>main>header .header-content p {
   margin: 6px 0 0;
 }
 
-.app-shell > main > header .header-actions {
+.app-shell>main>header .header-actions {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
@@ -550,18 +1040,18 @@ h1 {
   margin-left: auto;
 }
 
-.app-shell > main > header app-notification-center {
+.app-shell>main>header app-notification-center {
   display: block;
   flex: 0 0 auto;
 }
 
-.app-shell > main > header .account-menu {
+.app-shell>main>header .account-menu {
   position: relative;
   flex: 0 0 auto;
   margin: 0;
 }
 
-.app-shell > main > header .user-menu-trigger {
+.app-shell>main>header .user-menu-trigger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -572,7 +1062,7 @@ h1 {
 }
 
 @media (max-width: 900px) {
-  .app-shell > main > header {
+  .app-shell>main>header {
     top: 0;
     min-height: 88px;
     margin: -22px -16px 24px;
@@ -580,22 +1070,22 @@ h1 {
     gap: 12px;
   }
 
-  .app-shell > main > header .header-actions {
+  .app-shell>main>header .header-actions {
     gap: 8px;
   }
 }
 
 @media (max-width: 600px) {
-  .app-shell > main > header {
+  .app-shell>main>header {
     align-items: flex-start;
     flex-wrap: wrap;
   }
 
-  .app-shell > main > header .header-content {
+  .app-shell>main>header .header-content {
     flex-basis: 100%;
   }
 
-  .app-shell > main > header .header-actions {
+  .app-shell>main>header .header-actions {
     margin-left: 0;
   }
 }
@@ -606,7 +1096,7 @@ h1 {
  * Use the same responsive gutter variables as the main content so changing module
  * content or viewport size does not shift the header's sticky boundary.
  */
-.app-shell > main > header {
+.app-shell>main>header {
   position: sticky;
   top: 0;
   align-self: start;
@@ -620,7 +1110,7 @@ h1 {
 }
 
 @media (max-width: 900px) {
-  .app-shell > main > header {
+  .app-shell>main>header {
     top: 0;
     margin-top: calc(-1 * clamp(18px, 2.5vw, 38px));
     margin-right: calc(-1 * var(--workspace-gutter));
@@ -630,7 +1120,7 @@ h1 {
 }
 
 @media (max-width: 600px) {
-  .app-shell > main > header {
+  .app-shell>main>header {
     top: 0;
     margin-top: -20px;
     margin-right: calc(-1 * var(--workspace-gutter));
@@ -646,7 +1136,7 @@ h1 {
  * Fixed positioning avoids component-specific overflow/scroll containers changing
  * the toolbar's vertical position between Organization, HR, Marketing and Sales.
  */
-.app-shell > main > header {
+.app-shell>main>header {
   position: fixed;
   top: 0;
   right: 0;
@@ -662,20 +1152,20 @@ h1 {
 }
 
 /* Reserve space for the fixed toolbar so page content never renders underneath it. */
-.app-shell > main {
+.app-shell>main {
   padding-top: calc(clamp(18px, 2.5vw, 38px) + 104px);
 }
 
-.app-shell.sidebar-collapsed > main > header {
+.app-shell.sidebar-collapsed>main>header {
   left: 0;
 }
 
-.app-shell.sidebar-collapsed > main {
+.app-shell.sidebar-collapsed>main {
   min-width: 0;
 }
 
 @media (max-width: 900px) {
-  .app-shell > main > header {
+  .app-shell>main>header {
     left: 0;
     right: 0;
     height: 88px;
@@ -683,13 +1173,13 @@ h1 {
     padding: 16px var(--workspace-gutter);
   }
 
-  .app-shell > main {
+  .app-shell>main {
     padding-top: calc(clamp(18px, 2.5vw, 38px) + 88px);
   }
 }
 
 @media (max-width: 600px) {
-  .app-shell > main > header {
+  .app-shell>main>header {
     height: auto;
     min-height: 88px;
     flex-wrap: nowrap;
@@ -698,27 +1188,27 @@ h1 {
     padding: 12px var(--workspace-gutter);
   }
 
-  .app-shell > main > header .header-content {
+  .app-shell>main>header .header-content {
     flex: 1 1 auto;
     min-width: 0;
   }
 
-  .app-shell > main > header .header-content h1 {
+  .app-shell>main>header .header-content h1 {
     margin: 3px 0;
     font-size: 1.15rem;
   }
 
-  .app-shell > main > header .header-content p {
+  .app-shell>main>header .header-content p {
     display: none;
   }
 
-  .app-shell > main > header .header-actions {
+  .app-shell>main>header .header-actions {
     flex: 0 0 auto;
     gap: 8px;
     margin-left: 0;
   }
 
-  .app-shell > main {
+  .app-shell>main {
     padding-top: 108px;
   }
 }
@@ -729,7 +1219,7 @@ h1 {
  * area beneath the fixed toolbar. The original global main rule used auto
  * margins, which can center the main grid item when a module has less content.
  */
-.app-shell > main {
+.app-shell>main {
   width: 100%;
   max-width: none;
   min-width: 0;
@@ -739,17 +1229,17 @@ h1 {
 }
 
 /* Every module starts at the same content edge and flows from the toolbar down. */
-.app-shell > main > app-inventory,
-.app-shell > main > app-hr,
-.app-shell > main > app-procurement,
-.app-shell > main > app-finance,
-.app-shell > main > app-sales-orders,
-.app-shell > main > app-audit,
-.app-shell > main > app-reports,
-.app-shell > main > app-marketing-campaigns,
-.app-shell > main > app-administration,
-.app-shell > main > section,
-.app-shell > main > ng-container {
+.app-shell>main>app-inventory,
+.app-shell>main>app-hr,
+.app-shell>main>app-procurement,
+.app-shell>main>app-finance,
+.app-shell>main>app-sales-orders,
+.app-shell>main>app-audit,
+.app-shell>main>app-reports,
+.app-shell>main>app-marketing-campaigns,
+.app-shell>main>app-administration,
+.app-shell>main>section,
+.app-shell>main>ng-container {
   display: block;
   width: 100%;
   min-width: 0;
@@ -762,25 +1252,25 @@ h1 {
  * unintentionally overriding the Overview cards grid. Restore the horizontal
  * statistics layout with responsive columns at narrower viewport widths.
  */
-.app-shell > main > section.cards {
+.app-shell>main>section.cards {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: stretch;
   gap: 16px;
 }
 
-.app-shell > main > section.cards > article {
+.app-shell>main>section.cards>article {
   min-width: 0;
 }
 
 @media (max-width: 1100px) {
-  .app-shell > main > section.cards {
+  .app-shell>main>section.cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 600px) {
-  .app-shell > main > section.cards {
+  .app-shell>main>section.cards {
     grid-template-columns: minmax(0, 1fr);
   }
 }
