@@ -10,6 +10,9 @@
       [(ngModel)]="warehouseId"
       (ngModelChange)="reload()"
     >
+      <option *ngIf="!warehouseId" [ngValue]="0" disabled>
+        {{ warehousePlaceholder }}
+      </option>
       <option *ngFor="let w of warehouses" [ngValue]="w.id">
         {{ w.code }} — {{ w.name }}
       </option>
@@ -18,6 +21,7 @@
       *ngIf="canManage"
       class="stock-in-button"
       type="button"
+      [disabled]="!warehouseId"
       (click)="mode = 'stock'"
     >
       + Stock In
