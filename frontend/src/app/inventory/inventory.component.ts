@@ -247,6 +247,7 @@ export class InventoryComponent implements OnInit  {
     this.dispatchLines.splice(i,1);
   }
   async submit() {
+    if (this.submitting) return;
     this.dialogError = '';
     this.submitting = true;
     try {
