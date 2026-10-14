@@ -22,6 +22,7 @@ import  {
   InventoryApi, Material
 }
 from '../services/inventory-api.service';
+import { getDialogErrorMessage } from '../shared/dialog-error.util';
 @Component( {
   selector:'app-sales-orders',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./sales-order.component.html'
 })
@@ -34,6 +35,8 @@ export class SalesOrderComponent implements OnInit  {
   opportunities:Opportunity[]=[];
   materials:Material[]=[];
   loadError='';
+  dialogError = '';
+  submitting = false;
   newOrder=false;
   statuses=['DRAFT','CONFIRMED','RESERVED','PARTIALLY_DISPATCHED','DISPATCHED','CANCELLED'];
   draft: {
@@ -94,22 +97,30 @@ export class SalesOrderComponent implements OnInit  {
     if(this.draft.items.length>1)this.draft.items.splice(i,1);
   }
   async save() {
-    await this.api.create(this.draft);
-    this.newOrder=false;
-    this.draft= {
+    this.dialogError = '';
+    this.submitting = true;
+    try {
+      await this.api.create(this.draft);
+      this.newOrder=false;
+      this.draft= {
       customerId:0,deliveryAddress:'',notes:'',items:[ {
         materialId:0,quantity:1,unitPrice:0
-      }]
-    };
-    await this.reload();
+        }]
+      };
+      await this.reload();
+    } catch (error: unknown) {
+      this.dialogError = getDialogErrorMessage(error, 'The sales order could not be created. Please review the details and try again.');
+    } finally {
+      this.submitting = false;
+    }
   }
   async changeStatus(o:SalesOrder,status:string) {
     try {
       await this.api.updateStatus(o.id!,status);
       await this.reload();
     }
-    catch(e) {
-      alert(e instanceof Error?e.message:'Unable to update order');
+    catch(e: unknown) {
+      this.loadError = getDialogErrorMessage(e, 'Unable to update the sales order status.');
       await this.reload();
     }
   }
