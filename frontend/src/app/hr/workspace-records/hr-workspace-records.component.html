@@ -46,7 +46,7 @@
     </table>
   </div>
 
-  <form class="records-form" *ngIf="formOpen" (ngSubmit)="save()">
+  <form class="records-form" *ngIf="formOpen" (ngSubmit)="save()"><p *ngIf="error" class="form-error" role="alert">{{ error }}</p>
     <h3>{{ editingId ? 'Edit record' : 'Add record' }}</h3>
     <div class="records-form-grid">
       <label>
@@ -98,7 +98,7 @@
     </div>
     <div class="records-form-actions">
       <button type="button" (click)="cancel()">Cancel</button>
-      <button type="submit">Save</button>
+      <button type="submit" [disabled]="saving">Save</button>
     </div>
   </form>
 </section>
