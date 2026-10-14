@@ -39,6 +39,7 @@ import { ReportsComponent } from './reports/reports.component';
 import { MarketingCampaignsComponent } from './marketing/marketing-campaigns.component';
 import { MarketingCampaign, MarketingCampaignsApi } from './marketing/marketing-campaigns-api.service';
 import { AdministrationComponent } from './administration/administration.component';
+import { getDialogErrorMessage } from './shared/dialog-error.util';
 
 @Component({
   selector: 'app-root',
@@ -80,6 +81,8 @@ export class AppComponent implements OnInit {
   newLead = false;
   newOpp = false;
   newActivity = false;
+  dialogError = '';
+  submitting = false;
   customerDraft: Customer = {
     code: '',
     name: '',
@@ -363,38 +366,83 @@ export class AppComponent implements OnInit {
   }
 
   async saveCustomer() {
-    await this.api.createCustomer(this.customerDraft);
-    this.newCustomer = false;
-    this.customerDraft = { code: '', name: '', status: 'ACTIVE' };
-    await this.loadCustomers();
+    if (this.submitting) return;
+    this.dialogError = '';
+    this.submitting = true;
+    try {
+      await this.api.createCustomer(this.customerDraft);
+      this.newCustomer = false;
+      this.customerDraft = { code: '', name: '', status: 'ACTIVE' };
+      await this.loadCustomers();
+    } catch (error: unknown) {
+      this.dialogError = getDialogErrorMessage(error, 'The customer could not be created. Please review the details and try again.');
+    } finally {
+      this.submitting = false;
+    }
   }
 
   async saveContact() {
-    await this.api.createContact(this.contactDraft);
-    this.newContact = false;
-    this.contactDraft = { customerId: 0, firstName: '', primaryContact: false, status: 'ACTIVE' };
-    await this.loadContacts();
+    if (this.submitting) return;
+    this.dialogError = '';
+    this.submitting = true;
+    try {
+      await this.api.createContact(this.contactDraft);
+      this.newContact = false;
+      this.contactDraft = { customerId: 0, firstName: '', primaryContact: false, status: 'ACTIVE' };
+      await this.loadContacts();
+    } catch (error: unknown) {
+      this.dialogError = getDialogErrorMessage(error, 'The contact could not be created. Please review the details and try again.');
+    } finally {
+      this.submitting = false;
+    }
   }
 
   async saveLead() {
-    await this.api.createLead(this.leadDraft);
-    this.newLead = false;
-    this.leadDraft = { name: '', source: 'WEBSITE', campaignId: undefined, status: 'NEW', rating: 'WARM' };
-    await this.loadLeads();
+    if (this.submitting) return;
+    this.dialogError = '';
+    this.submitting = true;
+    try {
+      await this.api.createLead(this.leadDraft);
+      this.newLead = false;
+      this.leadDraft = { name: '', source: 'WEBSITE', campaignId: undefined, status: 'NEW', rating: 'WARM' };
+      await this.loadLeads();
+    } catch (error: unknown) {
+      this.dialogError = getDialogErrorMessage(error, 'The lead could not be created. Please review the details and try again.');
+    } finally {
+      this.submitting = false;
+    }
   }
 
   async saveOpp() {
-    await this.api.createOpportunity(this.oppDraft);
-    this.newOpp = false;
-    this.oppDraft = { name: '', stage: 'QUALIFICATION', probability: 20 };
-    await this.loadOpps();
+    if (this.submitting) return;
+    this.dialogError = '';
+    this.submitting = true;
+    try {
+      await this.api.createOpportunity(this.oppDraft);
+      this.newOpp = false;
+      this.oppDraft = { name: '', stage: 'QUALIFICATION', probability: 20 };
+      await this.loadOpps();
+    } catch (error: unknown) {
+      this.dialogError = getDialogErrorMessage(error, 'The opportunity could not be created. Please review the details and try again.');
+    } finally {
+      this.submitting = false;
+    }
   }
 
   async saveActivity() {
-    await this.api.createActivity(this.activityDraft);
-    this.newActivity = false;
-    this.activityDraft = { type: 'CALL', subject: '' };
-    await this.loadActivities();
+    if (this.submitting) return;
+    this.dialogError = '';
+    this.submitting = true;
+    try {
+      await this.api.createActivity(this.activityDraft);
+      this.newActivity = false;
+      this.activityDraft = { type: 'CALL', subject: '' };
+      await this.loadActivities();
+    } catch (error: unknown) {
+      this.dialogError = getDialogErrorMessage(error, 'The activity could not be created. Please review the details and try again.');
+    } finally {
+      this.submitting = false;
+    }
   }
 
   async moveLead(lead: Lead, status: string) {
