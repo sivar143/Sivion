@@ -1274,3 +1274,46 @@ h1 {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/*
+ * Keep the Staff Login dialog inside the visible viewport on short screens.
+ * The form scrolls independently so its first fields and action buttons remain
+ * reachable even when the complete form is taller than the available height.
+ */
+.staff-login-modal {
+  z-index: 1301;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.staff-login-modal form {
+  width: min(560px, 100%);
+  max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-block: auto;
+}
+
+@media (max-width: 600px) {
+  .staff-login-modal {
+    padding: 12px;
+  }
+
+  .staff-login-modal form {
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    padding: 18px;
+    gap: 10px;
+  }
+
+  .staff-login-modal .actions {
+    position: sticky;
+    bottom: -18px;
+    padding: 10px 0 2px;
+    background: #ffffff;
+    flex-wrap: wrap;
+  }
+}
