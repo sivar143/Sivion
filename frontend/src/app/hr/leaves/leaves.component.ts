@@ -57,6 +57,7 @@ export class LeavesComponent implements OnInit {
   }
 
   async submitLeaveRequest(): Promise<void> {
+    if (this.submittingRequest) return;
     this.requestError = '';
     if (!this.draft.employeeId || !this.draft.leaveType || !this.draft.startDate || !this.draft.endDate) {
       this.requestError = 'Please complete all required leave fields.';
