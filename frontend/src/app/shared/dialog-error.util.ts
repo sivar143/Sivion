@@ -14,9 +14,12 @@ export function getDialogErrorMessage(error: unknown, fallback: string): string 
     };
   } | null;
 
-  const response = value?.error;
+  const rawResponse: unknown = value?.error;
+  const response = rawResponse !== null && typeof rawResponse === 'object'
+    ? rawResponse as NonNullable<typeof value>['error']
+    : undefined;
   const candidates: unknown[] = [
-    typeof response === 'string' ? response : undefined,
+    typeof rawResponse === 'string' ? rawResponse : undefined,
     response?.message,
     response?.detail,
     response?.error,
