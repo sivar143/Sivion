@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { getDialogErrorMessage } from '../../shared/dialog-error.util';
 import { HrApi, Employee } from '../../services/hr-api.service';
 import { AuthService } from '../../services/auth.service';
 import { HrWorkspaceRecord, HrWorkspaceRecordType, HrWorkspaceRecordsApi } from './hr-workspace-records-api.service';
@@ -24,6 +25,7 @@ export class HrWorkspaceRecordsComponent implements OnInit {
   employees: Employee[] = [];
   loading = false;
   error = '';
+  saving = false;
   formOpen = false;
   editingId: number | undefined;
   draft: HrWorkspaceRecord = this.emptyDraft();
@@ -92,6 +94,7 @@ export class HrWorkspaceRecordsComponent implements OnInit {
   }
 
   async save(): Promise<void> {
+    if (this.saving) return;
     this.error = '';
     if (!this.draft.title.trim()) {
       this.error = 'Enter a title.';
@@ -105,15 +108,18 @@ export class HrWorkspaceRecordsComponent implements OnInit {
       this.error = 'Resource links must use HTTPS or an application-relative path.';
       return;
     }
+    this.saving = true;
     try {
       const record = { ...this.draft, type: this.type };
       if (this.editingId) await this.api.update({ ...record, id: this.editingId });
       else await this.api.create(record);
       this.cancel();
       await this.reload();
-    } catch {
-      this.error = `${this.heading} record could not be saved.`;
+    } catch (error: unknown) {
+      this.error = getDialogErrorMessage(error, `${this.heading} record could not be saved. Please review the details and try again.`);
       this.cdr.markForCheck();
+    } finally {
+      this.saving = false;
     }
   }
 
