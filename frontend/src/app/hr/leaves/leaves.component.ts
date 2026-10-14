@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { HrApi, Employee, LeaveRequest } from '../../services/hr-api.service';
+import { getDialogErrorMessage } from '../../shared/dialog-error.util';
 
 @Component({
   selector: 'app-hr-leaves',
@@ -72,7 +73,7 @@ export class LeavesComponent implements OnInit {
       this.cdr.markForCheck();
       await this.reload();
     } catch (error: any) {
-      this.requestError = error?.error?.error ?? error?.message ?? 'Unable to submit the leave request.';
+      this.requestError = getDialogErrorMessage(error, 'Unable to submit the leave request. Please review the details and try again.');
       this.cdr.markForCheck();
     } finally {
       this.submittingRequest = false;
