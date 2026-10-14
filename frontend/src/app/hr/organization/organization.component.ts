@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Department, Designation, Employee, HrApi } from '../../services/hr-api.service';
+import { getDialogErrorMessage } from '../../shared/dialog-error.util';
 
 @Component({
   selector: 'app-hr-organization',
@@ -117,7 +118,7 @@ export class OrganizationComponent implements OnInit {
       this.closeDepartmentModal();
       await this.reload();
     } catch (error: any) {
-      this.formError = error?.error?.error ?? error?.message ?? 'Unable to save department.';
+      this.formError = getDialogErrorMessage(error, 'Unable to save department. Please review the details and try again.');
     }
   }
 
@@ -151,7 +152,7 @@ export class OrganizationComponent implements OnInit {
       this.closeDesignationModal();
       await this.reload();
     } catch (error: any) {
-      this.formError = error?.error?.error ?? error?.message ?? 'Unable to save designation.';
+      this.formError = getDialogErrorMessage(error, 'Unable to save designation. Please review the details and try again.');
     }
   }
 
