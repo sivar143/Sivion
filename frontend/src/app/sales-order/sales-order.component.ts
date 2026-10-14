@@ -97,6 +97,7 @@ export class SalesOrderComponent implements OnInit  {
     if(this.draft.items.length>1)this.draft.items.splice(i,1);
   }
   async save() {
+    if (this.submitting) return;
     this.dialogError = '';
     this.submitting = true;
     try {
