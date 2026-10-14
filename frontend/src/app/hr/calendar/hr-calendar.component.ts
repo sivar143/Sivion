@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { getDialogErrorMessage } from '../../shared/dialog-error.util';
 import { HrCalendarApi, HrCalendarEntry, HrCalendarType } from './hr-calendar-api.service';
 
 @Component({
@@ -19,6 +20,7 @@ export class HrCalendarComponent implements OnInit {
   entries: HrCalendarEntry[] = [];
   loading = false;
   error = '';
+  saving = false;
   editingId: number | undefined;
   formOpen = false;
   draft: HrCalendarEntry = this.emptyDraft();
@@ -75,6 +77,7 @@ export class HrCalendarComponent implements OnInit {
   }
 
   async save(): Promise<void> {
+    if (this.saving) return;
     this.error = '';
     if (!this.draft.title.trim()) {
       this.error = 'Enter a title.';
@@ -84,15 +87,18 @@ export class HrCalendarComponent implements OnInit {
       this.error = 'Choose a valid date range.';
       return;
     }
+    this.saving = true;
     try {
       const entry = { ...this.draft, type: this.type };
       if (this.editingId) await this.api.update({ ...entry, id: this.editingId });
       else await this.api.create(entry);
       this.cancel();
       await this.reload();
-    } catch {
-      this.error = `${this.heading} entry could not be saved.`;
+    } catch (error: unknown) {
+      this.error = getDialogErrorMessage(error, `${this.heading} entry could not be saved. Please review the details and try again.`);
       this.cdr.markForCheck();
+    } finally {
+      this.saving = false;
     }
   }
 
