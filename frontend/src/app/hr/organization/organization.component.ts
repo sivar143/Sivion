@@ -22,6 +22,7 @@ export class OrganizationComponent implements OnInit {
   employees: Employee[] = [];
   loadError = '';
   formError = '';
+  saving = false;
   departmentModal = false;
   designationModal = false;
   editingDepartment = false;
@@ -111,14 +112,18 @@ export class OrganizationComponent implements OnInit {
   }
 
   async saveDepartment(): Promise<void> {
+    if (this.saving) return;
     this.formError = '';
+    this.saving = true;
     try {
       if (this.editingDepartment) await this.api.updateDepartment(this.departmentDraft);
       else await this.api.createDepartment(this.departmentDraft);
       this.closeDepartmentModal();
       await this.reload();
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.formError = getDialogErrorMessage(error, 'Unable to save department. Please review the details and try again.');
+    } finally {
+      this.saving = false;
     }
   }
 
@@ -142,7 +147,9 @@ export class OrganizationComponent implements OnInit {
   }
 
   async saveDesignation(): Promise<void> {
+    if (this.saving) return;
     this.formError = '';
+    this.saving = true;
     try {
       if (this.editingDesignation && this.designationDraft.id) {
         await this.api.updateDesignation(this.designationDraft);
@@ -151,8 +158,10 @@ export class OrganizationComponent implements OnInit {
       }
       this.closeDesignationModal();
       await this.reload();
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.formError = getDialogErrorMessage(error, 'Unable to save designation. Please review the details and try again.');
+    } finally {
+      this.saving = false;
     }
   }
 
