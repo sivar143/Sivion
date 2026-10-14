@@ -43,6 +43,7 @@ export class GoalsComponent implements OnInit {
   }
 
   async saveGoal(): Promise<void> {
+    if (this.saving) return;
     this.actionError = '';
     if (!this.draft.employeeId || !this.draft.title.trim()) {
       this.actionError = 'Please select an employee and enter a goal title.';
