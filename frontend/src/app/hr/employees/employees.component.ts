@@ -21,6 +21,7 @@ export class EmployeesComponent implements OnInit {
   designations: Designation[] = [];
   loadError = '';
   formError = '';
+  saving = false;
   modalOpen = false;
   editing = false;
   draft: Employee = this.emptyEmployee();
@@ -96,15 +97,20 @@ export class EmployeesComponent implements OnInit {
   closeModal(): void { this.modalOpen = false; this.formError = ''; }
 
   async save(): Promise<void> {
+    if (this.saving) return;
     this.formError = '';
+    this.saving = true;
     try {
       if (this.editing && this.draft.id) await this.api.updateEmployee(this.draft.id, this.draft);
       else await this.api.createEmployee(this.draft);
       this.closeModal();
       this.cdr.markForCheck();
       await this.reload();
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.formError = getDialogErrorMessage(error, 'Unable to save the staff account. Please review the details and try again.');
+      this.cdr.markForCheck();
+    } finally {
+      this.saving = false;
       this.cdr.markForCheck();
     }
   }
