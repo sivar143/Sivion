@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Department, Designation, Employee, HrApi } from '../../services/hr-api.service';
+import { getDialogErrorMessage } from '../../shared/dialog-error.util';
 
 @Component({
   selector: 'app-hr-employees',
@@ -103,7 +104,7 @@ export class EmployeesComponent implements OnInit {
       this.cdr.markForCheck();
       await this.reload();
     } catch (error: any) {
-      this.formError = error?.error?.error ?? error?.message ?? 'Unable to save staff account.';
+      this.formError = getDialogErrorMessage(error, 'Unable to save the staff account. Please review the details and try again.');
       this.cdr.markForCheck();
     }
   }
