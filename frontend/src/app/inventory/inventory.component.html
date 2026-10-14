@@ -117,7 +117,7 @@
   <div class="empty" *ngIf="!dispatches.length">No dispatches yet.</div>
 </div>
 <section *ngIf="mode" class="modal">
-  <form (ngSubmit)="submit()">
+  <form (ngSubmit)="submit()"><p *ngIf="dialogError" class="form-error" role="alert">{{ dialogError }}</p>
     <h2>{{mode==='warehouse'?'New warehouse':mode==='material'?'New material':mode==='stock'?'Stock
       in':mode==='adjust'?'Stock adjustment':'Dispatch materials'}}</h2><ng-container *ngIf="mode==='warehouse'"><input
         required placeholder="Warehouse code" [(ngModel)]="warehouseDraft.code" name="warehouseCode"><input required
@@ -150,7 +150,7 @@
         name="dispatchReference"><input placeholder="Delivery address" [(ngModel)]="address" name="address"><textarea
         placeholder="Notes" [(ngModel)]="notes" name="notes"></textarea>
     </ng-container>
-    <div class="actions"><button type="button" (click)="mode=''">Cancel</button><button type="submit">Save</button>
+    <div class="actions"><button type="button" (click)="mode=''">Cancel</button><button type="submit" [disabled]="submitting">Save</button>
     </div>
   </form>
 </section>
