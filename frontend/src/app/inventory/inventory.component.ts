@@ -10,6 +10,7 @@ import  {
   FormsModule
 }
 from '@angular/forms';
+import { getDialogErrorMessage } from '../shared/dialog-error.util';
 import  {
   InventoryApi, Material, Warehouse, InventoryTransaction
 }
@@ -119,6 +120,8 @@ export class InventoryComponent implements OnInit  {
   dispatches:any[]=[];
   transactions:InventoryTransaction[]=[];
   loadError='';
+  dialogError = '';
+  submitting = false;
   private readonly loadFailures = new Set<string>();
   mode='';
   selectedId=0;
@@ -244,6 +247,8 @@ export class InventoryComponent implements OnInit  {
     this.dispatchLines.splice(i,1);
   }
   async submit() {
+    this.dialogError = '';
+    this.submitting = true;
     try {
       if(this.mode==='warehouse') {
         const w=await this.api.createWarehouse(this.warehouseDraft.code,this.warehouseDraft.name);
@@ -277,8 +282,10 @@ export class InventoryComponent implements OnInit  {
       this.notes='';
       await this.reload();
     }
-    catch(e:any) {
-      alert(e?.error?.message||e?.message||'Request failed')
+    catch(e: unknown) {
+      this.dialogError = getDialogErrorMessage(e, 'The action could not be completed. Please review the details and try again.');
+    } finally {
+      this.submitting = false;
     }
   }
 }
