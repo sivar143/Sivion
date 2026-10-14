@@ -1317,3 +1317,76 @@ h1 {
     flex-wrap: wrap;
   }
 }
+
+
+/*
+ * Shared dialog behavior for every module.
+ * Dialogs sit above the fixed application toolbar and remain usable on short
+ * screens by scrolling the overlay/form instead of clipping their action rows.
+ */
+.modal {
+  z-index: 1301;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  align-items: safe center;
+}
+
+.modal form {
+  width: min(560px, 100%);
+  max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-block: auto;
+}
+
+.modal form > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.modal .actions {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .modal {
+    padding: 12px;
+    place-items: safe center;
+  }
+
+  .modal form {
+    width: 100%;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    padding: 18px;
+    gap: 10px;
+  }
+
+  .modal .actions {
+    position: sticky;
+    bottom: -18px;
+    padding: 10px 0 2px;
+    background: #ffffff;
+  }
+}
+
+/* Prevent finance data tables from forcing the entire page wider than mobile. */
+.app-shell>main app-finance .panel {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+@media (max-width: 600px) {
+  .app-shell>main app-finance table {
+    min-width: 620px;
+  }
+
+  .app-shell>main app-finance .toolbar > div,
+  .app-shell>main app-finance .toolbar > h3 {
+    min-width: 0;
+  }
+}
