@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
+import { getDialogErrorMessage } from '../shared/dialog-error.util';
 import { CrmApi, Customer } from '../services/crm-api.service';
 
 @Component({
@@ -30,6 +31,8 @@ export class FinanceComponent implements OnInit {
   expenses: any[] = [];
   customers: Customer[] = [];
   loadError = '';
+  dialogError = '';
+  submitting = false;
   private readonly loadFailures = new Set<string>();
 
   mode = '';
@@ -139,10 +142,12 @@ export class FinanceComponent implements OnInit {
   }
 
   async submit(): Promise<void> {
-    if (!this.mode) {
+    if (!this.mode || this.submitting) {
       return;
     }
 
+    this.dialogError = '';
+    this.submitting = true;
     try {
       const options = await this.requestOptions();
       const path = this.getSubmissionPath();
@@ -157,8 +162,10 @@ export class FinanceComponent implements OnInit {
 
       this.closeModal();
       await this.reload();
-    } catch (error: any) {
-      alert(error?.error?.message ?? 'Request failed');
+    } catch (error: unknown) {
+      this.dialogError = getDialogErrorMessage(error, 'The finance action could not be completed. Please review the details and try again.');
+    } finally {
+      this.submitting = false;
     }
   }
 
