@@ -108,7 +108,7 @@
     </div>
     <div class="form-actions">
       <button type="button" (click)="cancelEdit()">Cancel</button>
-      <button type="submit">{{ editingId ? 'Save changes' : 'Create campaign' }}</button>
+      <button type="submit" [disabled]="saving">{{ editingId ? 'Save changes' : 'Create campaign' }}</button>
     </div>
   </form>
 </section>
