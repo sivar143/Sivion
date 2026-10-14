@@ -16,9 +16,11 @@ export function getDialogErrorMessage(error: unknown, fallback: string): string 
 
   const response = value?.error;
   const candidates: unknown[] = [
+    typeof response === 'string' ? response : undefined,
     response?.message,
     response?.detail,
     response?.error,
+    response?.title,
     value?.message
   ];
 
