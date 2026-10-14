@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { getDialogErrorMessage } from '../../shared/dialog-error.util';
 import { AuthService } from '../../services/auth.service';
 import { Employee, HrApi, Payslip } from '../../services/hr-api.service';
 
@@ -19,6 +20,7 @@ export class PayrollComponent implements OnInit {
   payslips: Payslip[] = [];
   loadError = '';
   formError = '';
+  saving = false;
   modalOpen = false;
   editing = false;
   draft: Payslip = this.emptyPayslip();
@@ -55,16 +57,20 @@ export class PayrollComponent implements OnInit {
   closeModal(): void { this.modalOpen = false; this.formError = ''; }
 
   async save(): Promise<void> {
+    if (this.saving) return;
     this.formError = '';
+    this.saving = true;
     try {
       if (this.editing && this.draft.id) await this.api.updatePayslip(this.draft.id, this.draft);
       else await this.api.createPayslip(this.draft);
       this.closeModal();
       this.cdr.markForCheck();
       await this.reload();
-    } catch (error: any) {
-      this.formError = error?.error?.error ?? error?.message ?? 'Unable to save payslip.';
+    } catch (error: unknown) {
+      this.formError = getDialogErrorMessage(error, 'Unable to save payslip. Please review the details and try again.');
       this.cdr.markForCheck();
+    } finally {
+      this.saving = false;
     }
   }
 
