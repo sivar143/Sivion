@@ -136,7 +136,7 @@
 </div>
 
 <section *ngIf="mode" class="modal">
-  <form (ngSubmit)="submit()">
+  <form (ngSubmit)="submit()"><p *ngIf="dialogError" class="form-error" role="alert">{{ dialogError }}</p>
     <h2>
       {{
         mode === 'invoice'
@@ -242,7 +242,7 @@
         Cancel
       </button>
 
-      <button type="submit">
+      <button type="submit" [disabled]="submitting">
         Save
       </button>
     </div>
