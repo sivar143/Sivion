@@ -50,6 +50,7 @@ export class AttendanceComponent implements OnInit {
   }
 
   async saveAttendance(): Promise<void> {
+    if (this.saving) return;
     this.actionError = '';
 
     if (!this.draft.employeeId || !this.draft.attendanceDate) {
