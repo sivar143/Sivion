@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { HrApi, Attendance, Employee } from '../../services/hr-api.service';
+import { getDialogErrorMessage } from '../../shared/dialog-error.util';
 
 @Component({
   selector: 'app-hr-attendance',
@@ -73,7 +74,7 @@ export class AttendanceComponent implements OnInit {
       this.cdr.markForCheck();
       await this.reload();
     } catch (error: any) {
-      this.actionError = error?.error?.error ?? error?.message ?? 'Unable to save attendance.';
+      this.actionError = getDialogErrorMessage(error, 'Unable to save attendance. Please review the details and try again.');
       this.cdr.markForCheck();
     } finally {
       this.saving = false;
