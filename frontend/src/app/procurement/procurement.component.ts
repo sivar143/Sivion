@@ -10,6 +10,7 @@ import  {
   FormsModule
 }
 from '@angular/forms';
+import { getDialogErrorMessage } from '../shared/dialog-error.util';
 import  {
   HttpClient, HttpHeaders
 }
@@ -37,6 +38,8 @@ export class ProcurementComponent implements OnInit  {
   materials:any[]=[];
   warehouses:any[]=[];
   loadError='';
+  dialogError = '';
+  submitting = false;
   mode='';
   supplier:any= {
     code:'',name:'',email:'',phone:'',address:''
@@ -147,6 +150,7 @@ export class ProcurementComponent implements OnInit  {
     if(line)this.receipt.warehouseId=line.warehouseId
   }
   async updateRequest(id:number,status:string) {
+    this.loadError = '';
     try {
       const h=await this.headers();
       await firstValueFrom(this.http.patch(this.base+`/requests/${id}`, {
@@ -157,8 +161,8 @@ export class ProcurementComponent implements OnInit  {
       }));
       await this.reload();
     }
-    catch(e:any) {
-      alert(e?.error?.message||'Unable to update request')
+    catch(e: unknown) {
+      this.loadError = getDialogErrorMessage(e, 'Unable to update the purchase request.');
     }
   }
   async updateOrder(id:number,status:string) {
@@ -172,11 +176,13 @@ export class ProcurementComponent implements OnInit  {
       }));
       await this.reload();
     }
-    catch(e:any) {
-      alert(e?.error?.message||'Unable to update order')
+    catch(e: unknown) {
+      this.loadError = getDialogErrorMessage(e, 'Unable to update the purchase order.');
     }
   }
   async submit() {
+    this.dialogError = '';
+    this.submitting = true;
     try {
       const h=await this.headers();
       let path='';
@@ -201,8 +207,10 @@ export class ProcurementComponent implements OnInit  {
       this.mode='';
       await this.reload();
     }
-    catch(e:any) {
-      alert(e?.error?.message||'Request failed')
+    catch(e: unknown) {
+      this.dialogError = getDialogErrorMessage(e, 'The procurement action could not be completed. Please review the details and try again.');
+    } finally {
+      this.submitting = false;
     }
   }
 }
