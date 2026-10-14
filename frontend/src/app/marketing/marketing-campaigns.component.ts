@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { getDialogErrorMessage } from '../shared/dialog-error.util';
 import { MarketingCampaign, MarketingCampaignsApi } from './marketing-campaigns-api.service';
 import { CrmApi, Lead } from '../services/crm-api.service';
 
@@ -19,6 +20,7 @@ export class MarketingCampaignsComponent implements OnInit {
   campaigns: MarketingCampaign[] = [];
   leads: Lead[] = [];
   loading = false;
+  saving = false;
   error = '';
   success = '';
   editingId: number | undefined;
@@ -91,6 +93,7 @@ export class MarketingCampaignsComponent implements OnInit {
   }
 
   async save(): Promise<void> {
+    if (this.saving) return;
     this.error = '';
     this.success = '';
     if (!this.draft.name.trim()) {
@@ -101,6 +104,7 @@ export class MarketingCampaignsComponent implements OnInit {
       this.error = 'Budget cannot be negative.';
       return;
     }
+    this.saving = true;
     try {
       if (this.editingId) {
         await this.api.update({ ...this.draft, id: this.editingId });
@@ -111,8 +115,10 @@ export class MarketingCampaignsComponent implements OnInit {
       }
       this.cancelEdit();
       await this.reload();
-    } catch {
-      this.error = 'Campaign could not be saved. Check the dates, channel and your access.';
+    } catch (error: unknown) {
+      this.error = getDialogErrorMessage(error, 'Campaign could not be saved. Check the dates, channel and your access.');
+    } finally {
+      this.saving = false;
     }
   }
 
