@@ -44,7 +44,7 @@
     </table>
   </div>
 
-  <form class="calendar-form" *ngIf="formOpen" (ngSubmit)="save()">
+  <form class="calendar-form" *ngIf="formOpen" (ngSubmit)="save()"><p *ngIf="error" class="form-error" role="alert">{{ error }}</p>
     <h3>{{ editingId ? 'Edit entry' : 'Add entry' }}</h3>
     <div class="calendar-form-grid">
       <label>
@@ -73,7 +73,7 @@
     </div>
     <div class="calendar-form-actions">
       <button type="button" (click)="cancel()">Cancel</button>
-      <button type="submit">Save</button>
+      <button type="submit" [disabled]="saving">Save</button>
     </div>
   </form>
 </section>
