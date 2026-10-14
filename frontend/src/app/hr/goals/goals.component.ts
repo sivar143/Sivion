@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { HrApi, Employee, Goal } from '../../services/hr-api.service';
+import { getDialogErrorMessage } from '../../shared/dialog-error.util';
 
 @Component({
   selector: 'app-hr-goals',
@@ -58,7 +59,7 @@ export class GoalsComponent implements OnInit {
       this.cdr.markForCheck();
       await this.reload();
     } catch (error: any) {
-      this.actionError = error?.error?.error ?? error?.message ?? 'Unable to create the goal.';
+      this.actionError = getDialogErrorMessage(error, 'Unable to create the goal. Please review the details and try again.');
       this.cdr.markForCheck();
     } finally {
       this.saving = false;
