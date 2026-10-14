@@ -52,6 +52,6 @@
       [(ngModel)]="draft.password" name="password">
     <label class="check"><input type="checkbox" [(ngModel)]="draft.temporaryPassword" name="temporary"> Force password change at first login</label>
     <label class="check"><input type="checkbox" [(ngModel)]="draft.accountEnabled" name="enabled"> Login enabled</label>
-    <div class="actions"><button type="button" (click)="closeModal()">Cancel</button><button type="submit">{{ editing ? 'Save changes' : 'Create staff & login' }}</button></div>
+    <div class="actions"><button type="button" (click)="closeModal()">Cancel</button><button type="submit" [disabled]="saving">{{ editing ? 'Save changes' : 'Create staff & login' }}</button></div>
   </form>
 </div>
