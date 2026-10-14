@@ -181,6 +181,7 @@ export class ProcurementComponent implements OnInit  {
     }
   }
   async submit() {
+    if (this.submitting) return;
     this.dialogError = '';
     this.submitting = true;
     try {
