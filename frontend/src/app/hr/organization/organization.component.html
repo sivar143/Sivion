@@ -38,7 +38,7 @@
     <input required maxlength="160" placeholder="Department name" [(ngModel)]="departmentDraft.name" name="name">
     <select [(ngModel)]="departmentDraft.parentId" name="parent"><option [ngValue]="undefined">No parent</option><option *ngFor="let item of availableParents" [ngValue]="item.id">{{ item.name }}</option></select>
     <select [(ngModel)]="departmentDraft.status" name="status"><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option></select>
-    <div class="actions"><button type="button" (click)="closeDepartmentModal()">Cancel</button><button type="submit">{{ editingDepartment ? 'Save changes' : 'Create' }}</button></div>
+    <div class="actions"><button type="button" (click)="closeDepartmentModal()">Cancel</button><button type="submit" [disabled]="saving">{{ editingDepartment ? 'Save changes' : 'Create' }}</button></div>
   </form>
 </div>
 
@@ -50,6 +50,6 @@
     <input required maxlength="160" placeholder="Designation name" [(ngModel)]="designationDraft.name" name="name">
     <select [(ngModel)]="designationDraft.departmentId" name="department"><option [ngValue]="undefined">All departments</option><option *ngFor="let item of departments" [ngValue]="item.id">{{ item.name }}</option></select>
     <select [(ngModel)]="designationDraft.status" name="status"><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option></select>
-    <div class="actions"><button type="button" (click)="closeDesignationModal()">Cancel</button><button type="submit">Save designation</button></div>
+    <div class="actions"><button type="button" (click)="closeDesignationModal()">Cancel</button><button type="submit" [disabled]="saving">Save designation</button></div>
   </form>
 </div>
