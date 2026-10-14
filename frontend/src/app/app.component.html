@@ -484,6 +484,7 @@
     </section>
     <section *ngIf="activeItem==='customers'&&newCustomer" class="modal">
       <form (ngSubmit)="saveCustomer()">
+          <p *ngIf="dialogError" class="form-error" role="alert">{{ dialogError }}</p>
         <h2>
           New customer
         </h2>
@@ -503,7 +504,7 @@
           <button type="button" (click)="newCustomer=false">
             Cancel
           </button>
-          <button type="submit">
+          <button type="submit" [disabled]="submitting">
             Create customer
           </button>
         </div>
@@ -511,6 +512,7 @@
     </section>
     <section *ngIf="activeItem==='contacts'&&newContact" class="modal">
       <form (ngSubmit)="saveContact()">
+          <p *ngIf="dialogError" class="form-error" role="alert">{{ dialogError }}</p>
         <h2>
           New contact
         </h2>
@@ -535,7 +537,7 @@
           <button type="button" (click)="newContact=false">
             Cancel
           </button>
-          <button type="submit">
+          <button type="submit" [disabled]="submitting">
             Create contact
           </button>
         </div>
@@ -543,6 +545,7 @@
     </section>
     <section *ngIf="activeItem==='activities'&&newActivity" class="modal">
       <form (ngSubmit)="saveActivity()">
+          <p *ngIf="dialogError" class="form-error" role="alert">{{ dialogError }}</p>
         <h2>
           New activity
         </h2>
@@ -578,7 +581,7 @@
           <button type="button" (click)="newActivity=false">
             Cancel
           </button>
-          <button type="submit">
+          <button type="submit" [disabled]="submitting">
             Create activity
           </button>
         </div>
@@ -586,6 +589,7 @@
     </section>
     <section *ngIf="activeItem==='leads'&&newLead" class="modal">
       <form (ngSubmit)="saveLead()">
+          <p *ngIf="dialogError" class="form-error" role="alert">{{ dialogError }}</p>
         <h2>
           New lead
         </h2>
@@ -636,7 +640,7 @@
           <button type="button" (click)="newLead=false">
             Cancel
           </button>
-          <button type="submit">
+          <button type="submit" [disabled]="submitting">
             Create lead
           </button>
         </div>
@@ -644,6 +648,7 @@
     </section>
     <section *ngIf="activeItem==='opportunities'&&newOpp" class="modal">
       <form (ngSubmit)="saveOpp()">
+          <p *ngIf="dialogError" class="form-error" role="alert">{{ dialogError }}</p>
         <h2>
           New opportunity
         </h2>
@@ -674,7 +679,7 @@
           <button type="button" (click)="newOpp=false">
             Cancel
           </button>
-          <button type="submit">
+          <button type="submit" [disabled]="submitting">
             Create opportunity
           </button>
         </div>
