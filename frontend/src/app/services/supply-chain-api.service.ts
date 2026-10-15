@@ -111,8 +111,8 @@ export class SupplyChainApi {
     return firstValueFrom(this.http.post(`${this.base}/lot-consumptions`, request, await this.options()));
   }
 
-  async lotShipmentAllocations(lotCode: string): Promise<unknown> {
-    return firstValueFrom(this.http.get(`${this.base}/production-lots/${encodeURIComponent(lotCode)}/shipments`, await this.options()));
+  async lotShipmentAllocations(lotCode: string): Promise<unknown[]> {
+    return firstValueFrom(this.http.get<unknown[]>(`${this.base}/production-lots/${encodeURIComponent(lotCode)}/shipments`, await this.options()));
   }
 
   async allocateProductionLot(lotCode: string, request: ProductionLotShipmentRequest): Promise<unknown> {
