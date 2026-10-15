@@ -12,6 +12,7 @@ import com.sivion.api.sales.repo.SalesOrderRepository;
 import java.util.Objects;
 import java.math.BigDecimal;
 import com.sivion.api.supplychain.repo.MaterialLotRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,6 +28,7 @@ public class SupplyChainReferenceValidator {
     private final DispatchRepository dispatches;
     private final MaterialLotRepository materialLots;
 
+    @Autowired
     public SupplyChainReferenceValidator(PurchaseOrderRepository purchaseOrders,
             PurchaseOrderItemRepository purchaseOrderItems, GoodsReceiptRepository goodsReceipts,
             SalesOrderRepository salesOrders, DispatchRepository dispatches, MaterialLotRepository materialLots) {
@@ -36,6 +38,13 @@ public class SupplyChainReferenceValidator {
         this.salesOrders = salesOrders;
         this.dispatches = dispatches;
         this.materialLots = materialLots;
+    }
+
+    /** Compatibility constructor for focused validation tests without lot reconciliation. */
+    public SupplyChainReferenceValidator(PurchaseOrderRepository purchaseOrders,
+            PurchaseOrderItemRepository purchaseOrderItems, GoodsReceiptRepository goodsReceipts,
+            SalesOrderRepository salesOrders, DispatchRepository dispatches) {
+        this(purchaseOrders, purchaseOrderItems, goodsReceipts, salesOrders, dispatches, null);
     }
 
     public ResolvedReferences validateShipment(String direction, Long purchaseOrderId, String goodsReceiptReference,
