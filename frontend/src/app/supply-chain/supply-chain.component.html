@@ -80,6 +80,17 @@
     <button type="submit" [disabled]="saving || consumptionDraft.materialLotId <= 0 || consumptionDraft.productionLotId <= 0 || consumptionDraft.manufacturingOrderId <= 0 || consumptionDraft.quantityConsumed <= 0 || !consumptionDraft.unit.trim()">Record consumption</button>
   </form>
 
+  <form class="create-form" (ngSubmit)="allocateProductionLot()">
+    <h3>Allocate finished-product lot to shipment</h3>
+    <p class="muted">Only quality-accepted quantities can be allocated, and cumulative lot allocations cannot exceed the linked inventory dispatch.</p>
+    <div class="form-grid">
+      <label>Finished-product lot code<input name="allocatedLotCode" required maxlength="80" [(ngModel)]="lotShipmentDraft.lotCode"></label>
+      <label>Outbound shipment ID<input type="number" name="allocatedShipmentId" min="1" required [(ngModel)]="lotShipmentDraft.shipmentId"></label>
+      <label>Quantity shipped from this lot<input type="number" name="allocatedShipmentQuantity" min="0.0001" step="0.0001" required [(ngModel)]="lotShipmentDraft.quantity"></label>
+    </div>
+    <button type="submit" [disabled]="saving || !lotShipmentDraft.lotCode.trim() || lotShipmentDraft.shipmentId <= 0 || lotShipmentDraft.quantity <= 0">Allocate lot quantity</button>
+  </form>
+
   <form class="create-form" (ngSubmit)="lookupGenealogy()">
     <h3>Lot genealogy</h3>
     <div class="form-grid">
