@@ -25,6 +25,70 @@
     <button type="submit" [disabled]="saving || !inspectionDraft.lotCode.trim() || (inspectionDraft.acceptedQuantity <= 0 && inspectionDraft.rejectedQuantity <= 0)">Record inspection</button>
   </form>
 
+  <form class="create-form" (ngSubmit)="receiveMaterialLot()">
+    <h3>Receive raw-material lot</h3>
+    <div class="form-grid">
+      <label>Lot code<input name="materialLotCode" required maxlength="80" [(ngModel)]="materialLotDraft.lotCode"></label>
+      <label>Material ID<input type="number" name="materialId" min="1" required [(ngModel)]="materialLotDraft.materialId"></label>
+      <label>Purchase order ID<input type="number" name="materialPoId" min="1" [(ngModel)]="materialLotDraft.purchaseOrderId"></label>
+      <label>Goods receipt number / ID<input name="materialGrn" maxlength="100" [(ngModel)]="materialLotDraft.goodsReceiptReference"></label>
+      <label>Inbound shipment ID<input type="number" name="materialShipmentId" min="1" [(ngModel)]="materialLotDraft.shipmentId"></label>
+      <label>Supplier ID<input type="number" name="materialSupplierId" min="1" [(ngModel)]="materialLotDraft.supplierId"></label>
+      <label>Supplier name<input name="materialSupplierName" maxlength="180" [(ngModel)]="materialLotDraft.supplierName"></label>
+      <label>Supplier lot code<input name="supplierLotCode" maxlength="100" [(ngModel)]="materialLotDraft.supplierLotCode"></label>
+      <label>Warehouse ID<input type="number" name="materialWarehouseId" min="1" [(ngModel)]="materialLotDraft.warehouseId"></label>
+      <label>Received quantity<input type="number" name="materialReceived" min="0.0001" step="0.0001" required [(ngModel)]="materialLotDraft.receivedQuantity"></label>
+      <label>Initially accepted<input type="number" name="materialAccepted" min="0" step="0.0001" [(ngModel)]="materialLotDraft.acceptedQuantity"></label>
+      <label>Initially rejected<input type="number" name="materialRejected" min="0" step="0.0001" [(ngModel)]="materialLotDraft.rejectedQuantity"></label>
+    </div>
+    <button type="submit" [disabled]="saving || !materialLotDraft.lotCode.trim() || materialLotDraft.materialId <= 0 || materialLotDraft.receivedQuantity <= 0">Receive material lot</button>
+  </form>
+
+  <form class="create-form" (ngSubmit)="createManufacturingOrder()">
+    <h3>Manufacturing order</h3>
+    <div class="form-grid">
+      <label>Order number<input name="manufacturingOrderNumber" required maxlength="80" [(ngModel)]="manufacturingOrderDraft.orderNumber"></label>
+      <label>Finished product ID<input type="number" name="manufacturingProductId" min="1" required [(ngModel)]="manufacturingOrderDraft.productId"></label>
+      <label>Planned quantity<input type="number" name="manufacturingPlannedQuantity" min="0.0001" step="0.0001" required [(ngModel)]="manufacturingOrderDraft.plannedQuantity"></label>
+    </div>
+    <button type="submit" [disabled]="saving || !manufacturingOrderDraft.orderNumber.trim() || manufacturingOrderDraft.productId <= 0 || manufacturingOrderDraft.plannedQuantity <= 0">Create manufacturing order</button>
+  </form>
+
+  <form class="create-form" (ngSubmit)="recordProductionLot()">
+    <h3>Record finished-product lot</h3>
+    <div class="form-grid">
+      <label>Lot code<input name="productionLotCode" required maxlength="80" [(ngModel)]="productionLotDraft.lotCode"></label>
+      <label>Finished product ID<input type="number" name="productionProductId" min="1" required [(ngModel)]="productionLotDraft.productId"></label>
+      <label>Manufacturing order ID<input type="number" name="productionOrderId" min="1" required [(ngModel)]="productionLotDraft.manufacturingOrderId"></label>
+      <label>Produced quantity<input type="number" name="producedQuantity" min="0.0001" step="0.0001" required [(ngModel)]="productionLotDraft.producedQuantity"></label>
+      <label>Known rejected quantity<input type="number" name="productionRejected" min="0" step="0.0001" [(ngModel)]="productionLotDraft.rejectedQuantity"></label>
+      <label>Warehouse ID<input type="number" name="productionWarehouseId" min="1" [(ngModel)]="productionLotDraft.warehouseId"></label>
+    </div>
+    <button type="submit" [disabled]="saving || !productionLotDraft.lotCode.trim() || productionLotDraft.productId <= 0 || productionLotDraft.manufacturingOrderId <= 0 || productionLotDraft.producedQuantity <= 0">Record production lot</button>
+  </form>
+
+  <form class="create-form" (ngSubmit)="recordConsumption()">
+    <h3>Link material consumption to production</h3>
+    <div class="form-grid">
+      <label>Material lot database ID<input type="number" name="consumedMaterialLotId" min="1" required [(ngModel)]="consumptionDraft.materialLotId"></label>
+      <label>Finished-product lot database ID<input type="number" name="consumedProductionLotId" min="1" required [(ngModel)]="consumptionDraft.productionLotId"></label>
+      <label>Manufacturing order ID<input type="number" name="consumedOrderId" min="1" required [(ngModel)]="consumptionDraft.manufacturingOrderId"></label>
+      <label>Quantity consumed<input type="number" name="consumedQuantity" min="0.0001" step="0.0001" required [(ngModel)]="consumptionDraft.quantityConsumed"></label>
+      <label>Unit<input name="consumedUnit" required maxlength="20" [(ngModel)]="consumptionDraft.unit"></label>
+      <label>Remarks<input name="consumptionRemarks" maxlength="500" [(ngModel)]="consumptionDraft.remarks"></label>
+    </div>
+    <button type="submit" [disabled]="saving || consumptionDraft.materialLotId <= 0 || consumptionDraft.productionLotId <= 0 || consumptionDraft.manufacturingOrderId <= 0 || consumptionDraft.quantityConsumed <= 0 || !consumptionDraft.unit.trim()">Record consumption</button>
+  </form>
+
+  <form class="create-form" (ngSubmit)="lookupGenealogy()">
+    <h3>Lot genealogy</h3>
+    <div class="form-grid">
+      <label>Raw-material or finished-product lot code<input name="genealogyLotCode" required maxlength="80" [(ngModel)]="genealogyLotCode"></label>
+    </div>
+    <button type="submit" [disabled]="!genealogyLotCode.trim()">Trace lot</button>
+    <pre class="genealogy-result" *ngIf="genealogyResult">{{ genealogyResult | json }}</pre>
+  </form>
+
   <form class="create-form" *ngIf="showCreate" (ngSubmit)="createShipment()">
     <h3>Create shipment</h3>
     <div class="form-grid">
