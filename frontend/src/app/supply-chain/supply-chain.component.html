@@ -1,0 +1,81 @@
+<section class="supply-chain">
+  <div class="toolbar">
+    <div>
+      <h2>Supply Chain Tracking</h2>
+      <p>Track supplier shipments, production movements and customer deliveries.</p>
+    </div>
+    <div class="actions">
+      <button type="button" class="secondary" (click)="reload()" [disabled]="loading">Refresh</button>
+      <button type="button" (click)="showCreate = !showCreate">{{ showCreate ? 'Cancel' : '+ New shipment' }}</button>
+    </div>
+  </div>
+
+  <p class="message error" role="alert" *ngIf="error">{{ error }}</p>
+  <p class="message success" role="status" *ngIf="success">{{ success }}</p>
+
+  <form class="create-form" *ngIf="showCreate" (ngSubmit)="createShipment()">
+    <h3>Create shipment</h3>
+    <div class="form-grid">
+      <label>Shipment number<input name="shipmentNumber" required maxlength="60" [(ngModel)]="draft.shipmentNumber"></label>
+      <label>Journey type<select name="direction" [(ngModel)]="draft.direction"><option value="INBOUND">Inbound raw materials</option><option value="OUTBOUND">Outbound customer delivery</option><option value="TRANSFER">Inter-site transfer</option></select></label>
+      <label>Reference / order number<input name="referenceNumber" maxlength="100" [(ngModel)]="draft.referenceNumber"></label>
+      <label>Supplier<input name="supplierName" maxlength="180" [(ngModel)]="draft.supplierName"></label>
+      <label>Customer / destination party<input name="customerName" maxlength="180" [(ngModel)]="draft.customerName"></label>
+      <label>Carrier<input name="carrierName" maxlength="120" [(ngModel)]="draft.carrierName"></label>
+      <label>Carrier tracking number<input name="carrierTrackingNumber" maxlength="160" [(ngModel)]="draft.carrierTrackingNumber"></label>
+      <label>Origin<input name="originLocation" maxlength="250" [(ngModel)]="draft.originLocation"></label>
+      <label>Destination<input name="destinationLocation" maxlength="250" [(ngModel)]="draft.destinationLocation"></label>
+      <label>Estimated arrival<input type="datetime-local" name="estimatedArrivalAt" [(ngModel)]="draft.estimatedArrivalAt"></label>
+      <label class="wide">Notes<textarea name="notes" maxlength="1000" rows="2" [(ngModel)]="draft.notes"></textarea></label>
+    </div>
+    <button type="submit" [disabled]="saving || !draft.shipmentNumber.trim()">{{ saving ? 'Saving…' : 'Create shipment' }}</button>
+  </form>
+
+  <div class="tracking-layout">
+    <section class="shipment-list" aria-label="Shipment list">
+      <div class="list-heading"><h3>Shipments</h3><span>{{ shipments.length }} total</span></div>
+      <p class="empty" *ngIf="!loading && shipments.length === 0">No shipments yet. Create one to start tracking.</p>
+      <button type="button" class="shipment-row" *ngFor="let shipment of shipments" (click)="openShipment(shipment)" [class.selected]="selected?.shipment.id === shipment.id">
+        <span class="shipment-top"><strong>{{ shipment.shipmentNumber }}</strong><span class="status">{{ shipment.status.replaceAll('_', ' ') }}</span></span>
+        <span class="muted">{{ shipment.direction }} · {{ shipment.carrierName || 'Carrier not assigned' }}</span>
+        <span class="muted">{{ shipment.originLocation || 'Origin pending' }} → {{ shipment.destinationLocation || 'Destination pending' }}</span>
+      </button>
+    </section>
+
+    <section class="shipment-detail" *ngIf="selected as detail">
+      <h3>{{ detail.shipment.shipmentNumber }}</h3>
+      <div class="summary-grid">
+        <div><span>Current status</span><strong>{{ detail.shipment.status.replaceAll('_', ' ') }}</strong></div>
+        <div><span>Carrier</span><strong>{{ detail.shipment.carrierName || 'Not assigned' }}</strong></div>
+        <div><span>Tracking number</span><strong>{{ detail.shipment.carrierTrackingNumber || 'Not provided' }}</strong></div>
+        <div><span>Estimated arrival</span><strong>{{ detail.shipment.estimatedArrivalAt ? (detail.shipment.estimatedArrivalAt | date:'medium') : 'Not set' }}</strong></div>
+      </div>
+
+      <form class="status-form" (ngSubmit)="updateStatus()">
+        <h4>Record status update</h4>
+        <div class="form-grid">
+          <label>New status
+            <select name="statusDraft" required [(ngModel)]="statusDraft">
+              <option *ngFor="let status of (detail.shipment.direction === 'INBOUND' ? ['READY_FOR_DISPATCH','DISPATCHED','IN_TRANSIT','ARRIVED','PARTIALLY_RECEIVED','RECEIVED','INSPECTION_PENDING','ACCEPTED','REJECTED','DELAYED','CANCELLED'] : detail.shipment.direction === 'OUTBOUND' ? ['PACKED','READY_FOR_DISPATCH','DISPATCHED','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERED','PARTIALLY_DELIVERED','DELIVERY_FAILED','RETURN_IN_TRANSIT','RETURNED','DELAYED','CANCELLED'] : ['READY_FOR_DISPATCH','DISPATCHED','IN_TRANSIT','ARRIVED','RECEIVED','DELAYED','CANCELLED'])" [value]="status">{{ status.replaceAll('_', ' ') }}</option>
+            </select>
+          </label>
+          <label>Location<input name="locationDraft" maxlength="250" [(ngModel)]="locationDraft"></label>
+          <label class="wide">Remarks<input name="remarksDraft" maxlength="1000" [(ngModel)]="remarksDraft"></label>
+        </div>
+        <button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save status update' }}</button>
+      </form>
+
+      <h4>Shipment timeline</h4>
+      <ol class="timeline">
+        <li *ngFor="let event of detail.events">
+          <span class="timeline-dot"></span>
+          <div><strong>{{ event.newStatus.replaceAll('_', ' ') }}</strong><time>{{ event.eventTime | date:'medium' }}</time></div>
+          <p *ngIf="event.location">{{ event.location }}</p>
+          <p *ngIf="event.remarks">{{ event.remarks }}</p>
+          <small>Recorded by {{ event.actor || 'system' }}</small>
+        </li>
+      </ol>
+    </section>
+    <section class="shipment-detail empty-detail" *ngIf="!selected"><p>Select a shipment to view its timeline and update its status.</p></section>
+  </div>
+</section>
