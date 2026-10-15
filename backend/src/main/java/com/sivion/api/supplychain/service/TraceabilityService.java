@@ -58,9 +58,23 @@ public class TraceabilityService {
         if (r.materialId()==null) throw bad("A material ID is required.");
         if (r.lotCode()==null || r.lotCode().isBlank()) throw bad("A lot code is required.");
         String code=r.lotCode().trim();
+        Shipment inboundShipment = null;
+        if (r.shipmentId() != null) {
+            inboundShipment = shipments.findByIdAndTenantId(r.shipmentId(), TENANT)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Inbound shipment was not found."));
+            if (!"INBOUND".equals(inboundShipment.getDirection()))
+                throw bad("Raw material lots can only be linked to inbound shipments.");
+            if (r.purchaseOrderId() != null && inboundShipment.getPurchaseOrderId() != null
+                    && !Objects.equals(r.purchaseOrderId(), inboundShipment.getPurchaseOrderId()))
+                throw bad("Purchase order does not match the linked inbound shipment.");
+        }
+        Long effectivePurchaseOrderId = r.purchaseOrderId() != null ? r.purchaseOrderId()
+            : inboundShipment == null ? null : inboundShipment.getPurchaseOrderId();
+        String effectiveGoodsReceiptReference = trim(r.goodsReceiptReference()) != null
+            ? trim(r.goodsReceiptReference()) : inboundShipment == null ? null : inboundShipment.getGoodsReceiptReference();
         com.sivion.api.procurement.domain.GoodsReceipt linkedReceipt = null;
-        if (referenceValidator != null) linkedReceipt = referenceValidator.validateMaterialReceipt(r.purchaseOrderId(),
-            r.goodsReceiptReference(), r.materialId(), r.supplierId(), r.warehouseId());
+        if (referenceValidator != null) linkedReceipt = referenceValidator.validateMaterialReceipt(effectivePurchaseOrderId,
+            effectiveGoodsReceiptReference, r.materialId(), r.supplierId(), r.warehouseId());
         if(materialLots.existsByLotCodeAndTenantId(code,TENANT)) throw conflict("This material lot code already exists.");
         BigDecimal accepted=nz(r.acceptedQuantity()), rejected=nz(r.rejectedQuantity());
         if(accepted.signum()>0 && r.warehouseId()==null)
@@ -71,10 +85,10 @@ public class TraceabilityService {
         lot.setLotCode(code); lot.setMaterialId(r.materialId()); lot.setSupplierId(r.supplierId());
         lot.setSupplierName(trim(r.supplierName())); lot.setSupplierLotCode(trim(r.supplierLotCode()));
         lot.setShipmentId(r.shipmentId());
-        lot.setPurchaseOrderId(r.purchaseOrderId() != null ? r.purchaseOrderId()
+        lot.setPurchaseOrderId(effectivePurchaseOrderId != null ? effectivePurchaseOrderId
             : linkedReceipt == null ? null : linkedReceipt.getPurchaseOrderId());
         lot.setGoodsReceiptReference(linkedReceipt != null ? linkedReceipt.getReceiptNumber()
-            : trim(r.goodsReceiptReference()));
+            : effectiveGoodsReceiptReference);
         lot.setWarehouseId(r.warehouseId());
         lot.setReceivedQuantity(r.receivedQuantity()); lot.setAcceptedQuantity(accepted); lot.setRejectedQuantity(rejected);
         BigDecimal initiallyInspected = accepted.add(rejected);
