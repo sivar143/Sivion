@@ -32,6 +32,8 @@ export class SupplyChainComponent implements OnInit {
   manufacturingOrderDraft = { orderNumber: '', productId: 0, plannedQuantity: 0 };
   lotShipmentDraft = { lotCode: '', shipmentId: 0, quantity: 0 };
   lotShipmentAllocations: unknown[] | null = null;
+  inboundReceiptDraft = { receiptReference: '', lotCode: '', productId: 0, warehouseId: 0, quantity: 0, supplierName: '', supplierLotCode: '', finalReceipt: false };
+  inboundReceiptHistory: unknown[] = [];
   genealogyLotCode = '';
   genealogyResult: unknown = null;
 
@@ -222,6 +224,47 @@ export class SupplyChainComponent implements OnInit {
     } finally {
       this.saving = false;
       this.changeDetector.markForCheck();
+    }
+  }
+
+  async receiveInboundShipment(): Promise<void> {
+    if (!this.selected || this.selected.shipment.direction !== 'INBOUND') return;
+    this.saving = true;
+    this.error = '';
+    this.success = '';
+    try {
+      await this.api.receiveInboundShipment(this.selected.shipment.id, {
+        ...this.inboundReceiptDraft,
+        receiptReference: this.inboundReceiptDraft.receiptReference.trim(),
+        lotCode: this.inboundReceiptDraft.lotCode.trim(),
+        productId: Number(this.inboundReceiptDraft.productId),
+        warehouseId: Number(this.inboundReceiptDraft.warehouseId),
+        quantity: Number(this.inboundReceiptDraft.quantity),
+        supplierName: this.inboundReceiptDraft.supplierName.trim() || undefined,
+        supplierLotCode: this.inboundReceiptDraft.supplierLotCode.trim() || undefined
+      });
+      this.inboundReceiptHistory = await this.api.inboundShipmentReceipts(this.selected.shipment.id);
+      const shipmentId = this.selected.shipment.id;
+      this.success = 'Goods receipt and raw-material lot recorded. Usable stock will be posted after quality inspection accepts quantities.';
+      this.inboundReceiptDraft = { receiptReference: '', lotCode: '', productId: 0, warehouseId: 0, quantity: 0, supplierName: '', supplierLotCode: '', finalReceipt: false };
+      await this.reload();
+      const refreshed = this.shipments.find(item => item.id === shipmentId);
+      if (refreshed) await this.openShipment(refreshed);
+    } catch (error) {
+      this.error = this.errorMessage(error, 'Unable to receive goods against the inbound shipment.');
+    } finally {
+      this.saving = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  async loadInboundReceiptHistory(): Promise<void> {
+    if (!this.selected || this.selected.shipment.direction !== 'INBOUND') return;
+    this.error = '';
+    try {
+      this.inboundReceiptHistory = await this.api.inboundShipmentReceipts(this.selected.shipment.id);
+    } catch (error) {
+      this.error = this.errorMessage(error, 'Unable to load inbound receipt history.');
     }
   }
 
