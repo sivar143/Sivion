@@ -10,6 +10,8 @@ import java.util.*;
 public interface GoodsReceiptRepository extends JpaRepository<GoodsReceipt,Long> {
     List<GoodsReceipt> findByTenantIdOrderByReceivedAtDesc(Long tenantId);
 
+    Optional<GoodsReceipt> findByReceiptNumberAndTenantId(String receiptNumber, Long tenantId);
+
     @Query("select coalesce(sum(g.quantity), 0) from GoodsReceipt g where g.tenantId=:tenantId and g.purchaseOrderId=:purchaseOrderId and g.productId=:productId and g.warehouseId=:warehouseId")
     BigDecimal receivedQuantity(@Param("tenantId") Long tenantId,
                                 @Param("purchaseOrderId") Long purchaseOrderId,
