@@ -22,6 +22,10 @@ export interface Shipment {
   direction: 'INBOUND' | 'OUTBOUND' | 'TRANSFER';
   status: string;
   referenceNumber?: string;
+  purchaseOrderId?: number | null;
+  goodsReceiptReference?: string;
+  salesOrderId?: number | null;
+  dispatchId?: number | null;
   supplierName?: string;
   customerName?: string;
   carrierName?: string;
