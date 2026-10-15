@@ -75,7 +75,7 @@ public class CarrierWebhookController {
         }
         return shipments.updateStatus(shipmentId, new StatusUpdate(event.status(),
                 event.eventTime() == null ? Instant.now() : event.eventTime(), event.location(),
-                event.remarks(), "carrier:" + provider.toLowerCase(java.util.Locale.ROOT) + ":" + event.externalEventId().trim()));
+                event.remarks(), "carrier:" + provider.toLowerCase(java.util.Locale.ROOT) + ":" + event.externalEventId().trim(), "CARRIER:" + provider.toUpperCase(java.util.Locale.ROOT)));
     }
 
     private boolean validSignature(String secret, byte[] rawBody, String supplied) {
