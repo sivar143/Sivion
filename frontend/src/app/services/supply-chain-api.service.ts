@@ -119,6 +119,10 @@ export class SupplyChainApi {
     return firstValueFrom(this.http.post(`${this.base}/manufacturing-orders`, request, await this.options()));
   }
 
+  async refreshCarrierTracking(id: number): Promise<ShipmentDetail> {
+    return firstValueFrom(this.http.post<ShipmentDetail>(`${this.base}/shipments/${id}/carrier-refresh`, {}, await this.options()));
+  }
+
   async inspectLot(lotCode: string, request: QualityInspectionRequest): Promise<unknown> {
     return firstValueFrom(this.http.post(`${this.base}/lots/${encodeURIComponent(lotCode)}/inspection`, request, await this.options()));
   }
