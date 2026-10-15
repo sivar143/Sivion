@@ -31,7 +31,7 @@ export class SupplyChainComponent implements OnInit {
   consumptionDraft = { materialLotId: 0, productionLotId: 0, manufacturingOrderId: 0, quantityConsumed: 0, unit: 'EA', remarks: '' };
   manufacturingOrderDraft = { orderNumber: '', productId: 0, plannedQuantity: 0 };
   lotShipmentDraft = { lotCode: '', shipmentId: 0, quantity: 0 };
-  lotShipmentAllocations: unknown = null;
+  lotShipmentAllocations: unknown[] | null = null;
   genealogyLotCode = '';
   genealogyResult: unknown = null;
 
