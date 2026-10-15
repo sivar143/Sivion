@@ -190,6 +190,26 @@ public class RabbitTopology {
     }
 
     @Bean
+    Queue supplyChainDispatchQueue() {
+        return eventQueue("sivion.supply-chain.dispatches", "sivion.supply-chain.dispatches.dlq");
+    }
+
+    @Bean
+    Binding supplyChainDispatchBinding(Queue supplyChainDispatchQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(supplyChainDispatchQueue).to(sivionEvents).with("inventory.order.dispatched");
+    }
+
+    @Bean
+    Queue supplyChainDispatchDlq() {
+        return deadLetterQueue("sivion.supply-chain.dispatches.dlq");
+    }
+
+    @Bean
+    Binding supplyChainDispatchDlqBinding(Queue supplyChainDispatchDlq, DirectExchange sivionDeadLetterExchange) {
+        return BindingBuilder.bind(supplyChainDispatchDlq).to(sivionDeadLetterExchange).with("sivion.supply-chain.dispatches.dlq");
+    }
+
+    @Bean
     Binding notificationShipmentCreatedBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
         return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("supply-chain.shipment.created");
     }
