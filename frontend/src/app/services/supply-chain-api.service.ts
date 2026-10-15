@@ -115,6 +115,14 @@ export class SupplyChainApi {
     return firstValueFrom(this.http.get<unknown[]>(`${this.base}/production-lots/${encodeURIComponent(lotCode)}/shipments`, await this.options()));
   }
 
+  async receiveInboundShipment(shipmentId: number, request: InboundShipmentReceiptRequest): Promise<unknown> {
+    return firstValueFrom(this.http.post(`${this.base}/shipments/${shipmentId}/receipts`, request, await this.options()));
+  }
+
+  async inboundShipmentReceipts(shipmentId: number): Promise<unknown[]> {
+    return firstValueFrom(this.http.get<unknown[]>(`${this.base}/shipments/${shipmentId}/receipts`, await this.options()));
+  }
+
   async allocateProductionLot(lotCode: string, request: ProductionLotShipmentRequest): Promise<unknown> {
     return firstValueFrom(this.http.post(`${this.base}/production-lots/${encodeURIComponent(lotCode)}/shipments`, request, await this.options()));
   }
@@ -200,4 +208,17 @@ export interface ManufacturingOrderRequest {
 export interface ProductionLotShipmentRequest {
   shipmentId: number;
   quantity: number;
+}
+
+export interface InboundShipmentReceiptRequest {
+  receiptReference: string;
+  lotCode: string;
+  productId: number;
+  warehouseId: number;
+  quantity: number;
+  supplierName?: string;
+  supplierLotCode?: string;
+  manufacturedAt?: string;
+  expiresAt?: string;
+  finalReceipt: boolean;
 }
