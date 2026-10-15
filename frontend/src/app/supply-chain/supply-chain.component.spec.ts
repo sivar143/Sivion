@@ -37,6 +37,26 @@ describe('SupplyChainComponent', () => {
     expect(api.shipments).toHaveBeenCalled();
   });
 
+  it('opens the new shipment form and switches back to the shipment workflow', () => {
+    const component = fixture.componentInstance;
+    component.selectSection('traceability');
+    component.openCreateShipment();
+    fixture.detectChanges();
+
+    expect(component.activeSection).toBe('shipments');
+    expect(component.showCreate).toBe(true);
+    expect(fixture.nativeElement.querySelector('form.create-form h3')?.textContent).toContain('Create shipment');
+  });
+
+  it('keeps workflow forms separated instead of rendering every form together', () => {
+    const component = fixture.componentInstance;
+    component.selectSection('production');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.workflow-panel h3')?.textContent).toContain('Manufacturing order');
+    expect(fixture.nativeElement.querySelectorAll('.workflow-panel').length).toBe(1);
+  });
+
 
 
   it('records a partial inbound receipt against the selected purchase-order shipment', async () => {
