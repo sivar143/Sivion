@@ -170,6 +170,11 @@ public class TraceabilityService {
         if(already.add(r.quantityConsumed()).compareTo(material.getAcceptedQuantity())>0)
             throw conflict("Consumption exceeds the accepted quantity remaining in this lot.");
         if(r.unit()==null||r.unit().isBlank()) throw bad("Consumption unit is required.");
+        if (material.getWarehouseId() == null)
+            throw conflict("The accepted material lot has no warehouse assigned for inventory reconciliation.");
+        // Genealogy and stock ledger must commit together; adjustment refuses negative available stock.
+        inventory.adjust(material.getMaterialId(), material.getWarehouseId(),
+            r.quantityConsumed().negate(), "LOT_CONSUMPTION");
         LotConsumption edge=consumptions.save(new LotConsumption(material,output,r.manufacturingOrderId(),
             r.quantityConsumed(),r.unit().trim(),trim(r.remarks())));
         domainEvents.publish("supply-chain.material.consumed", Map.of("consumptionId", edge.getId(), "materialLotCode", material.getLotCode(), "productionLotCode", output.getLotCode(), "manufacturingOrderId", edge.getManufacturingOrderId(), "quantity", edge.getQuantityConsumed(), "tenantId", TENANT));
