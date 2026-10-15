@@ -67,7 +67,7 @@ public class ShipmentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Direction must be INBOUND, OUTBOUND, or TRANSFER.");
         }
-        referenceValidator.validateShipment(direction, request.purchaseOrderId(), request.goodsReceiptReference(), request.salesOrderId(), request.dispatchId());
+        SupplyChainReferenceValidator.ResolvedReferences references = referenceValidator.validateShipment(direction, request.purchaseOrderId(), request.goodsReceiptReference(), request.salesOrderId(), request.dispatchId());
         if (shipments.existsByShipmentNumberAndTenantId(request.shipmentNumber().trim(), TENANT_ID)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "A shipment with this number already exists.");
@@ -78,10 +78,10 @@ public class ShipmentService {
         shipment.setDirection(direction);
         shipment.setStatus("CREATED");
         shipment.setReferenceNumber(trimToNull(request.referenceNumber()));
-        shipment.setPurchaseOrderId(request.purchaseOrderId());
-        shipment.setGoodsReceiptReference(trimToNull(request.goodsReceiptReference()));
-        shipment.setSalesOrderId(request.salesOrderId());
-        shipment.setDispatchId(request.dispatchId());
+        shipment.setPurchaseOrderId(references.purchaseOrderId());
+        shipment.setGoodsReceiptReference(trimToNull(references.goodsReceiptReference()));
+        shipment.setSalesOrderId(references.salesOrderId());
+        shipment.setDispatchId(references.dispatchId());
         shipment.setSupplierName(trimToNull(request.supplierName()));
         shipment.setCustomerName(trimToNull(request.customerName()));
         shipment.setCarrierName(trimToNull(request.carrierName()));
