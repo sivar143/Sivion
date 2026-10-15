@@ -124,6 +124,7 @@
 
     <section class="shipment-detail" *ngIf="selected as detail">
       <h3>{{ detail.shipment.shipmentNumber }}</h3>
+      <button type="button" class="secondary" *ngIf="detail.shipment.carrierName?.toLowerCase()?.includes('shiprocket')" (click)="refreshCarrierTracking()" [disabled]="saving">Refresh from Shiprocket API</button>
       <div class="summary-grid">
         <div><span>Current status</span><strong>{{ detail.shipment.status.replaceAll('_', ' ') }}</strong></div>
         <div><span>Carrier</span><strong>{{ detail.shipment.carrierName || 'Not assigned' }}</strong></div>
