@@ -4,6 +4,7 @@ import java.util.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 public interface ProductionLotRepository extends JpaRepository<ProductionLot, Long> {
  List<ProductionLot> findAllByTenantIdOrderByProducedAtDesc(Long tenantId);
+ List<ProductionLot> findAllByManufacturingOrderIdAndTenantId(Long manufacturingOrderId, Long tenantId);
  Optional<ProductionLot> findByIdAndTenantId(Long id, Long tenantId);
  Optional<ProductionLot> findByLotCodeAndTenantId(String lotCode, Long tenantId);
  boolean existsByLotCodeAndTenantId(String lotCode, Long tenantId);
