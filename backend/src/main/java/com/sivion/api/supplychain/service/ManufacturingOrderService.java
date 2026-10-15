@@ -1,6 +1,7 @@
 package com.sivion.api.supplychain.service;
 
 import com.sivion.api.supplychain.domain.ManufacturingOrder;
+import com.sivion.api.inventory.repo.MaterialRepository;
 import com.sivion.api.supplychain.repo.ManufacturingOrderRepository;
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,7 +17,8 @@ public class ManufacturingOrderService {
     private static final long TENANT_ID = 1L;
     private static final Set<String> STATUSES = Set.of("PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED");
     private final ManufacturingOrderRepository repository;
-    public ManufacturingOrderService(ManufacturingOrderRepository repository){this.repository=repository;}
+    private final MaterialRepository materials;
+    public ManufacturingOrderService(ManufacturingOrderRepository repository, MaterialRepository materials){this.repository=repository;this.materials=materials;}
 
     @Transactional
     public OrderView create(OrderRequest request) {
@@ -25,6 +27,9 @@ public class ManufacturingOrderService {
         if(request.productId()==null || request.productId()<=0 || request.plannedQuantity()==null
                 || request.plannedQuantity().signum()<=0)
             throw bad("A valid finished product and positive planned quantity are required.");
+        materials.findByIdAndTenantId(request.productId(), TENANT_ID)
+            .filter(product -> "ACTIVE".equalsIgnoreCase(product.getStatus()))
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Active finished product was not found."));
         String number=request.orderNumber().trim();
         if(repository.existsByTenantIdAndOrderNumber(TENANT_ID,number))
             throw new ResponseStatusException(HttpStatus.CONFLICT,"Manufacturing order number already exists.");
