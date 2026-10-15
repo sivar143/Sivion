@@ -19,7 +19,7 @@ All endpoints below are under `/api/v1/supply-chain`. Administrative endpoints r
 
 ## Carrier webhook configuration
 
-The callback is `POST /api/v1/supply-chain/carrier-webhooks/{shipmentId}` and requires `X-Carrier-Provider`.
+The Shiprocket callback URL is `POST /api/v1/supply-chain/carrier-webhooks/shiprocket/{shipmentId}` (so Shiprocket does not need to send a custom provider header). Other configured carriers use `POST /api/v1/supply-chain/carrier-webhooks/{shipmentId}` with `X-Carrier-Provider`.
 
 - **Shiprocket webhook:** uses the documented `X-API-Key` callback token. Payload fields such as `awb`, `current_status`, `current_status_id`, and `current_timestamp` are normalized into Sivion shipment milestones.
 - **Other providers:** use `X-Carrier-Signature: sha256=<lowercase-hex-HMAC>`, computed as HMAC-SHA256 over the exact raw request body with that provider's configured secret. The JSON body must contain `externalEventId` and `status`; optional fields are `eventTime`, `location`, and `remarks`.
