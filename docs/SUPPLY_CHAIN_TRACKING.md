@@ -17,17 +17,20 @@ All endpoints below are under `/api/v1/supply-chain`. Administrative endpoints r
 
 ## Carrier webhook configuration
 
-The callback is `POST /carrier-webhooks/{shipmentId}` and requires:
-- `X-Carrier-Provider`: a provider slug, e.g. `shiprocket` or `delhivery`
-- `X-Carrier-Signature`: `sha256=<lowercase-hex-HMAC>`
+The callback is `POST /api/v1/supply-chain/carrier-webhooks/{shipmentId}` and requires `X-Carrier-Provider`.
 
-Compute HMAC-SHA256 over the exact raw request body using the provider's configured secret. The JSON body must contain `externalEventId` and `status`; optional fields are `eventTime`, `location`, and `remarks`. Provider + external event ID form the idempotency key. Webhook updates are tagged with their carrier in shipment event history.
+- **Shiprocket webhook:** uses the documented `X-API-Key` callback token. Payload fields such as `awb`, `current_status`, `current_status_id`, and `current_timestamp` are normalized into Sivion shipment milestones.
+- **Other providers:** use `X-Carrier-Signature: sha256=<lowercase-hex-HMAC>`, computed as HMAC-SHA256 over the exact raw request body with that provider's configured secret. The JSON body must contain `externalEventId` and `status`; optional fields are `eventTime`, `location`, and `remarks`.
 
-Configure secrets outside source control:
+Provider + external event ID form the idempotency key. Webhook updates are tagged with their carrier in shipment event history. Shiprocket can also be refreshed on demand using `POST /api/v1/supply-chain/shipments/{id}/carrier-refresh`; the backend obtains and caches a bearer token and calls the Shiprocket AWB tracking API.
+
+Configure credentials outside source control:
 - `SIVION_SUPPLY_CHAIN_CARRIERS_SHIPROCKET_WEBHOOK_SECRET`
+- `SIVION_SHIPROCKET_API_EMAIL`
+- `SIVION_SHIPROCKET_API_PASSWORD`
 - `SIVION_SUPPLY_CHAIN_CARRIERS_DELHIVERY_WEBHOOK_SECRET`
 
-These secrets authenticate signed callbacks; they do not replace a carrier's API credentials or implement provider-specific label creation/rate quoting/polling. Those outbound API calls require the actual carrier account, API contract and credentials to be selected/configured.
+Shiprocket live refresh requires an API user configured in Shiprocket and a valid AWB. API credentials are only read by the backend. Other carriers still need their own documented adapter/API credentials before live polling or label creation can be enabled.
 
 ## Notification delivery and failures
 
