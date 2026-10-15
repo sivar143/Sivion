@@ -131,14 +131,17 @@ public class ShipmentService {
                 "Status is not valid for a " + shipment.getDirection().toLowerCase() + " shipment.");
         }
 
-        // Status transitions are deliberately explicit to prevent arbitrary status rewrites.
-        if (!isTransitionAllowed(shipment.getDirection(), shipment.getStatus(), next)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "Cannot change shipment status from " + shipment.getStatus() + " to " + next + ".");
-        }
+        // Check idempotency before transition validation so stale provider retries remain harmless.
         if (request.idempotencyKey() != null && !request.idempotencyKey().isBlank()
                 && events.findByTenantIdAndIdempotencyKey(TENANT_ID, request.idempotencyKey().trim()).isPresent()) {
             return detail(id);
+        }
+        // Status transitions are explicit; carrier adapters may safely skip milestones that the carrier did not emit.
+        if (!isTransitionAllowed(shipment.getDirection(), shipment.getStatus(), next)
+                && !(isCarrierSource(request.sourceType())
+                    && isCarrierTransitionAllowed(shipment.getDirection(), shipment.getStatus(), next))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "Cannot change shipment status from " + shipment.getStatus() + " to " + next + ".");
         }
 
         String previous = shipment.getStatus();
@@ -175,6 +178,37 @@ public class ShipmentService {
     private Shipment findShipment(long id) {
         return shipments.findByIdAndTenantId(id, TENANT_ID)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Shipment was not found."));
+    }
+
+    private boolean isCarrierSource(String sourceType) {
+        return sourceType != null && sourceType.startsWith("CARRIER:");
+    }
+
+    private boolean isCarrierTransitionAllowed(String direction, String current, String next) {
+        if (Set.of("CANCELLED", "DELIVERED", "ACCEPTED", "REJECTED", "RETURNED").contains(current)) return false;
+        if ("OUTBOUND".equals(direction)) {
+            return switch (current) {
+                case "CREATED", "PACKED", "READY_FOR_DISPATCH", "DISPATCHED", "IN_TRANSIT" ->
+                    Set.of("IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED", "PARTIALLY_DELIVERED",
+                        "DELIVERY_FAILED", "RETURN_IN_TRANSIT").contains(next);
+                case "OUT_FOR_DELIVERY" -> Set.of("DELIVERED", "PARTIALLY_DELIVERED", "DELIVERY_FAILED",
+                    "RETURN_IN_TRANSIT").contains(next);
+                case "PARTIALLY_DELIVERED" -> Set.of("DELIVERED", "DELIVERY_FAILED", "RETURN_IN_TRANSIT").contains(next);
+                case "DELIVERY_FAILED" -> Set.of("IN_TRANSIT", "OUT_FOR_DELIVERY", "RETURN_IN_TRANSIT").contains(next);
+                case "RETURN_IN_TRANSIT" -> "RETURNED".equals(next);
+                default -> false;
+            };
+        }
+        if ("INBOUND".equals(direction)) {
+            return switch (current) {
+                case "CREATED", "READY_FOR_DISPATCH", "DISPATCHED", "IN_TRANSIT" ->
+                    Set.of("IN_TRANSIT", "ARRIVED", "RECEIVED").contains(next);
+                case "ARRIVED", "PARTIALLY_RECEIVED" -> Set.of("PARTIALLY_RECEIVED", "RECEIVED").contains(next);
+                default -> false;
+            };
+        }
+        return "TRANSFER".equals(direction) && Set.of("DISPATCHED", "IN_TRANSIT").contains(current)
+            && Set.of("IN_TRANSIT", "ARRIVED", "RECEIVED").contains(next);
     }
 
     private boolean isTransitionAllowed(String direction, String current, String next) {
