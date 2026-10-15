@@ -53,7 +53,6 @@ public class ShipmentController {
     }
 
     @GetMapping("/track/{token}")
-    @PreAuthorize("permitAll()")
     public PublicTracking publicTracking(@PathVariable @NotBlank @Size(min = 48, max = 48) String token) {
         return service.publicTracking(token);
     }
