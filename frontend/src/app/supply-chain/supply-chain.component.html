@@ -138,6 +138,24 @@
     <section class="shipment-detail" *ngIf="selected as detail">
       <h3>{{ detail.shipment.shipmentNumber }}</h3>
       <button type="button" class="secondary" *ngIf="detail.shipment.carrierName?.toLowerCase()?.includes('shiprocket')" (click)="refreshCarrierTracking()" [disabled]="saving">Refresh from Shiprocket API</button>
+      <form class="status-form" *ngIf="detail.shipment.direction === 'INBOUND' && detail.shipment.purchaseOrderId" (ngSubmit)="receiveInboundShipment()">
+        <h4>Receive goods against purchase order</h4>
+        <p class="muted">Each receipt creates a goods-receipt record and raw-material lot. Accepted inventory is posted only after quality inspection. Use “Final receipt” only when this shipment has no more expected receipts.</p>
+        <div class="form-grid">
+          <label>Receipt reference<input name="inboundReceiptReference" required maxlength="80" [(ngModel)]="inboundReceiptDraft.receiptReference"></label>
+          <label>Raw-material lot code<input name="inboundLotCode" required maxlength="80" [(ngModel)]="inboundReceiptDraft.lotCode"></label>
+          <label>Product / material ID<input type="number" name="inboundProductId" min="1" required [(ngModel)]="inboundReceiptDraft.productId"></label>
+          <label>Receiving warehouse ID<input type="number" name="inboundWarehouseId" min="1" required [(ngModel)]="inboundReceiptDraft.warehouseId"></label>
+          <label>Received quantity<input type="number" name="inboundQuantity" min="0.0001" step="0.0001" required [(ngModel)]="inboundReceiptDraft.quantity"></label>
+          <label>Supplier name<input name="inboundSupplierName" maxlength="180" [(ngModel)]="inboundReceiptDraft.supplierName"></label>
+          <label>Supplier lot code<input name="inboundSupplierLotCode" maxlength="100" [(ngModel)]="inboundReceiptDraft.supplierLotCode"></label>
+          <label class="checkbox-label"><input type="checkbox" name="finalInboundReceipt" [(ngModel)]="inboundReceiptDraft.finalReceipt"> Final receipt for this shipment</label>
+        </div>
+        <button type="submit" [disabled]="saving || !inboundReceiptDraft.receiptReference.trim() || !inboundReceiptDraft.lotCode.trim() || inboundReceiptDraft.productId <= 0 || inboundReceiptDraft.warehouseId <= 0 || inboundReceiptDraft.quantity <= 0">Record goods receipt</button>
+        <button type="button" class="secondary" (click)="loadInboundReceiptHistory()" [disabled]="saving">Refresh receipt history</button>
+        <pre class="genealogy-result" *ngIf="inboundReceiptHistory.length">{{ inboundReceiptHistory | json }}</pre>
+      </form>
+
       <div class="summary-grid">
         <div><span>Current status</span><strong>{{ detail.shipment.status.replaceAll('_', ' ') }}</strong></div>
         <div><span>Carrier</span><strong>{{ detail.shipment.carrierName || 'Not assigned' }}</strong></div>
