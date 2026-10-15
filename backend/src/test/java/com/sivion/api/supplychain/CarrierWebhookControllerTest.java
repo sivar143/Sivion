@@ -54,7 +54,7 @@ class CarrierWebhookControllerTest {
         byte[] body = "{\"awb\":\"AWB123\",\"current_status\":\"IN TRANSIT\",\"current_status_id\":20,\"current_timestamp\":\"15 10 2026 12:00:00\",\"location\":\"Hyderabad\"}"
             .getBytes(StandardCharsets.UTF_8);
 
-        controller.accept(9L, "shiprocket", null, "shiprocket-secret", body);
+        controller.acceptShiprocket(9L, "shiprocket-secret", body);
 
         org.mockito.Mockito.verify(shipments).updateStatus(org.mockito.ArgumentMatchers.eq(9L),
             org.mockito.ArgumentMatchers.argThat((StatusUpdate update) ->
