@@ -111,6 +111,10 @@ export class SupplyChainApi {
     return firstValueFrom(this.http.post(`${this.base}/lot-consumptions`, request, await this.options()));
   }
 
+  async allocateProductionLot(lotCode: string, request: ProductionLotShipmentRequest): Promise<unknown> {
+    return firstValueFrom(this.http.post(`${this.base}/production-lots/${encodeURIComponent(lotCode)}/shipments`, request, await this.options()));
+  }
+
   async genealogy(lotCode: string): Promise<unknown> {
     return firstValueFrom(this.http.get(`${this.base}/lots/${encodeURIComponent(lotCode)}/genealogy`, await this.options()));
   }
@@ -187,4 +191,9 @@ export interface ManufacturingOrderRequest {
   orderNumber: string;
   productId: number;
   plannedQuantity: number;
+}
+
+export interface ProductionLotShipmentRequest {
+  shipmentId: number;
+  quantity: number;
 }
