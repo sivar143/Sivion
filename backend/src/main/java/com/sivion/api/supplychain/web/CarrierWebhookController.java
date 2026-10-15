@@ -7,6 +7,10 @@ import com.sivion.api.supplychain.service.ShipmentService.StatusUpdate;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.HexFormat;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -49,22 +53,47 @@ public class CarrierWebhookController {
     public ShipmentDetail accept(@PathVariable long shipmentId,
             @RequestHeader(name = "X-Carrier-Provider", required = false) String provider,
             @RequestHeader(name = "X-Carrier-Signature", required = false) String signature,
+            @RequestHeader(name = "X-API-Key", required = false) String apiKey,
             @RequestBody byte[] rawBody) {
         if (provider == null || !provider.matches("[a-zA-Z0-9_-]{2,40}")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A valid X-Carrier-Provider header is required.");
         }
+        String normalizedProvider = provider.toLowerCase(java.util.Locale.ROOT);
         String secret = environment == null ? legacySecret
-                : environment.getProperty("sivion.supply-chain.carriers." + provider.toLowerCase(java.util.Locale.ROOT) + ".webhook-secret", "");
+                : environment.getProperty("sivion.supply-chain.carriers." + normalizedProvider + ".webhook-secret", "");
         if (secret.isBlank()) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "This carrier webhook is disabled until its provider-specific secret is configured.");
         }
-        if (signature == null || !validSignature(secret, rawBody, signature)) {
+        // Shiprocket documents an x-api-key callback token; other configured adapters use HMAC-SHA256.
+        if ("shiprocket".equals(normalizedProvider)) {
+            if (apiKey == null || !MessageDigest.isEqual(secret.getBytes(StandardCharsets.UTF_8),
+                    apiKey.getBytes(StandardCharsets.UTF_8))) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Shiprocket webhook API key.");
+            }
+        } else if (signature == null || !validSignature(secret, rawBody, signature)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid carrier webhook signature.");
         }
+
         final CarrierEvent event;
         try {
-            event = mapper.readValue(rawBody, CarrierEvent.class);
+            if ("shiprocket".equals(normalizedProvider)) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> payload = mapper.readValue(rawBody, Map.class);
+                String awb = text(payload, "awb", "awb_code", "shipment_id");
+                String status = text(payload, "current_status", "shipment_status", "status");
+                String statusId = text(payload, "current_status_id", "shipment_status_id");
+                String timestamp = text(payload, "current_timestamp", "event_time", "timestamp");
+                String location = text(payload, "location", "current_location", "destination");
+                String remarks = text(payload, "remarks", "activity", "message");
+                String eventId = text(payload, "event_id", "id");
+                if (eventId == null) eventId = String.join(":", safe(awb), safe(statusId), safe(timestamp), safe(status));
+                event = new CarrierEvent(eventId, normalizeCarrierStatus(status), parseCarrierTime(timestamp), location, remarks);
+            } else {
+                event = mapper.readValue(rawBody, CarrierEvent.class);
+            }
+        } catch (ResponseStatusException exception) {
+            throw exception;
         } catch (Exception exception) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Carrier webhook body is not valid JSON.");
         }
@@ -75,7 +104,45 @@ public class CarrierWebhookController {
         }
         return shipments.updateStatus(shipmentId, new StatusUpdate(event.status(),
                 event.eventTime() == null ? Instant.now() : event.eventTime(), event.location(),
-                event.remarks(), "carrier:" + provider.toLowerCase(java.util.Locale.ROOT) + ":" + event.externalEventId().trim(), "CARRIER:" + provider.toUpperCase(java.util.Locale.ROOT)));
+                event.remarks(), "carrier:" + normalizedProvider + ":" + event.externalEventId().trim(),
+                "CARRIER:" + normalizedProvider.toUpperCase(java.util.Locale.ROOT)));
+    }
+
+    private String text(Map<String, Object> payload, String... keys) {
+        for (String key : keys) {
+            Object value = payload.get(key);
+            if (value != null && !value.toString().isBlank()) return value.toString().trim();
+        }
+        return null;
+    }
+
+    private String safe(String value) { return value == null ? "" : value; }
+
+    private String normalizeCarrierStatus(String status) {
+        if (status == null) return null;
+        String normalized = status.trim().toUpperCase(java.util.Locale.ROOT).replaceAll("[^A-Z0-9]+", "_");
+        while (normalized.startsWith("_")) normalized = normalized.substring(1);
+        while (normalized.endsWith("_")) normalized = normalized.substring(0, normalized.length() - 1);
+        return switch (normalized) {
+            case "PICKUP_SCHEDULED", "PICKUP_PENDING", "PICKUP_QUEUED" -> "DISPATCHED";
+            case "PICKED_UP", "IN_TRANSIT", "SHIPPED", "REACHED_DESTINATION_HUB" -> "IN_TRANSIT";
+            case "OUT_FOR_DELIVERY", "OUT_FOR_DELIVERY_ATTEMPT" -> "OUT_FOR_DELIVERY";
+            case "DELIVERED", "DELIVERY_COMPLETED" -> "DELIVERED";
+            case "UNDELIVERED", "DELIVERY_FAILED", "NDR" -> "DELIVERY_FAILED";
+            case "RTO_INITIATED", "RETURN_TO_ORIGIN", "RETURN_IN_TRANSIT" -> "RETURN_IN_TRANSIT";
+            case "RTO_DELIVERED", "RETURNED" -> "RETURNED";
+            case "CANCELLED", "CANCELED" -> "CANCELLED";
+            default -> normalized;
+        };
+    }
+
+    private Instant parseCarrierTime(String timestamp) {
+        if (timestamp == null || timestamp.isBlank()) return null;
+        try { return Instant.parse(timestamp); } catch (Exception ignored) { }
+        try {
+            return LocalDateTime.parse(timestamp, DateTimeFormatter.ofPattern("dd MM yyyy HH:mm:ss"))
+                .atZone(ZoneId.of("Asia/Kolkata")).toInstant();
+        } catch (Exception ignored) { return null; }
     }
 
     private boolean validSignature(String secret, byte[] rawBody, String supplied) {
