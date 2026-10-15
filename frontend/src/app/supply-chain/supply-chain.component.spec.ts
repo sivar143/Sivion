@@ -18,6 +18,7 @@ describe('SupplyChainComponent', () => {
       providers: [{ provide: SupplyChainApi, useValue: api }]
     }).compileComponents();
     fixture = TestBed.createComponent(SupplyChainComponent);
+    fixture.detectChanges();
     await fixture.whenStable();
   });
 
