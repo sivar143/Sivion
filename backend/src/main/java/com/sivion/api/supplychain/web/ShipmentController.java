@@ -1,6 +1,7 @@
 package com.sivion.api.supplychain.web;
 
 import com.sivion.api.supplychain.service.ShipmentService;
+import com.sivion.api.supplychain.service.ShiprocketTrackingService;
 import com.sivion.api.supplychain.service.ShipmentService.CreateShipment;
 import com.sivion.api.supplychain.service.ShipmentService.PublicTracking;
 import com.sivion.api.supplychain.service.ShipmentService.ShipmentDetail;
@@ -19,9 +20,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/supply-chain")
 public class ShipmentController {
     private final ShipmentService service;
+    private final ShiprocketTrackingService shiprocketTracking;
 
-    public ShipmentController(ShipmentService service) {
+    public ShipmentController(ShipmentService service, ShiprocketTrackingService shiprocketTracking) {
         this.service = service;
+        this.shiprocketTracking = shiprocketTracking;
     }
 
     @GetMapping("/shipments")
@@ -50,6 +53,12 @@ public class ShipmentController {
     public ShipmentDetail updateStatus(@PathVariable long id, @Valid @RequestBody StatusUpdateRequest request) {
         return service.updateStatus(id, new StatusUpdate(request.status(), request.eventTime(),
             request.location(), request.remarks(), request.idempotencyKey()));
+    }
+
+    @PostMapping("/shipments/{id}/carrier-refresh")
+    @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','INVENTORY_MANAGER','SALES_MANAGER','SALES_USER')")
+    public ShipmentDetail refreshCarrierTracking(@PathVariable long id) {
+        return shiprocketTracking.refresh(id);
     }
 
     @GetMapping("/track/{token}")
