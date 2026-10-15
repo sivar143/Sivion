@@ -48,6 +48,7 @@ class InboundShipmentReceivingServiceTest {
             orderItems,traceability,shipmentService,mock(DomainEventPublisher.class));
 
         shipment=new Shipment();
+        shipment.setShipmentNumber("IN-7");
         shipment.setDirection("INBOUND");
         shipment.setStatus("IN_TRANSIT");
         shipment.setPurchaseOrderId(22L);
