@@ -6,6 +6,7 @@ All endpoints below are under `/api/v1/supply-chain`. Administrative endpoints r
 
 - Shipment creation validates supplied purchase order, goods receipt, sales order and dispatch IDs against tenant-scoped repositories. A goods receipt can be supplied by receipt number or numeric ID. A goods receipt resolves its purchase order automatically; a dispatch resolves its sales order automatically.
 - Raw-material lot receipt validates the purchase order line, product/material, supplier and warehouse against the linked goods receipt / purchase order. An inbound shipment can supply the purchase-order and goods-receipt links.
+- `POST /shipments/{shipmentId}/receipts` receives a partial or final shipment quantity against the linked purchase order. It creates an existing procurement `GoodsReceipt`, a raw-material lot in `PENDING_INSPECTION` state, and an immutable shipment-to-receipt allocation. Accepted quantity remains zero until inspection, so uninspected stock is not made available. The same `receiptReference` and payload are idempotent; a conflicting retry returns `409`. `GET /shipments/{shipmentId}/receipts` returns the receipt history.
 - Inventory dispatch events automatically create an outbound shipment. Duplicate dispatch events return the existing shipment instead of creating a duplicate.
 - The current repository did not contain a manufacturing-order domain, so a small manufacturing-order record/API was added for traceability: `GET/POST /manufacturing-orders` and `PATCH /manufacturing-orders/{id}/status`. Production lots must match the order's product, an open order status, and the planned quantity.
 
@@ -21,7 +22,7 @@ All endpoints below are under `/api/v1/supply-chain`. Administrative endpoints r
 
 The Shiprocket callback URL is `POST /api/v1/supply-chain/carrier-webhooks/shiprocket/{shipmentId}` (so Shiprocket does not need to send a custom provider header). Other configured carriers use `POST /api/v1/supply-chain/carrier-webhooks/{shipmentId}` with `X-Carrier-Provider`.
 
-- **Shiprocket webhook:** uses the documented `X-API-Key` callback token. Payload fields such as `awb`, `current_status`, `current_status_id`, and `current_timestamp` are normalized into Sivion shipment milestones.
+- **Shiprocket webhook:** uses the configured `X-API-Key` callback token. Payload fields such as `awb`, `current_status`, `current_status_id`, and `current_timestamp` are normalized into Sivion shipment milestones.
 - **Other providers:** use `X-Carrier-Signature: sha256=<lowercase-hex-HMAC>`, computed as HMAC-SHA256 over the exact raw request body with that provider's configured secret. The JSON body must contain `externalEventId` and `status`; optional fields are `eventTime`, `location`, and `remarks`.
 
 Provider + external event ID form the idempotency key. Webhook updates are tagged with their carrier in shipment event history. Shiprocket can also be refreshed on demand using `POST /api/v1/supply-chain/shipments/{id}/carrier-refresh`; the backend obtains and caches a bearer token and calls the Shiprocket AWB tracking API.
