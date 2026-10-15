@@ -53,8 +53,9 @@ class InboundShipmentReceivingServiceTest {
         when(shipments.findByIdAndTenantId(7L,1L)).thenReturn(Optional.of(shipment));
         when(receiptLinks.findByTenantIdAndShipmentIdAndReceiptReference(1L,7L,"REC-1"))
             .thenReturn(Optional.empty());
-        PurchaseOrder order=new PurchaseOrder();
-        order.setSupplierId(8L);
+        PurchaseOrder order=mock(PurchaseOrder.class);
+        when(order.getId()).thenReturn(22L);
+        when(order.getSupplierId()).thenReturn(8L);
         when(purchaseOrders.findForUpdate(22L,1L)).thenReturn(Optional.of(order));
         PurchaseOrderItem item=new PurchaseOrderItem();
         item.setProductId(31L); item.setWarehouseId(4L); item.setQuantity(new BigDecimal("10"));
