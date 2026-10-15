@@ -40,7 +40,7 @@ public class ShipmentController {
     @PreAuthorize("hasAnyRole('ADMIN','PROCUREMENT_MANAGER','WAREHOUSE_MANAGER','INVENTORY_MANAGER','MANUFACTURING_MANAGER','SALES_MANAGER')")
     public ShipmentDetail create(@Valid @RequestBody CreateShipmentRequest request) {
         return service.create(new CreateShipment(request.shipmentNumber(), request.direction(),
-            request.referenceNumber(), request.supplierName(), request.customerName(), request.carrierName(),
+            request.referenceNumber(), request.purchaseOrderId(), request.goodsReceiptReference(), request.salesOrderId(), request.dispatchId(), request.supplierName(), request.customerName(), request.carrierName(),
             request.carrierTrackingNumber(), request.originLocation(), request.destinationLocation(),
             request.dispatchedAt(), request.estimatedArrivalAt(), request.notes()));
     }
@@ -62,6 +62,10 @@ public class ShipmentController {
         @NotBlank @Size(max = 60) String shipmentNumber,
         @NotBlank String direction,
         @Size(max = 100) String referenceNumber,
+        Long purchaseOrderId,
+        @Size(max = 100) String goodsReceiptReference,
+        Long salesOrderId,
+        Long dispatchId,
         @Size(max = 180) String supplierName,
         @Size(max = 180) String customerName,
         @Size(max = 120) String carrierName,
