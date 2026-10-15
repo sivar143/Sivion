@@ -94,9 +94,9 @@ public class ShipmentService {
         shipment.setPublicTrackingToken(newTrackingToken());
 
         Shipment saved = shipments.save(shipment);
-        appendEvent(saved, null, "CREATED", "SHIPMENT_CREATED", Instant.now(),
+        ShipmentEvent createdEvent = appendEvent(saved, null, "CREATED", "SHIPMENT_CREATED", Instant.now(),
             null, "Shipment created", "MANUAL", null);
-        domainEvents.publish("supply-chain.shipment.created", Map.of("shipmentId", saved.getId(), "shipmentNumber", saved.getShipmentNumber(), "direction", saved.getDirection(), "status", saved.getStatus(), "tenantId", TENANT_ID));
+        domainEvents.publish("supply-chain.shipment.created", Map.of("eventId", createdEvent.getId(), "shipmentId", saved.getId(), "shipmentNumber", saved.getShipmentNumber(), "direction", saved.getDirection(), "status", saved.getStatus(), "tenantId", TENANT_ID));
         return detail(saved.getId());
     }
 
@@ -153,11 +153,11 @@ public class ShipmentService {
             shipment.setDeliveredAt(request.eventTime() == null ? Instant.now() : request.eventTime());
         }
         shipments.save(shipment);
-        appendEvent(shipment, previous, next, "STATUS_UPDATE",
+        ShipmentEvent auditEvent = appendEvent(shipment, previous, next, "STATUS_UPDATE",
             request.eventTime() == null ? Instant.now() : request.eventTime(),
             trimToNull(request.location()), trimToNull(request.remarks()),
             request.sourceType() == null || request.sourceType().isBlank() ? "MANUAL" : request.sourceType().trim().toUpperCase(java.util.Locale.ROOT), trimToNull(request.idempotencyKey()));
-        domainEvents.publish("supply-chain.shipment.status", Map.of("shipmentId", shipment.getId(), "shipmentNumber", shipment.getShipmentNumber(), "direction", shipment.getDirection(), "previousStatus", previous, "status", next, "tenantId", TENANT_ID));
+        domainEvents.publish("supply-chain.shipment.status", Map.of("eventId", auditEvent.getId(), "shipmentId", shipment.getId(), "shipmentNumber", shipment.getShipmentNumber(), "direction", shipment.getDirection(), "previousStatus", previous, "status", next, "tenantId", TENANT_ID));
         return detail(id);
     }
 
@@ -255,9 +255,9 @@ public class ShipmentService {
         };
     }
 
-    private void appendEvent(Shipment shipment, String previous, String next, String type,
+    private ShipmentEvent appendEvent(Shipment shipment, String previous, String next, String type,
             Instant time, String location, String remarks, String source, String idempotencyKey) {
-        events.save(new ShipmentEvent(shipment, previous, next, type, time, location, remarks,
+        return events.save(new ShipmentEvent(shipment, previous, next, type, time, location, remarks,
             source, actorName(), idempotencyKey));
     }
 
