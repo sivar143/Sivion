@@ -131,7 +131,7 @@ public class ShipmentService {
         // Deliberately exclude supplier/customer private fields, internal notes, and database identifiers.
         List<PublicMilestone> milestones = events.findAllByShipmentOrderByEventTimeAscIdAsc(shipment)
             .stream().map(event -> new PublicMilestone(event.getNewStatus(), event.getEventTime(),
-                event.getLocation(), event.getRemarks())).toList();
+                event.getLocation(), null)).toList();
         return new PublicTracking(shipment.getShipmentNumber(), shipment.getDirection(),
             shipment.getStatus(), shipment.getCarrierName(), shipment.getCarrierTrackingNumber(),
             shipment.getOriginLocation(), shipment.getDestinationLocation(),
