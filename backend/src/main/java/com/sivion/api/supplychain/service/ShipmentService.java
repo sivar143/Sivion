@@ -235,6 +235,7 @@ public class ShipmentService {
     }
 
     public record CreateShipment(String shipmentNumber, String direction, String referenceNumber,
+        Long purchaseOrderId, String goodsReceiptReference, Long salesOrderId, Long dispatchId,
         String supplierName, String customerName, String carrierName, String carrierTrackingNumber,
         String originLocation, String destinationLocation, Instant dispatchedAt,
         Instant estimatedArrivalAt, String notes) { }
