@@ -69,6 +69,8 @@ sivion:
     carriers:
       shiprocket:
         webhook-secret: ${SIVION_SUPPLY_CHAIN_CARRIERS_SHIPROCKET_WEBHOOK_SECRET:}
+        email: ${SIVION_SHIPROCKET_API_EMAIL:}
+        password: ${SIVION_SHIPROCKET_API_PASSWORD:}
       delhivery:
         webhook-secret: ${SIVION_SUPPLY_CHAIN_CARRIERS_DELHIVERY_WEBHOOK_SECRET:}
   keycloak:
