@@ -142,6 +142,19 @@ public class SupplyChainReferenceValidator {
             if (!itemMatches) throw bad("The material and warehouse do not match any line on the linked purchase order.");
         }
         if (receipt != null) {
+            if ("CANCELLED".equalsIgnoreCase(receipt.getStatus()) || "REJECTED".equalsIgnoreCase(receipt.getStatus()))
+                throw conflict("A cancelled or rejected goods receipt cannot be linked to a material lot.");
+            if (order != null) {
+                BigDecimal orderedQuantity = purchaseOrderItems.findByPurchaseOrderId(order.getId()).stream()
+                    .filter(item -> Objects.equals(item.getProductId(), materialId)
+                        && Objects.equals(item.getWarehouseId(), receipt.getWarehouseId()))
+                    .map(com.sivion.api.procurement.domain.PurchaseOrderItem::getQuantity)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal receivedAgainstOrder = goodsReceipts.receivedQuantity(TENANT_ID, order.getId(),
+                    materialId, receipt.getWarehouseId());
+                if (receivedAgainstOrder.compareTo(orderedQuantity) > 0)
+                    throw conflict("Goods receipts exceed the ordered quantity for this purchase-order line.");
+            }
             if (receivedQuantity != null) {
                 BigDecimal alreadyAssigned = materialLots.findAllByGoodsReceiptReferenceAndTenantId(receipt.getReceiptNumber(), TENANT_ID)
                     .stream().map(com.sivion.api.supplychain.domain.MaterialLot::getReceivedQuantity)
