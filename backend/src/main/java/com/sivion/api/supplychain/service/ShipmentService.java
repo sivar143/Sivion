@@ -75,6 +75,10 @@ public class ShipmentService {
         shipment.setDirection(direction);
         shipment.setStatus("CREATED");
         shipment.setReferenceNumber(trimToNull(request.referenceNumber()));
+        shipment.setPurchaseOrderId(request.purchaseOrderId());
+        shipment.setGoodsReceiptReference(trimToNull(request.goodsReceiptReference()));
+        shipment.setSalesOrderId(request.salesOrderId());
+        shipment.setDispatchId(request.dispatchId());
         shipment.setSupplierName(trimToNull(request.supplierName()));
         shipment.setCustomerName(trimToNull(request.customerName()));
         shipment.setCarrierName(trimToNull(request.carrierName()));
@@ -219,7 +223,7 @@ public class ShipmentService {
 
     private ShipmentView toView(Shipment s) {
         return new ShipmentView(s.getId(), s.getShipmentNumber(), s.getDirection(), s.getStatus(),
-            s.getReferenceNumber(), s.getSupplierName(), s.getCustomerName(), s.getCarrierName(),
+            s.getReferenceNumber(), s.getPurchaseOrderId(), s.getGoodsReceiptReference(), s.getSalesOrderId(), s.getDispatchId(), s.getSupplierName(), s.getCustomerName(), s.getCarrierName(),
             s.getCarrierTrackingNumber(), s.getOriginLocation(), s.getDestinationLocation(),
             s.getDispatchedAt(), s.getEstimatedArrivalAt(), s.getDeliveredAt(), s.getNotes(),
             "/api/v1/supply-chain/track/" + s.getPublicTrackingToken(), s.getCreatedAt());
@@ -237,7 +241,7 @@ public class ShipmentService {
     public record StatusUpdate(String status, Instant eventTime, String location, String remarks,
         String idempotencyKey) { }
     public record ShipmentView(Long id, String shipmentNumber, String direction, String status,
-        String referenceNumber, String supplierName, String customerName, String carrierName,
+        String referenceNumber, Long purchaseOrderId, String goodsReceiptReference, Long salesOrderId, Long dispatchId, String supplierName, String customerName, String carrierName,
         String carrierTrackingNumber, String originLocation, String destinationLocation,
         Instant dispatchedAt, Instant estimatedArrivalAt, Instant deliveredAt, String notes,
         String trackingPath, Instant createdAt) { }
