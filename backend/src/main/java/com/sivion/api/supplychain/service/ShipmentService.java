@@ -190,9 +190,9 @@ public class ShipmentService {
             return switch (current) {
                 case "CREATED", "PACKED", "READY_FOR_DISPATCH", "DISPATCHED", "IN_TRANSIT" ->
                     Set.of("IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED", "PARTIALLY_DELIVERED",
-                        "DELIVERY_FAILED", "RETURN_IN_TRANSIT").contains(next);
+                        "DELIVERY_FAILED", "RETURN_IN_TRANSIT", "RETURNED").contains(next);
                 case "OUT_FOR_DELIVERY" -> Set.of("DELIVERED", "PARTIALLY_DELIVERED", "DELIVERY_FAILED",
-                    "RETURN_IN_TRANSIT").contains(next);
+                    "RETURN_IN_TRANSIT", "RETURNED").contains(next);
                 case "PARTIALLY_DELIVERED" -> Set.of("DELIVERED", "DELIVERY_FAILED", "RETURN_IN_TRANSIT").contains(next);
                 case "DELIVERY_FAILED" -> Set.of("IN_TRANSIT", "OUT_FOR_DELIVERY", "RETURN_IN_TRANSIT").contains(next);
                 case "RETURN_IN_TRANSIT" -> "RETURNED".equals(next);
