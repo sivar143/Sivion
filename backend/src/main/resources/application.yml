@@ -48,6 +48,8 @@ springdoc:
 sivion:
   documents:
     storage-path: ${SIVION_DOCUMENTS_STORAGE_PATH:./data/employee-documents}
+  supply-chain:
+    webhook-secret: ${SIVION_SUPPLY_CHAIN_WEBHOOK_SECRET:}
   keycloak:
     realm: ${SIVION_KEYCLOAK_REALM:sivion}
     admin-base-url: ${SIVION_KEYCLOAK_ADMIN_BASE_URL:http://localhost:8081}
