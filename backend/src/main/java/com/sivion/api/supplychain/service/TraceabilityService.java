@@ -41,6 +41,8 @@ public class TraceabilityService {
         String code=r.lotCode().trim();
         if(materialLots.existsByLotCodeAndTenantId(code,TENANT)) throw conflict("This material lot code already exists.");
         BigDecimal accepted=nz(r.acceptedQuantity()), rejected=nz(r.rejectedQuantity());
+        if(accepted.signum()>0 && r.warehouseId()==null)
+            throw bad("A warehouse is required when accepted material is added to inventory.");
         if(accepted.signum()<0||rejected.signum()<0||accepted.add(rejected).compareTo(r.receivedQuantity())>0)
             throw bad("Accepted and rejected quantities must be non-negative and cannot exceed received quantity.");
         MaterialLot lot=new MaterialLot();
