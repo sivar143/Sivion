@@ -70,6 +70,9 @@ public class DomainNotificationListener {
             case "procurement.goods-received" ->
                 Set.of("INVENTORY_MANAGER", "INVENTORY_USER", "WAREHOUSE_MANAGER", "WAREHOUSE_USER",
                     "FINANCE_MANAGER", "FINANCE_USER");
+            case "supply-chain.inbound.receipt-recorded" ->
+                Set.of("PROCUREMENT_MANAGER", "WAREHOUSE_MANAGER", "WAREHOUSE_USER", "INVENTORY_MANAGER",
+                    "INVENTORY_USER", "QUALITY_MANAGER");
             case "supply-chain.shipment.created", "supply-chain.shipment.status" ->
                 Set.of("PROCUREMENT_MANAGER", "WAREHOUSE_MANAGER", "WAREHOUSE_USER", "INVENTORY_MANAGER",
                     "INVENTORY_USER", "MANUFACTURING_MANAGER", "SALES_MANAGER", "SALES_USER");
@@ -87,7 +90,7 @@ public class DomainNotificationListener {
     private String eventKeyFor(String routingKey, Map<String, Object> payload) {
         Object eventId = payload.get("eventId");
         if (eventId != null) return routingKey + ":" + eventId;
-        for (String key : List.of("allocationId", "inspectionId", "consumptionId", "proofId", "returnId", "lotId", "shipmentId", "dispatchId", "goodsReceiptId", "salesOrderId", "purchaseOrderId")) {
+        for (String key : List.of("allocationId", "receiptLinkId", "inspectionId", "consumptionId", "proofId", "returnId", "lotId", "shipmentId", "dispatchId", "goodsReceiptId", "salesOrderId", "purchaseOrderId")) {
             Object value = payload.get(key);
             if (value != null) return routingKey + ":" + key + ":" + value;
         }
@@ -102,6 +105,7 @@ public class DomainNotificationListener {
             case "inventory.order.reservation-failed" -> "Inventory reservation failed";
             case "inventory.order.dispatched" -> "Inventory dispatch completed";
             case "procurement.goods-received" -> "Goods received";
+            case "supply-chain.inbound.receipt-recorded" -> "Inbound shipment receipt recorded";
             case "supply-chain.shipment.created" -> "Shipment created";
             case "supply-chain.shipment.status" -> "Shipment status updated";
             case "supply-chain.material-lot.received" -> "Raw material lot received";
@@ -116,7 +120,7 @@ public class DomainNotificationListener {
     }
 
     private String referenceFor(String routingKey, Map<String, Object> payload) {
-        for (String key : List.of("shipmentNumber", "lotCode", "returnReference", "salesOrderId", "purchaseOrderId", "dispatchId", "goodsReceiptId")) {
+        for (String key : List.of("shipmentNumber", "goodsReceiptNumber", "lotCode", "returnReference", "salesOrderId", "purchaseOrderId", "dispatchId", "goodsReceiptId")) {
             Object value = payload.get(key);
             if (value != null) return key + " #" + value;
         }
@@ -131,6 +135,7 @@ public class DomainNotificationListener {
             case "inventory.order.reservation-failed" -> reference + " could not be reserved in inventory.";
             case "inventory.order.dispatched" -> reference + " has a dispatch update.";
             case "procurement.goods-received" -> reference + " was recorded as received.";
+            case "supply-chain.inbound.receipt-recorded" -> reference + " was received against its purchase order and sent for quality inspection.";
             case "supply-chain.shipment.created" -> reference + " was created and is ready for tracking.";
             case "supply-chain.shipment.status" -> reference + " has a new shipment milestone.";
             case "supply-chain.material-lot.received" -> reference + " was received for inspection and traceability.";
