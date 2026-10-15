@@ -90,6 +90,11 @@ public class SupplyChainReferenceValidator {
     public record ResolvedReferences(Long purchaseOrderId, String goodsReceiptReference,
             Long salesOrderId, Long dispatchId) {}
 
+    public Dispatch findDispatchForTenant(Long dispatchId) {
+        return dispatches.findByIdAndTenantId(dispatchId, TENANT_ID)
+                .orElseThrow(() -> notFound("Dispatch"));
+    }
+
     public GoodsReceipt validateMaterialReceipt(Long purchaseOrderId, String goodsReceiptReference,
             Long materialId, Long supplierId, Long warehouseId) {
         GoodsReceipt receipt = goodsReceiptReference == null || goodsReceiptReference.isBlank()
