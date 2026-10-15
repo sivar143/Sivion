@@ -5,7 +5,10 @@
 /* Keep the overlay usable on shorter screens and prevent dialog overflow. */
 .attendance-modal {
   position: fixed;
-  inset: 0;
+  top: var(--top-bar-height, 64px);
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -20,7 +23,7 @@
   width: 100%;
   max-width: 520px;
   min-width: 0;
-  max-height: calc(100vh - 48px);
+  max-height: calc(100vh - var(--top-bar-height, 64px) - 48px);
   overflow-y: auto;
   box-sizing: border-box;
   margin: auto;
@@ -79,7 +82,7 @@
   }
 
   .attendance-modal .attendance-form {
-    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - var(--top-bar-height, 64px) - 32px);
     padding: 20px;
   }
 
