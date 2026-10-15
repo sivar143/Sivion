@@ -30,6 +30,7 @@ export class SupplyChainComponent implements OnInit {
   productionLotDraft = { lotCode: '', productId: 0, manufacturingOrderId: 0, producedQuantity: 0, rejectedQuantity: 0, warehouseId: null as number | null };
   consumptionDraft = { materialLotId: 0, productionLotId: 0, manufacturingOrderId: 0, quantityConsumed: 0, unit: 'EA', remarks: '' };
   manufacturingOrderDraft = { orderNumber: '', productId: 0, plannedQuantity: 0 };
+  lotShipmentDraft = { lotCode: '', shipmentId: 0, quantity: 0 };
   genealogyLotCode = '';
   genealogyResult: unknown = null;
 
@@ -217,6 +218,25 @@ export class SupplyChainComponent implements OnInit {
       this.consumptionDraft = { materialLotId: 0, productionLotId: 0, manufacturingOrderId: 0, quantityConsumed: 0, unit: 'EA', remarks: '' };
     } catch (error) {
       this.error = this.errorMessage(error, 'Unable to record material consumption.');
+    } finally {
+      this.saving = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  async allocateProductionLot(): Promise<void> {
+    this.saving = true;
+    this.error = '';
+    this.success = '';
+    try {
+      await this.api.allocateProductionLot(this.lotShipmentDraft.lotCode.trim(), {
+        shipmentId: Number(this.lotShipmentDraft.shipmentId),
+        quantity: Number(this.lotShipmentDraft.quantity)
+      });
+      this.success = 'Finished-product lot quantity allocated to the outbound shipment.';
+      this.lotShipmentDraft = { lotCode: '', shipmentId: 0, quantity: 0 };
+    } catch (error) {
+      this.error = this.errorMessage(error, 'Unable to allocate finished-product lot to shipment.');
     } finally {
       this.saving = false;
       this.changeDetector.markForCheck();
