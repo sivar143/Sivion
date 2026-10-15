@@ -13,6 +13,18 @@
   <p class="message error" role="alert" *ngIf="error">{{ error }}</p>
   <p class="message success" role="status" *ngIf="success">{{ success }}</p>
 
+  <form class="create-form" (ngSubmit)="inspectLot()">
+    <h3>Quality inspection and inventory reconciliation</h3>
+    <p class="muted">Record incremental accepted/rejected quantities for a raw-material or finished-product lot. Accepted quantities are posted to inventory; rejected quantities remain excluded.</p>
+    <div class="form-grid">
+      <label>Lot code<input name="inspectionLotCode" required maxlength="80" [(ngModel)]="inspectionDraft.lotCode"></label>
+      <label>Accepted quantity<input type="number" name="inspectionAccepted" min="0" step="0.0001" required [(ngModel)]="inspectionDraft.acceptedQuantity"></label>
+      <label>Rejected quantity<input type="number" name="inspectionRejected" min="0" step="0.0001" required [(ngModel)]="inspectionDraft.rejectedQuantity"></label>
+      <label>Inspection notes<input name="inspectionNotes" maxlength="1000" [(ngModel)]="inspectionDraft.notes"></label>
+    </div>
+    <button type="submit" [disabled]="saving || !inspectionDraft.lotCode.trim() || (inspectionDraft.acceptedQuantity <= 0 && inspectionDraft.rejectedQuantity <= 0)">Record inspection</button>
+  </form>
+
   <form class="create-form" *ngIf="showCreate" (ngSubmit)="createShipment()">
     <h3>Create shipment</h3>
     <div class="form-grid">
@@ -67,6 +79,19 @@
           <label class="wide">Remarks<input name="remarksDraft" maxlength="1000" [(ngModel)]="remarksDraft"></label>
         </div>
         <button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save status update' }}</button>
+      </form>
+
+      <form class="status-form" *ngIf="detail.shipment.direction === 'OUTBOUND' && detail.shipment.status === 'RETURNED'" (ngSubmit)="recordReturn()">
+        <h4>Receive returned goods</h4>
+        <div class="form-grid">
+          <label>Return reference<input name="returnReference" required maxlength="100" [(ngModel)]="returnDraft.returnReference"></label>
+          <label>Product / material ID<input type="number" name="returnProductId" min="1" required [(ngModel)]="returnDraft.productId"></label>
+          <label>Receiving warehouse ID<input type="number" name="returnWarehouseId" min="1" required [(ngModel)]="returnDraft.warehouseId"></label>
+          <label>Return quantity<input type="number" name="returnQuantity" min="0.0001" step="0.0001" required [(ngModel)]="returnDraft.quantity"></label>
+          <label>Disposition<select name="returnDisposition" [(ngModel)]="returnDraft.disposition"><option value="QUARANTINE">Quarantine for inspection</option><option value="RESTOCK">Restock inventory</option><option value="SCRAP">Scrap</option></select></label>
+          <label>Reason<input name="returnReason" required maxlength="500" [(ngModel)]="returnDraft.reason"></label>
+        </div>
+        <button type="submit" [disabled]="saving || !returnDraft.returnReference.trim() || !returnDraft.reason.trim() || returnDraft.productId <= 0 || returnDraft.warehouseId <= 0 || returnDraft.quantity <= 0">Record return</button>
       </form>
 
       <h4>Shipment timeline</h4>
