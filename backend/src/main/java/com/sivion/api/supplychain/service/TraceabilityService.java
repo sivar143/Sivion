@@ -225,10 +225,10 @@ public class TraceabilityService {
                 : material.getRejectedQuantity().signum() > 0
                     ? (material.getAcceptedQuantity().signum() > 0 ? "PARTIALLY_REJECTED" : "REJECTED") : "ACCEPTED");
             materialLots.save(material);
-            if (accepted.signum() > 0) inventory.stock(material.getMaterialId(), material.getWarehouseId(),
-                accepted, "STOCK_IN", "QUALITY_INSPECTION", material.getId());
             QualityInspection saved = inspections.save(new QualityInspection(code, "RAW_MATERIAL",
                 accepted, rejected, inspector, trim(request.notes())));
+            if (accepted.signum() > 0) inventory.stock(material.getMaterialId(), material.getWarehouseId(),
+                accepted, "STOCK_IN", "QUALITY_INSPECTION", saved.getId());
             domainEvents.publish("supply-chain.quality-inspection.completed", Map.of("inspectionId", saved.getId(),
                 "lotCode", code, "lotType", "RAW_MATERIAL", "qualityStatus", material.getQualityStatus(), "tenantId", TENANT));
             return new InspectionView(saved.getId(), code, "RAW_MATERIAL", accepted, rejected,
@@ -253,10 +253,10 @@ public class TraceabilityService {
         output.setQualityStatus(!complete ? "INSPECTION_IN_PROGRESS"
             : totalRejected.signum() > 0 ? (totalAccepted.signum() > 0 ? "PARTIALLY_REJECTED" : "REJECTED") : "ACCEPTED");
         productionLots.save(output);
-        if (accepted.signum() > 0) inventory.stock(output.getProductId(), output.getWarehouseId(),
-            accepted, "STOCK_IN", "QUALITY_INSPECTION", output.getId());
         QualityInspection saved = inspections.save(new QualityInspection(code, "FINISHED_PRODUCT",
             accepted, rejected, inspector, trim(request.notes())));
+        if (accepted.signum() > 0) inventory.stock(output.getProductId(), output.getWarehouseId(),
+            accepted, "STOCK_IN", "QUALITY_INSPECTION", saved.getId());
         domainEvents.publish("supply-chain.quality-inspection.completed", Map.of("inspectionId", saved.getId(),
             "lotCode", code, "lotType", "FINISHED_PRODUCT", "qualityStatus", output.getQualityStatus(), "tenantId", TENANT));
         return new InspectionView(saved.getId(), code, "FINISHED_PRODUCT", accepted, rejected,
