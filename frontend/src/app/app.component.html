@@ -145,6 +145,7 @@
       </div>
     </section>
     <app-inventory *ngIf="isInventory"/>
+    <app-supply-chain *ngIf="isSupplyChain" />
     <app-hr *ngIf="isHr" [section]="activeItem"/>
     <app-procurement *ngIf="isProcurement"/>
     <app-finance *ngIf="isFinance"/>
