@@ -29,7 +29,7 @@ public class MaterialLot {
     @Column(name = "expires_at") private Instant expiresAt;
     @Column(name = "created_at", nullable = false) private Instant createdAt = Instant.now();
 
-    protected MaterialLot() { }
+    public MaterialLot() { }
     public Long getId(){return id;} public Long getTenantId(){return tenantId;}
     public String getLotCode(){return lotCode;} public void setLotCode(String v){lotCode=v;}
     public Long getMaterialId(){return materialId;} public void setMaterialId(Long v){materialId=v;}
