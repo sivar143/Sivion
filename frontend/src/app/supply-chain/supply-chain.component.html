@@ -19,6 +19,10 @@
       <label>Shipment number<input name="shipmentNumber" required maxlength="60" [(ngModel)]="draft.shipmentNumber"></label>
       <label>Journey type<select name="direction" [(ngModel)]="draft.direction"><option value="INBOUND">Inbound raw materials</option><option value="OUTBOUND">Outbound customer delivery</option><option value="TRANSFER">Inter-site transfer</option></select></label>
       <label>Reference / order number<input name="referenceNumber" maxlength="100" [(ngModel)]="draft.referenceNumber"></label>
+      <label>Purchase order ID<input type="number" min="1" name="purchaseOrderId" [(ngModel)]="draft.purchaseOrderId"></label>
+      <label>Goods receipt reference<input name="goodsReceiptReference" maxlength="100" [(ngModel)]="draft.goodsReceiptReference"></label>
+      <label>Sales order ID<input type="number" min="1" name="salesOrderId" [(ngModel)]="draft.salesOrderId"></label>
+      <label>Dispatch ID<input type="number" min="1" name="dispatchId" [(ngModel)]="draft.dispatchId"></label>
       <label>Supplier<input name="supplierName" maxlength="180" [(ngModel)]="draft.supplierName"></label>
       <label>Customer / destination party<input name="customerName" maxlength="180" [(ngModel)]="draft.customerName"></label>
       <label>Carrier<input name="carrierName" maxlength="120" [(ngModel)]="draft.carrierName"></label>
