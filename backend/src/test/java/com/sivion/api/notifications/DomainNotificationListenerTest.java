@@ -1,16 +1,15 @@
 package com.sivion.api.notifications;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.sivion.api.hr.domain.Employee;
 import com.sivion.api.hr.repository.EmployeeRepository;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.server.ResponseStatusException;
 
 class DomainNotificationListenerTest {
     @Test
@@ -27,13 +26,14 @@ class DomainNotificationListenerTest {
             .thenReturn(List.of(warehouseUser, salesUser));
 
         new DomainNotificationListener(repository, notifications).onDomainEvent(
-            "supply-chain.shipment.status", Map.of("eventId", 88L, "shipmentId", 5L, "shipmentNumber", "DSP-100", "status", "IN_TRANSIT")
+            "supply-chain.shipment.status",
+            Map.of("eventId", 88L, "shipmentId", 5L, "shipmentNumber", "DSP-100", "status", "IN_TRANSIT")
         );
 
-        verify(notifications).send(1L, "warehouse-user", "Shipment status updated",
-            "shipmentNumber #DSP-100 has a new shipment milestone.");
-        verify(notifications).send(1L, "sales-user", "Shipment status updated",
-            "DSP-100 has a new shipment milestone.");
+        verify(notifications).sendOnce(1L, "supply-chain.shipment.status:88", "warehouse-user",
+            "Shipment status updated", "shipmentNumber #DSP-100 has a new shipment milestone.");
+        verify(notifications).sendOnce(1L, "supply-chain.shipment.status:88", "sales-user",
+            "Shipment status updated", "shipmentNumber #DSP-100 has a new shipment milestone.");
     }
 
     @Test
@@ -45,12 +45,13 @@ class DomainNotificationListenerTest {
         employee.setRole("WAREHOUSE_USER");
         when(repository.findByTenantIdOrderByLastNameAscFirstNameAsc(1L)).thenReturn(List.of(employee));
         doThrow(new IllegalStateException("database unavailable"))
-            .when(notifications).send(1L, "warehouse-user", "Shipment status updated",
-                "DSP-100 has a new shipment milestone.");
+            .when(notifications).sendOnce(1L, "supply-chain.shipment.status:88", "warehouse-user",
+                "Shipment status updated", "shipmentNumber #DSP-100 has a new shipment milestone.");
 
         assertThrows(IllegalStateException.class, () ->
             new DomainNotificationListener(repository, notifications).onDomainEvent(
-                "supply-chain.shipment.status", Map.of("shipmentNumber", "DSP-100", "status", "IN_TRANSIT")
+                "supply-chain.shipment.status",
+                Map.of("eventId", 88L, "shipmentId", 5L, "shipmentNumber", "DSP-100", "status", "IN_TRANSIT")
             ));
     }
 
@@ -71,8 +72,8 @@ class DomainNotificationListenerTest {
             "sales.order.confirmed", Map.of("salesOrderId", 42L)
         );
 
-        verify(notifications).sendOnce(1L, "sales.order.confirmed:salesOrderId:42", "stock-user", "Sales order confirmed",
-            "salesOrderId #42 is confirmed and ready for inventory processing.");
+        verify(notifications).sendOnce(1L, "sales.order.confirmed:salesOrderId:42", "stock-user",
+            "Sales order confirmed", "salesOrderId #42 is confirmed and ready for inventory processing.");
         org.mockito.Mockito.verifyNoMoreInteractions(notifications);
     }
 }
