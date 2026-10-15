@@ -10,4 +10,5 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
     Optional<Shipment> findByIdAndTenantId(Long id, Long tenantId);
     Optional<Shipment> findByPublicTrackingToken(String publicTrackingToken);
     boolean existsByShipmentNumberAndTenantId(String shipmentNumber, Long tenantId);
+    Optional<Shipment> findByDispatchIdAndTenantId(Long dispatchId, Long tenantId);
 }
