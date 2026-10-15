@@ -37,11 +37,13 @@ public class ShipmentService {
     private final ShipmentRepository shipments;
     private final ShipmentEventRepository events;
     private final DomainEventPublisher domainEvents;
+    private final SupplyChainReferenceValidator referenceValidator;
 
-    public ShipmentService(ShipmentRepository shipments, ShipmentEventRepository events, DomainEventPublisher domainEvents) {
+    public ShipmentService(ShipmentRepository shipments, ShipmentEventRepository events, DomainEventPublisher domainEvents, SupplyChainReferenceValidator referenceValidator) {
         this.shipments = shipments;
         this.events = events;
         this.domainEvents = domainEvents;
+        this.referenceValidator = referenceValidator;
     }
 
     @Transactional(readOnly = true)
@@ -65,6 +67,7 @@ public class ShipmentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Direction must be INBOUND, OUTBOUND, or TRANSFER.");
         }
+        referenceValidator.validateShipment(direction, request.purchaseOrderId(), request.goodsReceiptReference(), request.salesOrderId(), request.dispatchId());
         if (shipments.existsByShipmentNumberAndTenantId(request.shipmentNumber().trim(), TENANT_ID)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "A shipment with this number already exists.");
