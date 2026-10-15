@@ -190,6 +190,46 @@ public class RabbitTopology {
     }
 
     @Bean
+    Binding notificationShipmentCreatedBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("supply-chain.shipment.created");
+    }
+
+    @Bean
+    Binding notificationShipmentStatusBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("supply-chain.shipment.status");
+    }
+
+    @Bean
+    Binding notificationMaterialLotBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("supply-chain.material-lot.received");
+    }
+
+    @Bean
+    Binding notificationProductionLotBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("supply-chain.production-lot.created");
+    }
+
+    @Bean
+    Binding notificationMaterialConsumptionBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("supply-chain.material.consumed");
+    }
+
+    @Bean
+    Binding notificationQualityInspectionBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("supply-chain.quality-inspection.completed");
+    }
+
+    @Bean
+    Binding notificationProofOfDeliveryBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("supply-chain.delivery.proof-recorded");
+    }
+
+    @Bean
+    Binding notificationShipmentReturnBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("supply-chain.return.received");
+    }
+
+    @Bean
     Queue notificationDomainEventsDlq() {
         return deadLetterQueue("sivion.notifications.domain-events.dlq");
     }
