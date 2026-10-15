@@ -7,6 +7,7 @@ import com.sivion.api.supplychain.domain.MaterialLot;
 import com.sivion.api.supplychain.domain.ProductionLot;
 import com.sivion.api.supplychain.repo.*;
 import com.sivion.api.supplychain.service.TraceabilityService;
+import com.sivion.api.inventory.service.InventoryService;
 import com.sivion.api.supplychain.service.TraceabilityService.MaterialLotRequest;
 import com.sivion.api.supplychain.service.TraceabilityService.ProductionRequest;
 import java.math.BigDecimal;
@@ -28,7 +29,7 @@ class TraceabilityServiceTest {
         materials=mock(MaterialLotRepository.class); production=mock(ProductionLotRepository.class);
         consumptions=mock(LotConsumptionRepository.class); shipments=mock(ShipmentRepository.class);
         proofs=mock(ProofOfDeliveryRepository.class); events=mock(ShipmentEventRepository.class);
-        service=new TraceabilityService(materials,production,consumptions,shipments,proofs,events);
+        service=new TraceabilityService(materials,production,consumptions,shipments,proofs,events,mock(InventoryService.class));
     }
 
     @Test void rejectsMaterialLotWhenAcceptedAndRejectedExceedReceipt() {
