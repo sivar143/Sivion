@@ -26,7 +26,7 @@
     </article>
   </div>
 
-  <p class="campaign-message error" *ngIf="error" role="alert">{{ error }}</p>
+  <p class="campaign-message error" *ngIf="error && !formOpen" role="alert">{{ error }}</p>
   <p class="campaign-message success" *ngIf="success" role="status">{{ success }}</p>
   <p *ngIf="loading">Loading campaigns…</p>
   <p *ngIf="!loading && campaigns.length === 0">No campaigns yet. Create a campaign to get started.</p>
