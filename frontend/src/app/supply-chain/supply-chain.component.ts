@@ -21,6 +21,7 @@ export class SupplyChainComponent implements OnInit {
   error = '';
   success = '';
   showCreate = false;
+  activeSection: 'shipments' | 'receiving' | 'production' | 'traceability' = 'shipments';
   statusDraft = '';
   locationDraft = '';
   remarksDraft = '';
@@ -53,6 +54,18 @@ export class SupplyChainComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.reload();
+  }
+
+  selectSection(section: 'shipments' | 'receiving' | 'production' | 'traceability'): void {
+    this.activeSection = section;
+    if (section !== 'shipments') this.showCreate = false;
+  }
+
+  openCreateShipment(): void {
+    this.activeSection = 'shipments';
+    this.showCreate = !this.showCreate;
+    this.error = '';
+    this.success = '';
   }
 
   async reload(): Promise<void> {
