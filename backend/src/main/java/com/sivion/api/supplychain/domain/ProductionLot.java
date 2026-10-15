@@ -22,7 +22,7 @@ public class ProductionLot {
     @Column(name = "warehouse_id") private Long warehouseId;
     @Column(name = "produced_at", nullable = false) private Instant producedAt = Instant.now();
 
-    protected ProductionLot() { }
+    public ProductionLot() { }
     public Long getId(){return id;} public Long getTenantId(){return tenantId;}
     public String getLotCode(){return lotCode;} public void setLotCode(String v){lotCode=v;}
     public Long getProductId(){return productId;} public void setProductId(Long v){productId=v;}
@@ -32,5 +32,5 @@ public class ProductionLot {
     public BigDecimal getRejectedQuantity(){return rejectedQuantity;} public void setRejectedQuantity(BigDecimal v){rejectedQuantity=v;}
     public String getQualityStatus(){return qualityStatus;} public void setQualityStatus(String v){qualityStatus=v;}
     public Long getWarehouseId(){return warehouseId;} public void setWarehouseId(Long v){warehouseId=v;}
-    public Instant getProducedAt(){return producedAt;}
+    public Instant getProducedAt(){return producedAt;} public void setProducedAt(Instant v){producedAt=v;}
 }
