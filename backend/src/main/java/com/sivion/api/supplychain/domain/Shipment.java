@@ -29,6 +29,18 @@ public class Shipment {
     @Column(name = "reference_number", length = 100)
     private String referenceNumber;
 
+    @Column(name = "purchase_order_id")
+    private Long purchaseOrderId;
+
+    @Column(name = "goods_receipt_reference", length = 100)
+    private String goodsReceiptReference;
+
+    @Column(name = "sales_order_id")
+    private Long salesOrderId;
+
+    @Column(name = "dispatch_id")
+    private Long dispatchId;
+
     @Column(name = "supplier_name", length = 180)
     private String supplierName;
 
@@ -78,6 +90,14 @@ public class Shipment {
     public void setStatus(String value) { status = value; }
     public String getReferenceNumber() { return referenceNumber; }
     public void setReferenceNumber(String value) { referenceNumber = value; }
+    public Long getPurchaseOrderId() { return purchaseOrderId; }
+    public void setPurchaseOrderId(Long value) { purchaseOrderId = value; }
+    public String getGoodsReceiptReference() { return goodsReceiptReference; }
+    public void setGoodsReceiptReference(String value) { goodsReceiptReference = value; }
+    public Long getSalesOrderId() { return salesOrderId; }
+    public void setSalesOrderId(Long value) { salesOrderId = value; }
+    public Long getDispatchId() { return dispatchId; }
+    public void setDispatchId(Long value) { dispatchId = value; }
     public String getSupplierName() { return supplierName; }
     public void setSupplierName(String value) { supplierName = value; }
     public String getCustomerName() { return customerName; }
