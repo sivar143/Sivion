@@ -31,6 +31,13 @@ public class TraceabilityController {
     @PreAuthorize("hasAnyRole('ADMIN','PROCUREMENT_MANAGER','WAREHOUSE_MANAGER','WAREHOUSE_USER','INVENTORY_MANAGER','INVENTORY_USER','MANUFACTURING_MANAGER','MANUFACTURING_USER','SALES_MANAGER','SALES_USER')")
     public GenealogyView genealogy(@PathVariable @NotBlank @Size(max=80) String lotCode){return service.genealogy(lotCode);}
 
+    @PostMapping("/lots/{lotCode}/inspection")
+    @PreAuthorize("hasAnyRole('ADMIN','PROCUREMENT_MANAGER','WAREHOUSE_MANAGER','INVENTORY_MANAGER','QUALITY_MANAGER','MANUFACTURING_MANAGER')")
+    public TraceabilityService.InspectionView inspect(@PathVariable @NotBlank @Size(max=80) String lotCode,
+            @Valid @RequestBody TraceabilityService.InspectionRequest request) {
+        return service.inspect(lotCode, request);
+    }
+
     @PostMapping("/shipments/{id}/proof-of-delivery")
     @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER','INVENTORY_MANAGER','SALES_MANAGER','SALES_USER')")
     public ProofView proof(@PathVariable long id,@Valid @RequestBody ProofRequest r){return service.recordProof(id,r);}
