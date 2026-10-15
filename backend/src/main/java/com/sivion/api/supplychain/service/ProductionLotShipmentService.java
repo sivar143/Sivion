@@ -14,6 +14,7 @@ import com.sivion.api.supplychain.repo.QualityInspectionRepository;
 import com.sivion.api.supplychain.repo.ShipmentRepository;
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,14 @@ public class ProductionLotShipmentService {
             DomainEventPublisher events) {
         this.productionLots=productionLots; this.links=links; this.shipments=shipments;
         this.dispatches=dispatches; this.inspections=inspections; this.events=events;
+    }
+
+    @Transactional(readOnly = true)
+    public List<LinkView> list(String lotCode) {
+        ProductionLot lot=productionLots.findByLotCodeAndTenantId(lotCode.trim(),TENANT_ID)
+            .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Finished-product lot was not found."));
+        return links.findAllByTenantIdAndProductionLotId(TENANT_ID,lot.getId()).stream()
+            .map(link->view(link,lot.getLotCode())).toList();
     }
 
     @Transactional
