@@ -234,6 +234,23 @@ export class SupplyChainComponent implements OnInit {
     }
   }
 
+  async refreshCarrierTracking(): Promise<void> {
+    if (!this.selected) return;
+    this.saving = true;
+    this.error = '';
+    this.success = '';
+    try {
+      this.selected = await this.api.refreshCarrierTracking(this.selected.shipment.id);
+      this.success = 'Live carrier tracking refreshed.';
+      await this.reload();
+    } catch (error) {
+      this.error = this.errorMessage(error, 'Unable to refresh live carrier tracking.');
+    } finally {
+      this.saving = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
   async inspectLot(): Promise<void> {
     this.saving = true;
     this.error = '';
