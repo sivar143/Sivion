@@ -1,6 +1,6 @@
 package com.sivion.api.supplychain.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.sivion.api.supplychain.service.ShipmentService;
 import com.sivion.api.supplychain.service.ShipmentService.ShipmentDetail;
 import com.sivion.api.supplychain.service.ShipmentService.StatusUpdate;
