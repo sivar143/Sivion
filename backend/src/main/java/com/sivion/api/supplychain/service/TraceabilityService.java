@@ -161,8 +161,9 @@ public class TraceabilityService {
             .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Production lot was not found."));
         if(!Objects.equals(output.getManufacturingOrderId(),r.manufacturingOrderId()))
             throw bad("Manufacturing order must match the selected finished-product lot.");
-        if(!"ACCEPTED".equals(material.getQualityStatus()))
-            throw conflict("Only fully accepted raw-material lots can be consumed.");
+        if(!Set.of("ACCEPTED", "PARTIALLY_REJECTED").contains(material.getQualityStatus())
+                || material.getAcceptedQuantity().signum() <= 0)
+            throw conflict("Material lot must be fully inspected with accepted quantity before consumption.");
         if(r.quantityConsumed()==null||r.quantityConsumed().signum()<=0)
             throw bad("Consumed quantity must be greater than zero.");
         BigDecimal already=consumptions.findAllByMaterialLotOrderByRecordedAtAsc(material).stream()
