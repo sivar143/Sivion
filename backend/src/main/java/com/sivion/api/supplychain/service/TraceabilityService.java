@@ -97,6 +97,12 @@ public class TraceabilityService {
             : rejected.signum() > 0 ? (accepted.signum() > 0 ? "PARTIALLY_REJECTED" : "REJECTED") : "ACCEPTED");
         lot.setManufacturedAt(r.manufacturedAt()); lot.setExpiresAt(r.expiresAt());
         MaterialLot saved = materialLots.save(lot);
+        if (inspections != null && accepted.add(rejected).signum() > 0) {
+            String inspector = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .map(Authentication::getName).orElse("system");
+            inspections.save(new QualityInspection(code, "RAW_MATERIAL", accepted, rejected,
+                inspector, "Inspection quantities recorded with the initial receipt."));
+        }
         // Accepted material enters stock through the existing inventory transaction ledger.
         if (accepted.signum() > 0 && saved.getWarehouseId() != null) {
             inventory.stock(saved.getMaterialId(), saved.getWarehouseId(), accepted,
@@ -136,6 +142,12 @@ public class TraceabilityService {
             : rejected.compareTo(r.producedQuantity()) < 0 ? "INSPECTION_IN_PROGRESS" : "REJECTED");
         lot.setWarehouseId(r.warehouseId()); lot.setProducedAt(r.producedAt()==null?Instant.now():r.producedAt());
         ProductionLot saved = productionLots.save(lot);
+        if (inspections != null && rejected.signum() > 0) {
+            String inspector = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .map(Authentication::getName).orElse("system");
+            inspections.save(new QualityInspection(saved.getLotCode(), "FINISHED_PRODUCT", BigDecimal.ZERO,
+                rejected, inspector, "Manufacturing rejects recorded at production closeout."));
+        }
         domainEvents.publish("supply-chain.production-lot.created", Map.of("lotId", saved.getId(), "lotCode", saved.getLotCode(), "manufacturingOrderId", saved.getManufacturingOrderId(), "qualityStatus", saved.getQualityStatus(), "tenantId", TENANT));
         return productionView(saved);
     }
@@ -221,9 +233,8 @@ public class TraceabilityService {
         BigDecimal alreadyAccepted = inspections.findByTenantIdAndLotCodeOrderByInspectedAtAsc(TENANT, code)
             .stream().filter(i -> "FINISHED_PRODUCT".equals(i.getLotType()))
             .map(QualityInspection::getAcceptedQuantity).reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal alreadyRejected = inspections.findByTenantIdAndLotCodeOrderByInspectedAtAsc(TENANT, code)
-            .stream().filter(i -> "FINISHED_PRODUCT".equals(i.getLotType()))
-            .map(QualityInspection::getRejectedQuantity).reduce(BigDecimal.ZERO, BigDecimal::add);
+        // ProductionLot keeps the cumulative rejected quantity, including rejects recorded at production closeout.
+        BigDecimal alreadyRejected = nz(output.getRejectedQuantity());
         BigDecimal remaining = output.getProducedQuantity().subtract(alreadyAccepted).subtract(alreadyRejected);
         if (accepted.add(rejected).compareTo(remaining) > 0)
             throw conflict("Inspection quantity exceeds the uninspected quantity remaining for this lot.");
