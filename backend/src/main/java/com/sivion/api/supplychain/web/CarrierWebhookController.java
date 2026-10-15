@@ -55,6 +55,19 @@ public class CarrierWebhookController {
             @RequestHeader(name = "X-Carrier-Signature", required = false) String signature,
             @RequestHeader(name = "X-API-Key", required = false) String apiKey,
             @RequestBody byte[] rawBody) {
+        return acceptInternal(shipmentId, provider, signature, apiKey, rawBody);
+    }
+
+    /** Provider-specific callback URL so Shiprocket need not send a custom provider header. */
+    @PostMapping("/shiprocket/{shipmentId}")
+    public ShipmentDetail acceptShiprocket(@PathVariable long shipmentId,
+            @RequestHeader(name = "X-API-Key", required = false) String apiKey,
+            @RequestBody byte[] rawBody) {
+        return acceptInternal(shipmentId, "shiprocket", null, apiKey, rawBody);
+    }
+
+    private ShipmentDetail acceptInternal(long shipmentId, String provider, String signature,
+            String apiKey, byte[] rawBody) {
         if (provider == null || !provider.matches("[a-zA-Z0-9_-]{2,24}")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A valid X-Carrier-Provider header is required.");
         }
