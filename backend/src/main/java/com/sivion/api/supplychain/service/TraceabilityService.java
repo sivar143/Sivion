@@ -77,8 +77,10 @@ public class TraceabilityService {
             : trim(r.goodsReceiptReference()));
         lot.setWarehouseId(r.warehouseId());
         lot.setReceivedQuantity(r.receivedQuantity()); lot.setAcceptedQuantity(accepted); lot.setRejectedQuantity(rejected);
-        lot.setQualityStatus(rejected.signum()>0 ? (accepted.signum()>0 ? "PARTIALLY_REJECTED" : "REJECTED")
-            : accepted.compareTo(r.receivedQuantity())==0 ? "ACCEPTED" : "PENDING_INSPECTION");
+        BigDecimal initiallyInspected = accepted.add(rejected);
+        lot.setQualityStatus(initiallyInspected.signum() == 0 ? "PENDING_INSPECTION"
+            : initiallyInspected.compareTo(r.receivedQuantity()) < 0 ? "INSPECTION_IN_PROGRESS"
+            : rejected.signum() > 0 ? (accepted.signum() > 0 ? "PARTIALLY_REJECTED" : "REJECTED") : "ACCEPTED");
         lot.setManufacturedAt(r.manufacturedAt()); lot.setExpiresAt(r.expiresAt());
         MaterialLot saved = materialLots.save(lot);
         // Accepted material enters stock through the existing inventory transaction ledger.
@@ -116,8 +118,8 @@ public class TraceabilityService {
         ProductionLot lot=new ProductionLot(); lot.setLotCode(r.lotCode().trim());
         lot.setProductId(r.productId()); lot.setManufacturingOrderId(r.manufacturingOrderId());
         lot.setProducedQuantity(r.producedQuantity()); lot.setRejectedQuantity(rejected);
-        lot.setQualityStatus(rejected.compareTo(r.producedQuantity())==0 ? "REJECTED" :
-            rejected.signum()>0 ? "PARTIALLY_REJECTED" : "PENDING_INSPECTION");
+        lot.setQualityStatus(rejected.signum() == 0 ? "PENDING_INSPECTION"
+            : rejected.compareTo(r.producedQuantity()) < 0 ? "INSPECTION_IN_PROGRESS" : "REJECTED");
         lot.setWarehouseId(r.warehouseId()); lot.setProducedAt(r.producedAt()==null?Instant.now():r.producedAt());
         ProductionLot saved = productionLots.save(lot);
         domainEvents.publish("supply-chain.production-lot.created", Map.of("lotId", saved.getId(), "lotCode", saved.getLotCode(), "manufacturingOrderId", saved.getManufacturingOrderId(), "qualityStatus", saved.getQualityStatus(), "tenantId", TENANT));
