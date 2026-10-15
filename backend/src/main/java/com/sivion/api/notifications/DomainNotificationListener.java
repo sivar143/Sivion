@@ -74,7 +74,8 @@ public class DomainNotificationListener {
                 Set.of("PROCUREMENT_MANAGER", "WAREHOUSE_MANAGER", "WAREHOUSE_USER", "INVENTORY_MANAGER",
                     "INVENTORY_USER", "MANUFACTURING_MANAGER", "SALES_MANAGER", "SALES_USER");
             case "supply-chain.material-lot.received", "supply-chain.quality-inspection.completed",
-                 "supply-chain.production-lot.created", "supply-chain.material.consumed" ->
+                 "supply-chain.production-lot.created", "supply-chain.production-lot.shipped",
+                 "supply-chain.material.consumed" ->
                 Set.of("PROCUREMENT_MANAGER", "WAREHOUSE_MANAGER", "INVENTORY_MANAGER", "INVENTORY_USER",
                     "MANUFACTURING_MANAGER", "MANUFACTURING_USER", "QUALITY_MANAGER");
             case "supply-chain.delivery.proof-recorded", "supply-chain.return.received" ->
@@ -86,7 +87,7 @@ public class DomainNotificationListener {
     private String eventKeyFor(String routingKey, Map<String, Object> payload) {
         Object eventId = payload.get("eventId");
         if (eventId != null) return routingKey + ":" + eventId;
-        for (String key : List.of("inspectionId", "consumptionId", "proofId", "returnId", "lotId", "shipmentId", "dispatchId", "goodsReceiptId", "salesOrderId", "purchaseOrderId")) {
+        for (String key : List.of("allocationId", "inspectionId", "consumptionId", "proofId", "returnId", "lotId", "shipmentId", "dispatchId", "goodsReceiptId", "salesOrderId", "purchaseOrderId")) {
             Object value = payload.get(key);
             if (value != null) return routingKey + ":" + key + ":" + value;
         }
@@ -106,6 +107,7 @@ public class DomainNotificationListener {
             case "supply-chain.material-lot.received" -> "Raw material lot received";
             case "supply-chain.quality-inspection.completed" -> "Quality inspection completed";
             case "supply-chain.production-lot.created" -> "Production lot recorded";
+            case "supply-chain.production-lot.shipped" -> "Finished-product lot dispatched";
             case "supply-chain.material.consumed" -> "Material consumed in production";
             case "supply-chain.delivery.proof-recorded" -> "Proof of delivery recorded";
             case "supply-chain.return.received" -> "Shipment return received";
@@ -134,6 +136,7 @@ public class DomainNotificationListener {
             case "supply-chain.material-lot.received" -> reference + " was received for inspection and traceability.";
             case "supply-chain.quality-inspection.completed" -> reference + " has an updated inspection result.";
             case "supply-chain.production-lot.created" -> reference + " was recorded against a manufacturing order.";
+            case "supply-chain.production-lot.shipped" -> reference + " has finished-product lot quantity allocated for shipment tracking.";
             case "supply-chain.material.consumed" -> reference + " was linked to a finished-product lot.";
             case "supply-chain.delivery.proof-recorded" -> reference + " has proof of delivery recorded.";
             case "supply-chain.return.received" -> reference + " was recorded in the returns workflow.";
