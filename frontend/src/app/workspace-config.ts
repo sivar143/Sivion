@@ -60,6 +60,7 @@ export const WORKSPACES: Record<WorkspaceId, WorkspaceDefinition> = {
       { id: 'leads', label: 'Leads', description: 'Prospects and qualification' },
       { id: 'opportunities', label: 'Opportunities', description: 'Revenue pipeline' },
       { id: 'sales-orders', label: 'Sales Orders', description: 'Customer orders and fulfillment' },
+      { id: 'supply-chain', label: 'Delivery Tracking', description: 'Finished-product shipments and customer delivery status' }
       { id: 'activities', label: 'Activities', description: 'Customer activities and follow-ups' },
       { id: 'meetings', label: 'Meetings', description: 'Sales meetings' },
       { id: 'goals', label: 'Goals', description: 'Team sales goals' },
@@ -191,6 +192,7 @@ export const WORKSPACES: Record<WorkspaceId, WorkspaceDefinition> = {
       { id: 'requests', label: 'Purchase Requests', description: 'Purchase requests' },
       { id: 'orders', label: 'Purchase Orders', description: 'Purchase orders' },
       { id: 'goods-received', label: 'Goods Received', description: 'Receiving' },
+      { id: 'supply-chain', label: 'Inbound Shipment Tracking', description: 'Supplier shipments and arrival status' }
       { id: 'reports', label: 'Reports', description: 'Procurement reporting' }
     ]
   },
