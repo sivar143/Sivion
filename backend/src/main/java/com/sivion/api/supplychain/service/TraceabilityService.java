@@ -56,7 +56,8 @@ public class TraceabilityService {
         if (r.materialId()==null) throw bad("A material ID is required.");
         if (r.lotCode()==null || r.lotCode().isBlank()) throw bad("A lot code is required.");
         String code=r.lotCode().trim();
-        if (referenceValidator != null) referenceValidator.validateMaterialReceipt(r.purchaseOrderId(),
+        com.sivion.api.procurement.domain.GoodsReceipt linkedReceipt = null;
+        if (referenceValidator != null) linkedReceipt = referenceValidator.validateMaterialReceipt(r.purchaseOrderId(),
             r.goodsReceiptReference(), r.materialId(), r.supplierId(), r.warehouseId());
         if(materialLots.existsByLotCodeAndTenantId(code,TENANT)) throw conflict("This material lot code already exists.");
         BigDecimal accepted=nz(r.acceptedQuantity()), rejected=nz(r.rejectedQuantity());
@@ -67,8 +68,12 @@ public class TraceabilityService {
         MaterialLot lot=new MaterialLot();
         lot.setLotCode(code); lot.setMaterialId(r.materialId()); lot.setSupplierId(r.supplierId());
         lot.setSupplierName(trim(r.supplierName())); lot.setSupplierLotCode(trim(r.supplierLotCode()));
-        lot.setShipmentId(r.shipmentId()); lot.setPurchaseOrderId(r.purchaseOrderId());
-        lot.setGoodsReceiptReference(trim(r.goodsReceiptReference())); lot.setWarehouseId(r.warehouseId());
+        lot.setShipmentId(r.shipmentId());
+        lot.setPurchaseOrderId(r.purchaseOrderId() != null ? r.purchaseOrderId()
+            : linkedReceipt == null ? null : linkedReceipt.getPurchaseOrderId());
+        lot.setGoodsReceiptReference(linkedReceipt != null ? linkedReceipt.getReceiptNumber()
+            : trim(r.goodsReceiptReference()));
+        lot.setWarehouseId(r.warehouseId());
         lot.setReceivedQuantity(r.receivedQuantity()); lot.setAcceptedQuantity(accepted); lot.setRejectedQuantity(rejected);
         lot.setQualityStatus(rejected.signum()>0 ? (accepted.signum()>0 ? "PARTIALLY_REJECTED" : "REJECTED")
             : accepted.compareTo(r.receivedQuantity())==0 ? "ACCEPTED" : "PENDING_INSPECTION");
