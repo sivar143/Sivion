@@ -24,6 +24,8 @@ export class SupplyChainComponent implements OnInit {
   statusDraft = '';
   locationDraft = '';
   remarksDraft = '';
+  inspectionDraft = { lotCode: '', acceptedQuantity: 0, rejectedQuantity: 0, notes: '' };
+  returnDraft = { returnReference: '', productId: 0, warehouseId: 0, quantity: 0, disposition: 'QUARANTINE' as 'RESTOCK' | 'QUARANTINE' | 'SCRAP', reason: '' };
 
   draft: CreateShipment = {
     shipmentNumber: '',
@@ -121,6 +123,50 @@ export class SupplyChainComponent implements OnInit {
       await this.reload();
     } catch (error) {
       this.error = this.errorMessage(error, 'Unable to update shipment status.');
+    } finally {
+      this.saving = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  async inspectLot(): Promise<void> {
+    this.saving = true;
+    this.error = '';
+    this.success = '';
+    try {
+      await this.api.inspectLot(this.inspectionDraft.lotCode.trim(), {
+        acceptedQuantity: Number(this.inspectionDraft.acceptedQuantity),
+        rejectedQuantity: Number(this.inspectionDraft.rejectedQuantity),
+        notes: this.inspectionDraft.notes || undefined
+      });
+      this.success = 'Quality inspection recorded and accepted quantity reconciled to inventory.';
+      this.inspectionDraft = { lotCode: '', acceptedQuantity: 0, rejectedQuantity: 0, notes: '' };
+    } catch (error) {
+      this.error = this.errorMessage(error, 'Unable to record quality inspection.');
+    } finally {
+      this.saving = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  async recordReturn(): Promise<void> {
+    if (!this.selected) return;
+    this.saving = true;
+    this.error = '';
+    this.success = '';
+    try {
+      await this.api.recordReturn(this.selected.shipment.id, {
+        ...this.returnDraft,
+        returnReference: this.returnDraft.returnReference.trim(),
+        reason: this.returnDraft.reason.trim(),
+        productId: Number(this.returnDraft.productId),
+        warehouseId: Number(this.returnDraft.warehouseId),
+        quantity: Number(this.returnDraft.quantity)
+      });
+      this.success = 'Shipment return recorded.';
+      this.returnDraft = { returnReference: '', productId: 0, warehouseId: 0, quantity: 0, disposition: 'QUARANTINE', reason: '' };
+    } catch (error) {
+      this.error = this.errorMessage(error, 'Unable to record shipment return.');
     } finally {
       this.saving = false;
       this.changeDetector.markForCheck();
