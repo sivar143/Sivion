@@ -10,6 +10,8 @@ import com.sivion.api.procurement.repo.PurchaseOrderRepository;
 import com.sivion.api.sales.domain.SalesOrder;
 import com.sivion.api.sales.repo.SalesOrderRepository;
 import java.util.Objects;
+import java.math.BigDecimal;
+import com.sivion.api.supplychain.repo.MaterialLotRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,15 +25,17 @@ public class SupplyChainReferenceValidator {
     private final GoodsReceiptRepository goodsReceipts;
     private final SalesOrderRepository salesOrders;
     private final DispatchRepository dispatches;
+    private final MaterialLotRepository materialLots;
 
     public SupplyChainReferenceValidator(PurchaseOrderRepository purchaseOrders,
             PurchaseOrderItemRepository purchaseOrderItems, GoodsReceiptRepository goodsReceipts,
-            SalesOrderRepository salesOrders, DispatchRepository dispatches) {
+            SalesOrderRepository salesOrders, DispatchRepository dispatches, MaterialLotRepository materialLots) {
         this.purchaseOrders = purchaseOrders;
         this.purchaseOrderItems = purchaseOrderItems;
         this.goodsReceipts = goodsReceipts;
         this.salesOrders = salesOrders;
         this.dispatches = dispatches;
+        this.materialLots = materialLots;
     }
 
     public ResolvedReferences validateShipment(String direction, Long purchaseOrderId, String goodsReceiptReference,
@@ -97,6 +101,11 @@ public class SupplyChainReferenceValidator {
 
     public GoodsReceipt validateMaterialReceipt(Long purchaseOrderId, String goodsReceiptReference,
             Long materialId, Long supplierId, Long warehouseId) {
+        return validateMaterialReceipt(purchaseOrderId, goodsReceiptReference, materialId, supplierId, warehouseId, null);
+    }
+
+    public GoodsReceipt validateMaterialReceipt(Long purchaseOrderId, String goodsReceiptReference,
+            Long materialId, Long supplierId, Long warehouseId, BigDecimal receivedQuantity) {
         GoodsReceipt receipt = goodsReceiptReference == null || goodsReceiptReference.isBlank()
                 ? null : findGoodsReceipt(goodsReceiptReference.trim());
         PurchaseOrder order = null;
@@ -108,6 +117,9 @@ public class SupplyChainReferenceValidator {
             effectiveOrderId = receipt.getPurchaseOrderId();
         } else if (goodsReceiptReference != null && !goodsReceiptReference.isBlank()) {
             throw notFound("Goods receipt");
+        }
+        if (effectiveOrderId != null && receipt == null) {
+            throw bad("A goods receipt must exist before a purchase-order material lot can be accepted into traceable inventory.");
         }
         if (effectiveOrderId != null) {
             order = purchaseOrders.findForUpdate(effectiveOrderId, TENANT_ID)
@@ -121,6 +133,13 @@ public class SupplyChainReferenceValidator {
             if (!itemMatches) throw bad("The material and warehouse do not match any line on the linked purchase order.");
         }
         if (receipt != null) {
+            if (receivedQuantity != null) {
+                BigDecimal alreadyAssigned = materialLots.findAllByGoodsReceiptReferenceAndTenantId(receipt.getReceiptNumber(), TENANT_ID)
+                    .stream().map(com.sivion.api.supplychain.domain.MaterialLot::getReceivedQuantity)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                if (alreadyAssigned.add(receivedQuantity).compareTo(receipt.getQuantity()) > 0)
+                    throw conflict("Material lot quantities exceed the linked goods receipt quantity.");
+            }
             if (!Objects.equals(receipt.getProductId(), materialId)) {
                 throw bad("The material does not match the linked goods receipt.");
             }
