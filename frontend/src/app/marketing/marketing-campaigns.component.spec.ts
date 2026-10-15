@@ -28,6 +28,16 @@ describe('MarketingCampaignsComponent', () => {
     component = fixture.componentInstance;
   });
 
+  it('renders the campaign editor as a modal dialog when opened', () => {
+    component.startCreate();
+    fixture.detectChanges();
+
+    const dialog = fixture.nativeElement.querySelector('.campaign-modal [role="dialog"]');
+    expect(dialog).not.toBeNull();
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.querySelector('input[name="name"]')).not.toBeNull();
+  });
+
   it('validates a required campaign name', async () => {
     component.draft.name = ' ';
     await component.save();
