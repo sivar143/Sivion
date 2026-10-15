@@ -20,6 +20,22 @@ spring:
     host: ${SPRING_RABBITMQ_HOST:localhost}
     username: ${SPRING_RABBITMQ_USERNAME:sivion}
     password: ${SPRING_RABBITMQ_PASSWORD:sivion}
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1s
+        max-attempts: 5
+        multiplier: 2.0
+        max-interval: 10s
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1s
+          max-attempts: 5
+          multiplier: 2.0
+          max-interval: 10s
+        default-requeue-rejected: false
   security:
     oauth2:
       resourceserver:
@@ -49,7 +65,12 @@ sivion:
   documents:
     storage-path: ${SIVION_DOCUMENTS_STORAGE_PATH:./data/employee-documents}
   supply-chain:
-    webhook-secret: ${SIVION_SUPPLY_CHAIN_WEBHOOK_SECRET:}
+    # Configure each carrier independently. Sign the exact request body using HMAC-SHA256.
+    carriers:
+      shiprocket:
+        webhook-secret: ${SIVION_SUPPLY_CHAIN_CARRIERS_SHIPROCKET_WEBHOOK_SECRET:}
+      delhivery:
+        webhook-secret: ${SIVION_SUPPLY_CHAIN_CARRIERS_DELHIVERY_WEBHOOK_SECRET:}
   keycloak:
     realm: ${SIVION_KEYCLOAK_REALM:sivion}
     admin-base-url: ${SIVION_KEYCLOAK_ADMIN_BASE_URL:http://localhost:8081}
