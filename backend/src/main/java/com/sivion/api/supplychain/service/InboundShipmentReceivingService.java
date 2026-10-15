@@ -6,6 +6,7 @@ import com.sivion.api.procurement.domain.PurchaseOrderItem;
 import com.sivion.api.procurement.repo.GoodsReceiptRepository;
 import com.sivion.api.procurement.repo.PurchaseOrderItemRepository;
 import com.sivion.api.procurement.repo.PurchaseOrderRepository;
+import com.sivion.api.integration.DomainEventPublisher;
 import com.sivion.api.supplychain.domain.InboundShipmentReceipt;
 import com.sivion.api.supplychain.domain.Shipment;
 import com.sivion.api.supplychain.repo.InboundShipmentReceiptRepository;
@@ -13,6 +14,7 @@ import com.sivion.api.supplychain.repo.ShipmentRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,14 +33,15 @@ public class InboundShipmentReceivingService {
     private final PurchaseOrderItemRepository purchaseOrderItems;
     private final TraceabilityService traceability;
     private final ShipmentService shipmentService;
+    private final DomainEventPublisher events;
 
     public InboundShipmentReceivingService(ShipmentRepository shipments, InboundShipmentReceiptRepository receiptLinks,
             GoodsReceiptRepository goodsReceipts, PurchaseOrderRepository purchaseOrders,
             PurchaseOrderItemRepository purchaseOrderItems, TraceabilityService traceability,
-            ShipmentService shipmentService) {
+            ShipmentService shipmentService, DomainEventPublisher events) {
         this.shipments=shipments; this.receiptLinks=receiptLinks; this.goodsReceipts=goodsReceipts;
         this.purchaseOrders=purchaseOrders; this.purchaseOrderItems=purchaseOrderItems;
-        this.traceability=traceability; this.shipmentService=shipmentService;
+        this.traceability=traceability; this.shipmentService=shipmentService; this.events=events;
     }
 
     @Transactional
@@ -74,6 +77,8 @@ public class InboundShipmentReceivingService {
 
         PurchaseOrder order=purchaseOrders.findForUpdate(shipment.getPurchaseOrderId(),TENANT_ID)
             .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Linked purchase order was not found."));
+        if ("CANCELLED".equalsIgnoreCase(order.getStatus()) || "RECEIVED".equalsIgnoreCase(order.getStatus()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"This purchase order is closed for additional receiving.");
         List<PurchaseOrderItem> matchingItems=purchaseOrderItems.findByPurchaseOrderId(order.getId()).stream()
             .filter(item->Objects.equals(item.getProductId(),request.productId())
                 && Objects.equals(item.getWarehouseId(),request.warehouseId())).toList();
@@ -106,6 +111,30 @@ public class InboundShipmentReceivingService {
         InboundShipmentReceipt link=receiptLinks.save(new InboundShipmentReceipt(shipmentId,savedReceipt.getId(),
             savedReceipt.getReceiptNumber(),reference,request.productId(),request.warehouseId(),request.quantity(),
             lot.id(),lot.lotCode(),request.finalReceipt()));
+
+        // Keep procurement's purchase-order status and existing goods-received event stream in sync.
+        boolean purchaseOrderFullyReceived = true;
+        for (PurchaseOrderItem item : purchaseOrderItems.findByPurchaseOrderId(order.getId())) {
+            BigDecimal received = goodsReceipts.receivedQuantity(TENANT_ID, order.getId(),
+                item.getProductId(), item.getWarehouseId());
+            if (received.compareTo(item.getQuantity()) < 0) {
+                purchaseOrderFullyReceived = false;
+                break;
+            }
+        }
+        order.setStatus(purchaseOrderFullyReceived ? "RECEIVED" : "PARTIALLY_RECEIVED");
+        purchaseOrders.save(order);
+        if (savedReceipt.getId() != null) {
+            events.publish("procurement.goods-received", Map.of(
+                "goodsReceiptId", savedReceipt.getId(), "purchaseOrderId", order.getId(),
+                "productId", savedReceipt.getProductId(), "warehouseId", savedReceipt.getWarehouseId(),
+                "quantity", savedReceipt.getQuantity()));
+        }
+        events.publish("supply-chain.inbound.receipt-recorded", Map.of(
+            "receiptLinkId", link.getId() == null ? reference : link.getId(),
+            "shipmentId", shipmentId, "shipmentNumber", shipment.getShipmentNumber(),
+            "goodsReceiptNumber", savedReceipt.getReceiptNumber(), "lotCode", lot.lotCode(),
+            "quantity", request.quantity(), "finalReceipt", request.finalReceipt(), "tenantId", TENANT_ID));
 
         // Receiving is a physical milestone. Carrier adapters can legitimately skip earlier scan events.
         Shipment refreshed=shipments.findByIdAndTenantId(shipmentId,TENANT_ID).orElseThrow();
