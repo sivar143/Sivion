@@ -9,6 +9,7 @@ import com.sivion.api.procurement.repo.PurchaseOrderItemRepository;
 import com.sivion.api.procurement.repo.PurchaseOrderRepository;
 import com.sivion.api.sales.domain.SalesOrder;
 import com.sivion.api.sales.repo.SalesOrderRepository;
+import com.sivion.api.inventory.repo.MaterialRepository;
 import java.util.Objects;
 import java.math.BigDecimal;
 import com.sivion.api.supplychain.repo.MaterialLotRepository;
@@ -27,24 +28,40 @@ public class SupplyChainReferenceValidator {
     private final SalesOrderRepository salesOrders;
     private final DispatchRepository dispatches;
     private final MaterialLotRepository materialLots;
+    private final MaterialRepository materials;
 
     @Autowired
     public SupplyChainReferenceValidator(PurchaseOrderRepository purchaseOrders,
             PurchaseOrderItemRepository purchaseOrderItems, GoodsReceiptRepository goodsReceipts,
-            SalesOrderRepository salesOrders, DispatchRepository dispatches, MaterialLotRepository materialLots) {
+            SalesOrderRepository salesOrders, DispatchRepository dispatches, MaterialLotRepository materialLots, MaterialRepository materials) {
         this.purchaseOrders = purchaseOrders;
         this.purchaseOrderItems = purchaseOrderItems;
         this.goodsReceipts = goodsReceipts;
         this.salesOrders = salesOrders;
         this.dispatches = dispatches;
         this.materialLots = materialLots;
+        this.materials = materials;
     }
 
-    /** Compatibility constructor for focused validation tests without lot reconciliation. */
+    /** Compatibility constructor for focused validation tests without inventory repositories. */
     public SupplyChainReferenceValidator(PurchaseOrderRepository purchaseOrders,
             PurchaseOrderItemRepository purchaseOrderItems, GoodsReceiptRepository goodsReceipts,
             SalesOrderRepository salesOrders, DispatchRepository dispatches) {
-        this(purchaseOrders, purchaseOrderItems, goodsReceipts, salesOrders, dispatches, null);
+        this(purchaseOrders, purchaseOrderItems, goodsReceipts, salesOrders, dispatches, null, null);
+    }
+
+    public SupplyChainReferenceValidator(PurchaseOrderRepository purchaseOrders,
+            PurchaseOrderItemRepository purchaseOrderItems, GoodsReceiptRepository goodsReceipts,
+            SalesOrderRepository salesOrders, DispatchRepository dispatches, MaterialLotRepository materialLots) {
+        this(purchaseOrders, purchaseOrderItems, goodsReceipts, salesOrders, dispatches, materialLots, null);
+    }
+
+    public void validateMaterialExists(Long materialId) {
+        if (materials == null) return;
+        com.sivion.api.inventory.domain.Material material = materials.findByIdAndTenantId(materialId, TENANT_ID)
+            .orElseThrow(() -> notFound("Material/product"));
+        if (!"ACTIVE".equalsIgnoreCase(material.getStatus()))
+            throw conflict("Inactive material/products cannot be used for new supply-chain lots.");
     }
 
     public ResolvedReferences validateShipment(String direction, Long purchaseOrderId, String goodsReceiptReference,
