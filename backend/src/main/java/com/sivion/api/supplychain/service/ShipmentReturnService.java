@@ -1,6 +1,9 @@
 package com.sivion.api.supplychain.service;
 
 import com.sivion.api.inventory.service.InventoryService;
+import com.sivion.api.inventory.domain.Dispatch;
+import com.sivion.api.inventory.domain.DispatchItem;
+import com.sivion.api.inventory.repo.DispatchRepository;
 import com.sivion.api.integration.DomainEventPublisher;
 import com.sivion.api.supplychain.domain.Shipment;
 import com.sivion.api.supplychain.domain.ShipmentReturn;
@@ -22,12 +25,13 @@ public class ShipmentReturnService {
     private static final long TENANT_ID = 1L;
     private final ShipmentRepository shipments;
     private final ShipmentReturnRepository returns;
+    private final DispatchRepository dispatches;
     private final InventoryService inventory;
     private final DomainEventPublisher events;
 
     public ShipmentReturnService(ShipmentRepository shipments, ShipmentReturnRepository returns,
-            InventoryService inventory, DomainEventPublisher events) {
-        this.shipments=shipments; this.returns=returns; this.inventory=inventory; this.events=events;
+            DispatchRepository dispatches, InventoryService inventory, DomainEventPublisher events) {
+        this.shipments=shipments; this.returns=returns; this.dispatches=dispatches; this.inventory=inventory; this.events=events;
     }
 
     @Transactional
@@ -48,6 +52,20 @@ public class ShipmentReturnService {
             throw new ResponseStatusException(HttpStatus.CONFLICT,"Returns can be received only after an outbound shipment reaches RETURNED status.");
         if(request.productId()==null || request.warehouseId()==null || request.quantity()==null || request.quantity().signum()<=0)
             throw bad("Product, receiving warehouse, and a positive return quantity are required.");
+        if (shipment.getDispatchId() == null)
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A linked inventory dispatch is required to reconcile returned quantities.");
+        Dispatch dispatch = dispatches.findByIdAndTenantId(shipment.getDispatchId(), TENANT_ID)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Linked inventory dispatch was not found."));
+        BigDecimal dispatchedQuantity = dispatch.getItems().stream()
+            .filter(item -> Objects.equals(item.getProductId(), request.productId()))
+            .map(DispatchItem::getQuantity).reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (dispatchedQuantity.signum() <= 0)
+            throw bad("The returned product is not part of the linked dispatch.");
+        BigDecimal alreadyReturned = returns.findAllByTenantIdAndShipmentId(TENANT_ID, shipmentId).stream()
+            .filter(item -> Objects.equals(item.getProductId(), request.productId()))
+            .map(ShipmentReturn::getQuantity).reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (alreadyReturned.add(request.quantity()).compareTo(dispatchedQuantity) > 0)
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cumulative returned quantity exceeds the dispatched quantity.");
         String disposition=request.disposition()==null?"QUARANTINE":request.disposition().trim().toUpperCase(java.util.Locale.ROOT);
         if(!java.util.Set.of("RESTOCK","QUARANTINE","SCRAP").contains(disposition))
             throw bad("Disposition must be RESTOCK, QUARANTINE, or SCRAP.");
