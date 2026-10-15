@@ -31,6 +31,7 @@ input, select, textarea { width: 100%; min-width: 0; box-sizing: border-box; pad
 .timeline li > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 .timeline time { color: #667085; font-size: 12px; }
 .timeline p { margin: 6px 0 0; overflow-wrap: anywhere; }
+.genealogy-result { margin: 0; padding: 12px; border-radius: 8px; background: #f9fafb; border: 1px solid #eaecf0; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; font-size: 12px; }
 .message { padding: 10px 12px; border-radius: 8px; margin: 0; }
 .error { background: #fef3f2; color: #b42318; }
 .success { background: #ecfdf3; color: #027a48; }
