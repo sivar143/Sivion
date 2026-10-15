@@ -12,6 +12,8 @@ All endpoints below are under `/api/v1/supply-chain`. Administrative endpoints r
 ## Quality and returns
 
 - `POST /lots/{lotCode}/inspection` accepts incremental accepted/rejected quantities. The sum cannot exceed the uninspected remainder. Accepted quantities are posted through the inventory transaction service; rejected quantities are not made available as stock. Each inspection is stored as an immutable audit record.
+- `POST /lot-consumptions` records raw-material genealogy and decrements the same warehouse's available inventory in the same transaction.
+- `POST /production-lots/{lotCode}/shipments` allocates an accepted finished-lot quantity to an outbound shipment. Allocations are bounded by both the accepted lot quantity and the linked inventory dispatch quantity; `GET` on the same path lists allocations.
 - `POST /shipments/{shipmentId}/returns` records a unique return reference, product, receiving warehouse, quantity, reason and disposition. Only shipments in `RETURNED` status can be received. `RESTOCK` posts a positive inventory transaction; `QUARANTINE` and `SCRAP` do not add usable stock.
 - Shipment status milestones, lot inspection records and return records provide the audit trail. Public tracking deliberately omits internal event remarks and business identifiers.
 
