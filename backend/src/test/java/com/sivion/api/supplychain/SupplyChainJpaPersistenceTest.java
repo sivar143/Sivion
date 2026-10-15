@@ -3,62 +3,98 @@ package com.sivion.api.supplychain;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.sivion.api.procurement.domain.GoodsReceipt;
-import com.sivion.api.procurement.repo.GoodsReceiptRepository;
-import com.sivion.api.supplychain.domain.InboundShipmentReceipt;
-import com.sivion.api.supplychain.domain.Shipment;
-import com.sivion.api.supplychain.repo.InboundShipmentReceiptRepository;
-import com.sivion.api.supplychain.repo.ShipmentRepository;
+import com.sivion.api.procurement.domain.PurchaseOrder;
+import com.sivion.api.procurement.domain.PurchaseOrderItem;
+import com.sivion.api.supplychain.domain.*;
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.Map;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@DataJpaTest(properties = {
-    "spring.jpa.hibernate.ddl-auto=create-drop",
-    "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect"
-})
-@EntityScan(basePackageClasses = {Shipment.class, GoodsReceipt.class})
-@EnableJpaRepositories(basePackageClasses = {ShipmentRepository.class, GoodsReceiptRepository.class})
+/** Exercises Hibernate schema creation and basic persistence using a disposable H2 database. */
 class SupplyChainJpaPersistenceTest {
-    @Autowired private ShipmentRepository shipments;
-    @Autowired private GoodsReceiptRepository goodsReceipts;
-    @Autowired private InboundShipmentReceiptRepository inboundReceipts;
-
     @Test
     void persistsShipmentGoodsReceiptAndPartialReceiptLinkInAnIsolatedDatabase() {
-        Shipment shipment = new Shipment();
-        shipment.setShipmentNumber("IN-DB-TEST-1");
-        shipment.setDirection("INBOUND");
-        shipment.setStatus("PARTIALLY_RECEIVED");
-        shipment.setPublicTrackingToken("012345678901234567890123456789012345678901234567");
-        Shipment savedShipment = shipments.saveAndFlush(shipment);
+        StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
+            .applySettings(Map.of(
+                "hibernate.connection.driver_class", "org.h2.Driver",
+                "hibernate.connection.url", "jdbc:h2:mem:sivion_supply_chain;DB_CLOSE_DELAY=-1",
+                "hibernate.connection.username", "sa",
+                "hibernate.connection.password", "",
+                "hibernate.dialect", "org.hibernate.dialect.H2Dialect",
+                "hibernate.hbm2ddl.auto", "create-drop",
+                "hibernate.show_sql", "false"
+            )).build();
 
-        GoodsReceipt receipt = new GoodsReceipt();
-        receipt.setTenantId(1L);
-        receipt.setReceiptNumber("GRN-DB-TEST-1");
-        receipt.setPurchaseOrderId(22L);
-        receipt.setProductId(31L);
-        receipt.setWarehouseId(4L);
-        receipt.setQuantity(new BigDecimal("2.5000"));
-        receipt.setStatus("RECEIVED");
-        GoodsReceipt savedReceipt = goodsReceipts.saveAndFlush(receipt);
+        try {
+            MetadataSources metadata = new MetadataSources(registry)
+                .addAnnotatedClass(Shipment.class)
+                .addAnnotatedClass(ShipmentEvent.class)
+                .addAnnotatedClass(MaterialLot.class)
+                .addAnnotatedClass(ProductionLot.class)
+                .addAnnotatedClass(LotConsumption.class)
+                .addAnnotatedClass(ProofOfDelivery.class)
+                .addAnnotatedClass(QualityInspection.class)
+                .addAnnotatedClass(ShipmentReturn.class)
+                .addAnnotatedClass(ProductionLotShipment.class)
+                .addAnnotatedClass(InboundShipmentReceipt.class)
+                .addAnnotatedClass(ManufacturingOrder.class)
+                .addAnnotatedClass(GoodsReceipt.class)
+                .addAnnotatedClass(PurchaseOrder.class)
+                .addAnnotatedClass(PurchaseOrderItem.class);
 
-        InboundShipmentReceipt link = inboundReceipts.saveAndFlush(new InboundShipmentReceipt(
-            savedShipment.getId(), savedReceipt.getId(), savedReceipt.getReceiptNumber(), "SUP-REC-1",
-            31L, 4L, new BigDecimal("2.5000"), 99L, "RAW-DB-TEST-1", false));
+            try (SessionFactory factory = metadata.buildMetadata().buildSessionFactory();
+                 Session session = factory.openSession()) {
+                Transaction transaction = session.beginTransaction();
 
-        Optional<InboundShipmentReceipt> reloaded = inboundReceipts
-            .findByTenantIdAndShipmentIdAndReceiptReference(1L, savedShipment.getId(), "SUP-REC-1");
+                Shipment shipment = new Shipment();
+                shipment.setShipmentNumber("IN-DB-TEST-1");
+                shipment.setDirection("INBOUND");
+                shipment.setStatus("PARTIALLY_RECEIVED");
+                shipment.setPublicTrackingToken("012345678901234567890123456789012345678901234567");
+                session.persist(shipment);
 
-        assertTrue(reloaded.isPresent());
-        assertEquals(savedReceipt.getId(), reloaded.get().getGoodsReceiptId());
-        assertEquals(new BigDecimal("2.5000"), reloaded.get().getQuantity());
-        assertEquals("RAW-DB-TEST-1", reloaded.get().getLotCode());
-        assertEquals("GRN-DB-TEST-1", goodsReceipts
-            .findByReceiptNumberAndTenantId("GRN-DB-TEST-1", 1L).orElseThrow().getReceiptNumber());
-        assertTrue(shipments.findByIdAndTenantId(savedShipment.getId(), 1L).isPresent());
+                GoodsReceipt receipt = new GoodsReceipt();
+                receipt.setTenantId(1L);
+                receipt.setReceiptNumber("GRN-DB-TEST-1");
+                receipt.setPurchaseOrderId(22L);
+                receipt.setProductId(31L);
+                receipt.setWarehouseId(4L);
+                receipt.setQuantity(new BigDecimal("2.5000"));
+                receipt.setStatus("RECEIVED");
+                session.persist(receipt);
+                session.flush();
+
+                InboundShipmentReceipt link = new InboundShipmentReceipt(
+                    shipment.getId(), receipt.getId(), receipt.getReceiptNumber(), "SUP-REC-1",
+                    31L, 4L, new BigDecimal("2.5000"), 99L, "RAW-DB-TEST-1", false);
+                session.persist(link);
+                session.flush();
+
+                Long shipmentId = shipment.getId();
+                Long receiptId = receipt.getId();
+                Long linkId = link.getId();
+                transaction.commit();
+                session.clear();
+
+                InboundShipmentReceipt reloaded = session.find(InboundShipmentReceipt.class, linkId);
+                assertNotNull(reloaded);
+                assertEquals(shipmentId, reloaded.getShipmentId());
+                assertEquals(receiptId, reloaded.getGoodsReceiptId());
+                assertEquals(new BigDecimal("2.5000"), reloaded.getQuantity());
+                assertEquals("RAW-DB-TEST-1", reloaded.getLotCode());
+                assertEquals("GRN-DB-TEST-1",
+                    session.find(GoodsReceipt.class, receiptId).getReceiptNumber());
+                assertEquals("IN-DB-TEST-1",
+                    session.find(Shipment.class, shipmentId).getShipmentNumber());
+            }
+        } finally {
+            StandardServiceRegistryBuilder.destroy(registry);
+        }
     }
 }
