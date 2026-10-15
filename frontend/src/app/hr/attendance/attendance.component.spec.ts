@@ -96,7 +96,10 @@ describe('AttendanceComponent', () => {
     const form = fixture.nativeElement.querySelector('.attendance-form');
 
     expect(dialog).not.toBeNull();
+    expect(dialog.getAttribute('role')).toBe('presentation');
     expect(form).not.toBeNull();
+    expect(form.getAttribute('role')).toBe('dialog');
+    expect(form.getAttribute('aria-modal')).toBe('true');
     expect(form.querySelector('input[name="checkIn"]')).not.toBeNull();
     expect(form.querySelector('input[name="checkOut"]')).not.toBeNull();
   });
