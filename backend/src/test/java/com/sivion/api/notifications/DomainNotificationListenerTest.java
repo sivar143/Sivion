@@ -31,7 +31,7 @@ class DomainNotificationListenerTest {
         );
 
         verify(notifications).send(1L, "warehouse-user", "Shipment status updated",
-            "DSP-100 has a new shipment milestone.");
+            "shipmentNumber #DSP-100 has a new shipment milestone.");
         verify(notifications).send(1L, "sales-user", "Shipment status updated",
             "DSP-100 has a new shipment milestone.");
     }
