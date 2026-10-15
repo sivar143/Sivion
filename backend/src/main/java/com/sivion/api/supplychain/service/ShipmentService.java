@@ -4,6 +4,7 @@ import com.sivion.api.supplychain.domain.Shipment;
 import com.sivion.api.supplychain.domain.ShipmentEvent;
 import com.sivion.api.supplychain.repo.ShipmentEventRepository;
 import com.sivion.api.supplychain.repo.ShipmentRepository;
+import com.sivion.api.integration.DomainEventPublisher;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.HexFormat;
@@ -35,10 +36,12 @@ public class ShipmentService {
 
     private final ShipmentRepository shipments;
     private final ShipmentEventRepository events;
+    private final DomainEventPublisher domainEvents;
 
-    public ShipmentService(ShipmentRepository shipments, ShipmentEventRepository events) {
+    public ShipmentService(ShipmentRepository shipments, ShipmentEventRepository events, DomainEventPublisher domainEvents) {
         this.shipments = shipments;
         this.events = events;
+        this.domainEvents = domainEvents;
     }
 
     @Transactional(readOnly = true)
@@ -86,6 +89,7 @@ public class ShipmentService {
         Shipment saved = shipments.save(shipment);
         appendEvent(saved, null, "CREATED", "SHIPMENT_CREATED", Instant.now(),
             null, "Shipment created", "MANUAL", null);
+        domainEvents.publish("supply-chain.shipment.created", Map.of("shipmentId", saved.getId(), "shipmentNumber", saved.getShipmentNumber(), "direction", saved.getDirection(), "status", saved.getStatus(), "tenantId", TENANT_ID));
         return detail(saved.getId());
     }
 
@@ -121,6 +125,7 @@ public class ShipmentService {
             request.eventTime() == null ? Instant.now() : request.eventTime(),
             trimToNull(request.location()), trimToNull(request.remarks()),
             "MANUAL", trimToNull(request.idempotencyKey()));
+        domainEvents.publish("supply-chain.shipment.status", Map.of("shipmentId", shipment.getId(), "shipmentNumber", shipment.getShipmentNumber(), "direction", shipment.getDirection(), "previousStatus", previous, "status", next, "tenantId", TENANT_ID));
         return detail(id);
     }
 
