@@ -58,7 +58,7 @@ public class ShiprocketTrackingService {
             String location = text(find(response, Set.of("location", "current_location", "destination")));
             String remarks = text(find(response, Set.of("activity", "remarks", "message")));
             String eventId = ("api:" + awb.trim() + ":" + status + ":" + (timestamp == null ? "" : timestamp));
-            if (eventId.length() > 115) eventId = eventId.substring(0, 115);
+            if (eventId.length() > 95) eventId = eventId.substring(0, 95);
             return shipmentService.updateStatus(shipmentId, new ShipmentService.StatusUpdate(
                 normalizeStatus(status), parseTime(timestamp), location, remarks,
                 "carrier:shiprocket:" + eventId, "CARRIER:SHIPROCKET_API"));
