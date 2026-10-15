@@ -68,6 +68,7 @@ public class TraceabilityService {
                     && !Objects.equals(r.purchaseOrderId(), inboundShipment.getPurchaseOrderId()))
                 throw bad("Purchase order does not match the linked inbound shipment.");
         }
+        if (referenceValidator != null) referenceValidator.validateMaterialExists(r.materialId());
         Long effectivePurchaseOrderId = r.purchaseOrderId() != null ? r.purchaseOrderId()
             : inboundShipment == null ? null : inboundShipment.getPurchaseOrderId();
         String effectiveGoodsReceiptReference = trim(r.goodsReceiptReference()) != null
