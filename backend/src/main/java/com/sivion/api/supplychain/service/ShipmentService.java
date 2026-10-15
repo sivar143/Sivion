@@ -131,7 +131,7 @@ public class ShipmentService {
         appendEvent(shipment, previous, next, "STATUS_UPDATE",
             request.eventTime() == null ? Instant.now() : request.eventTime(),
             trimToNull(request.location()), trimToNull(request.remarks()),
-            "MANUAL", trimToNull(request.idempotencyKey()));
+            request.sourceType() == null || request.sourceType().isBlank() ? "MANUAL" : request.sourceType().trim().toUpperCase(java.util.Locale.ROOT), trimToNull(request.idempotencyKey()));
         domainEvents.publish("supply-chain.shipment.status", Map.of("shipmentId", shipment.getId(), "shipmentNumber", shipment.getShipmentNumber(), "direction", shipment.getDirection(), "previousStatus", previous, "status", next, "tenantId", TENANT_ID));
         return detail(id);
     }
@@ -243,7 +243,11 @@ public class ShipmentService {
         String originLocation, String destinationLocation, Instant dispatchedAt,
         Instant estimatedArrivalAt, String notes) { }
     public record StatusUpdate(String status, Instant eventTime, String location, String remarks,
-        String idempotencyKey) { }
+        String idempotencyKey, String sourceType) {
+        public StatusUpdate(String status, Instant eventTime, String location, String remarks, String idempotencyKey) {
+            this(status, eventTime, location, remarks, idempotencyKey, "MANUAL");
+        }
+    }
     public record ShipmentView(Long id, String shipmentNumber, String direction, String status,
         String referenceNumber, Long purchaseOrderId, String goodsReceiptReference, Long salesOrderId, Long dispatchId, String supplierName, String customerName, String carrierName,
         String carrierTrackingNumber, String originLocation, String destinationLocation,
