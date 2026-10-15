@@ -5,14 +5,22 @@
       <p>Track supplier shipments, production movements and customer deliveries.</p>
     </div>
     <div class="actions">
-      <button type="button" class="secondary" (click)="reload()" [disabled]="loading">Refresh</button>
-      <button type="button" (click)="showCreate = !showCreate">{{ showCreate ? 'Cancel' : '+ New shipment' }}</button>
+      <button type="button" class="secondary" (click)="reload()" [disabled]="loading">Refresh shipments</button>
+      <button type="button" (click)="openCreateShipment()" [attr.aria-expanded]="showCreate">{{ showCreate ? 'Close shipment form' : '+ New shipment' }}</button>
     </div>
   </div>
 
   <p class="message error" role="alert" *ngIf="error">{{ error }}</p>
   <p class="message success" role="status" *ngIf="success">{{ success }}</p>
 
+  <nav class="workflow-nav" aria-label="Supply chain workflows">
+    <button type="button" [class.active]="activeSection === 'shipments'" (click)="selectSection('shipments')">Shipments</button>
+    <button type="button" [class.active]="activeSection === 'receiving'" (click)="selectSection('receiving')">Receiving &amp; quality</button>
+    <button type="button" [class.active]="activeSection === 'production'" (click)="selectSection('production')">Production</button>
+    <button type="button" [class.active]="activeSection === 'traceability'" (click)="selectSection('traceability')">Traceability</button>
+  </nav>
+
+  <section *ngIf="activeSection === 'receiving'" class="workflow-panel">
   <form class="create-form" (ngSubmit)="inspectLot()">
     <h3>Quality inspection and inventory reconciliation</h3>
     <p class="muted">Record incremental accepted/rejected quantities for a raw-material or finished-product lot. Accepted quantities are posted to inventory; rejected quantities remain excluded.</p>
@@ -44,6 +52,9 @@
     <button type="submit" [disabled]="saving || !materialLotDraft.lotCode.trim() || materialLotDraft.materialId <= 0 || materialLotDraft.receivedQuantity <= 0">Receive material lot</button>
   </form>
 
+  </section>
+
+  <section *ngIf="activeSection === 'production'" class="workflow-panel">
   <form class="create-form" (ngSubmit)="createManufacturingOrder()">
     <h3>Manufacturing order</h3>
     <div class="form-grid">
@@ -80,6 +91,9 @@
     <button type="submit" [disabled]="saving || consumptionDraft.materialLotId <= 0 || consumptionDraft.productionLotId <= 0 || consumptionDraft.manufacturingOrderId <= 0 || consumptionDraft.quantityConsumed <= 0 || !consumptionDraft.unit.trim()">Record consumption</button>
   </form>
 
+  </section>
+
+  <section *ngIf="activeSection === 'traceability'" class="workflow-panel">
   <form class="create-form" (ngSubmit)="allocateProductionLot()">
     <h3>Allocate finished-product lot to shipment</h3>
     <p class="muted">Only quality-accepted quantities can be allocated, and cumulative lot allocations cannot exceed the linked inventory dispatch.</p>
@@ -102,6 +116,9 @@
     <pre class="genealogy-result" *ngIf="genealogyResult">{{ genealogyResult | json }}</pre>
   </form>
 
+  </section>
+
+  <section *ngIf="activeSection === 'shipments'" class="workflow-panel">
   <form class="create-form" *ngIf="showCreate" (ngSubmit)="createShipment()">
     <h3>Create shipment</h3>
     <div class="form-grid">
@@ -123,6 +140,8 @@
     </div>
     <button type="submit" [disabled]="saving || !draft.shipmentNumber.trim()">{{ saving ? 'Saving…' : 'Create shipment' }}</button>
   </form>
+
+  </section>
 
   <div class="tracking-layout">
     <section class="shipment-list" aria-label="Shipment list">
