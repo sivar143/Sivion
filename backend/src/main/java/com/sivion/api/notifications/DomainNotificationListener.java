@@ -41,6 +41,7 @@ public class DomainNotificationListener {
         String reference = referenceFor(routingKey, payload);
         String title = titleFor(routingKey);
         String message = messageFor(routingKey, reference);
+        String eventKey = eventKeyFor(routingKey, payload);
 
         List<Employee> recipients = employees.findByTenantIdOrderByLastNameAscFirstNameAsc(TENANT_ID).stream()
             .filter(employee -> employee.getUsername() != null && !employee.getUsername().isBlank())
@@ -49,7 +50,7 @@ public class DomainNotificationListener {
 
         for (Employee recipient : recipients) {
             try {
-                notifications.send(TENANT_ID, recipient.getUsername(), title, message);
+                notifications.sendOnce(TENANT_ID, eventKey, recipient.getUsername(), title, message);
             } catch (RuntimeException exception) {
                 // Do not discard the rest of the recipient fan-out because one inbox write failed.
                 LOGGER.warn("Unable to create event notification for recipient {}", recipient.getUsername(), exception);
@@ -80,6 +81,16 @@ public class DomainNotificationListener {
                 Set.of("WAREHOUSE_MANAGER", "INVENTORY_MANAGER", "SALES_MANAGER", "SALES_USER");
             default -> Set.of();
         };
+    }
+
+    private String eventKeyFor(String routingKey, Map<String, Object> payload) {
+        Object eventId = payload.get("eventId");
+        if (eventId != null) return routingKey + ":" + eventId;
+        for (String key : List.of("inspectionId", "consumptionId", "proofId", "returnId", "lotId", "shipmentId", "dispatchId", "goodsReceiptId", "salesOrderId", "purchaseOrderId")) {
+            Object value = payload.get(key);
+            if (value != null) return routingKey + ":" + key + ":" + value;
+        }
+        throw new IllegalArgumentException("Cannot derive a stable event key for " + routingKey);
     }
 
     private String titleFor(String routingKey) {
