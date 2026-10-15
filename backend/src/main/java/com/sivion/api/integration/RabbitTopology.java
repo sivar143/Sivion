@@ -210,6 +210,11 @@ public class RabbitTopology {
     }
 
     @Bean
+    Binding notificationInboundReceiptBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
+        return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("supply-chain.inbound.receipt-recorded");
+    }
+
+    @Bean
     Binding notificationShipmentCreatedBinding(Queue notificationDomainEventsQueue, TopicExchange sivionEvents) {
         return BindingBuilder.bind(notificationDomainEventsQueue).to(sivionEvents).with("supply-chain.shipment.created");
     }
