@@ -39,6 +39,7 @@ import { ReportsComponent } from './reports/reports.component';
 import { MarketingCampaignsComponent } from './marketing/marketing-campaigns.component';
 import { MarketingCampaign, MarketingCampaignsApi } from './marketing/marketing-campaigns-api.service';
 import { AdministrationComponent } from './administration/administration.component';
+import { SupplyChainComponent } from './supply-chain/supply-chain.component';
 import { getDialogErrorMessage } from './shared/dialog-error.util';
 
 @Component({
@@ -56,7 +57,8 @@ import { getDialogErrorMessage } from './shared/dialog-error.util';
     NotificationCenterComponent,
     ReportsComponent,
     MarketingCampaignsComponent,
-    AdministrationComponent
+    AdministrationComponent,
+    SupplyChainComponent
   ],
   templateUrl: './app.component.html'
 })
@@ -184,6 +186,10 @@ export class AppComponent implements OnInit {
       'performance',
       'team'
     ].includes(this.activeItem) && !this.isHr;
+  }
+
+  get isSupplyChain() {
+    return this.activeItem === 'supply-chain';
   }
 
   get isInventory() {
