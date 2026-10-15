@@ -3,6 +3,7 @@ package com.sivion.api.supplychain.service;
 import com.sivion.api.supplychain.domain.*;
 import com.sivion.api.inventory.service.InventoryService;
 import com.sivion.api.integration.DomainEventPublisher;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.sivion.api.supplychain.repo.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -26,12 +27,26 @@ public class TraceabilityService {
     private final ShipmentEventRepository events;
     private final InventoryService inventory;
     private final DomainEventPublisher domainEvents;
+    private final SupplyChainReferenceValidator referenceValidator;
+    private final QualityInspectionRepository inspections;
 
+    @Autowired
     public TraceabilityService(MaterialLotRepository materialLots, ProductionLotRepository productionLots,
             LotConsumptionRepository consumptions, ShipmentRepository shipments,
-            ProofOfDeliveryRepository proofs, ShipmentEventRepository events, InventoryService inventory, DomainEventPublisher domainEvents) {
+            ProofOfDeliveryRepository proofs, ShipmentEventRepository events, InventoryService inventory,
+            DomainEventPublisher domainEvents, SupplyChainReferenceValidator referenceValidator,
+            QualityInspectionRepository inspections) {
         this.materialLots=materialLots; this.productionLots=productionLots; this.consumptions=consumptions;
-        this.shipments=shipments; this.proofs=proofs; this.events=events; this.inventory=inventory; this.domainEvents=domainEvents;
+        this.shipments=shipments; this.proofs=proofs; this.events=events; this.inventory=inventory;
+        this.domainEvents=domainEvents; this.referenceValidator=referenceValidator; this.inspections=inspections;
+    }
+
+    /** Constructor retained for focused service unit tests that do not exercise reference validation. */
+    public TraceabilityService(MaterialLotRepository materialLots, ProductionLotRepository productionLots,
+            LotConsumptionRepository consumptions, ShipmentRepository shipments,
+            ProofOfDeliveryRepository proofs, ShipmentEventRepository events, InventoryService inventory,
+            DomainEventPublisher domainEvents) {
+        this(materialLots, productionLots, consumptions, shipments, proofs, events, inventory, domainEvents, null, null);
     }
 
     @Transactional
@@ -41,6 +56,8 @@ public class TraceabilityService {
         if (r.materialId()==null) throw bad("A material ID is required.");
         if (r.lotCode()==null || r.lotCode().isBlank()) throw bad("A lot code is required.");
         String code=r.lotCode().trim();
+        if (referenceValidator != null) referenceValidator.validateMaterialReceipt(r.purchaseOrderId(),
+            r.goodsReceiptReference(), r.materialId(), r.supplierId(), r.warehouseId());
         if(materialLots.existsByLotCodeAndTenantId(code,TENANT)) throw conflict("This material lot code already exists.");
         BigDecimal accepted=nz(r.acceptedQuantity()), rejected=nz(r.rejectedQuantity());
         if(accepted.signum()>0 && r.warehouseId()==null)
@@ -128,6 +145,73 @@ public class TraceabilityService {
     }
 
     @Transactional
+    public InspectionView inspect(String lotCode, InspectionRequest request) {
+        if (request == null) throw bad("Inspection quantities are required.");
+        BigDecimal accepted = nz(request.acceptedQuantity());
+        BigDecimal rejected = nz(request.rejectedQuantity());
+        if (accepted.signum() < 0 || rejected.signum() < 0 || accepted.add(rejected).signum() <= 0) {
+            throw bad("Inspection must accept or reject a positive quantity; quantities cannot be negative.");
+        }
+        String code = lotCode == null ? "" : lotCode.trim();
+        if (code.isBlank()) throw bad("Lot code is required.");
+        String inspector = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+            .map(Authentication::getName).orElse("system");
+        MaterialLot material = materialLots.findByLotCodeAndTenantId(code, TENANT).orElse(null);
+        if (material != null) {
+            BigDecimal remaining = material.getReceivedQuantity().subtract(material.getAcceptedQuantity())
+                .subtract(material.getRejectedQuantity());
+            if (accepted.add(rejected).compareTo(remaining) > 0)
+                throw conflict("Inspection quantity exceeds the uninspected quantity remaining for this lot.");
+            if (accepted.signum() > 0 && material.getWarehouseId() == null)
+                throw bad("A warehouse is required before accepted material can enter inventory.");
+            material.setAcceptedQuantity(material.getAcceptedQuantity().add(accepted));
+            material.setRejectedQuantity(material.getRejectedQuantity().add(rejected));
+            boolean complete = material.getAcceptedQuantity().add(material.getRejectedQuantity())
+                .compareTo(material.getReceivedQuantity()) == 0;
+            material.setQualityStatus(!complete ? "INSPECTION_IN_PROGRESS"
+                : material.getRejectedQuantity().signum() > 0
+                    ? (material.getAcceptedQuantity().signum() > 0 ? "PARTIALLY_REJECTED" : "REJECTED") : "ACCEPTED");
+            materialLots.save(material);
+            if (accepted.signum() > 0) inventory.stock(material.getMaterialId(), material.getWarehouseId(),
+                accepted, "STOCK_IN", "QUALITY_INSPECTION", material.getId());
+            QualityInspection saved = inspections.save(new QualityInspection(code, "RAW_MATERIAL",
+                accepted, rejected, inspector, trim(request.notes())));
+            domainEvents.publish("supply-chain.quality-inspection.completed", Map.of("inspectionId", saved.getId(),
+                "lotCode", code, "lotType", "RAW_MATERIAL", "qualityStatus", material.getQualityStatus(), "tenantId", TENANT));
+            return new InspectionView(saved.getId(), code, "RAW_MATERIAL", accepted, rejected,
+                material.getQualityStatus(), inspector, saved.getInspectedAt(), saved.getNotes());
+        }
+        ProductionLot output = productionLots.findByLotCodeAndTenantId(code, TENANT).orElse(null);
+        if (output == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Lot was not found.");
+        BigDecimal alreadyAccepted = inspections.findByTenantIdAndLotCodeOrderByInspectedAtAsc(TENANT, code)
+            .stream().filter(i -> "FINISHED_PRODUCT".equals(i.getLotType()))
+            .map(QualityInspection::getAcceptedQuantity).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal alreadyRejected = inspections.findByTenantIdAndLotCodeOrderByInspectedAtAsc(TENANT, code)
+            .stream().filter(i -> "FINISHED_PRODUCT".equals(i.getLotType()))
+            .map(QualityInspection::getRejectedQuantity).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal remaining = output.getProducedQuantity().subtract(alreadyAccepted).subtract(alreadyRejected);
+        if (accepted.add(rejected).compareTo(remaining) > 0)
+            throw conflict("Inspection quantity exceeds the uninspected quantity remaining for this lot.");
+        if (accepted.signum() > 0 && output.getWarehouseId() == null)
+            throw bad("A warehouse is required before accepted finished products can enter inventory.");
+        BigDecimal totalAccepted = alreadyAccepted.add(accepted);
+        BigDecimal totalRejected = alreadyRejected.add(rejected);
+        boolean complete = totalAccepted.add(totalRejected).compareTo(output.getProducedQuantity()) == 0;
+        output.setRejectedQuantity(totalRejected);
+        output.setQualityStatus(!complete ? "INSPECTION_IN_PROGRESS"
+            : totalRejected.signum() > 0 ? (totalAccepted.signum() > 0 ? "PARTIALLY_REJECTED" : "REJECTED") : "ACCEPTED");
+        productionLots.save(output);
+        if (accepted.signum() > 0) inventory.stock(output.getProductId(), output.getWarehouseId(),
+            accepted, "STOCK_IN", "QUALITY_INSPECTION", output.getId());
+        QualityInspection saved = inspections.save(new QualityInspection(code, "FINISHED_PRODUCT",
+            accepted, rejected, inspector, trim(request.notes())));
+        domainEvents.publish("supply-chain.quality-inspection.completed", Map.of("inspectionId", saved.getId(),
+            "lotCode", code, "lotType", "FINISHED_PRODUCT", "qualityStatus", output.getQualityStatus(), "tenantId", TENANT));
+        return new InspectionView(saved.getId(), code, "FINISHED_PRODUCT", accepted, rejected,
+            output.getQualityStatus(), inspector, saved.getInspectedAt(), saved.getNotes());
+    }
+
+    @Transactional
     public ProofView recordProof(long shipmentId, ProofRequest r) {
         Shipment shipment=shipments.findByIdAndTenantId(shipmentId,TENANT)
             .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Shipment was not found."));
@@ -153,6 +237,8 @@ public class TraceabilityService {
     public record ProductionRequest(String lotCode,Long productId,Long manufacturingOrderId,BigDecimal producedQuantity,BigDecimal rejectedQuantity,Long warehouseId,Instant producedAt){}
     public record ConsumptionRequest(Long materialLotId,Long productionLotId,Long manufacturingOrderId,BigDecimal quantityConsumed,String unit,String remarks){}
     public record ProofRequest(String recipientName,Instant deliveredAt,String notes,String documentReference){}
+    public record InspectionRequest(BigDecimal acceptedQuantity, BigDecimal rejectedQuantity, String notes){}
+    public record InspectionView(Long id, String lotCode, String lotType, BigDecimal acceptedQuantity, BigDecimal rejectedQuantity, String qualityStatus, String inspector, Instant inspectedAt, String notes){}
     public record MaterialLotView(Long id,String lotCode,Long materialId,Long supplierId,String supplierName,String supplierLotCode,Long shipmentId,Long purchaseOrderId,String goodsReceiptReference,Long warehouseId,BigDecimal receivedQuantity,BigDecimal acceptedQuantity,BigDecimal rejectedQuantity,String qualityStatus,Instant manufacturedAt,Instant expiresAt,Instant createdAt){}
     public record ProductionLotView(Long id,String lotCode,Long productId,Long manufacturingOrderId,Long shipmentId,BigDecimal producedQuantity,BigDecimal rejectedQuantity,String qualityStatus,Long warehouseId,Instant producedAt){}
     public record ConsumptionView(Long id,String materialLotCode,String productionLotCode,Long manufacturingOrderId,BigDecimal quantityConsumed,String unit,Instant recordedAt,String remarks){}
