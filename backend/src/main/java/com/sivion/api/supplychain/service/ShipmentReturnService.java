@@ -42,8 +42,14 @@ public class ShipmentReturnService {
         Optional<ShipmentReturn> previous=returns.findByTenantIdAndReturnReference(TENANT_ID, reference);
         if(previous.isPresent()) {
             ShipmentReturn existing=previous.get();
-            if(!Objects.equals(existing.getShipmentId(), shipmentId))
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Return reference is already assigned to another shipment.");
+            String requestedDisposition=request.disposition()==null?"QUARANTINE":request.disposition().trim().toUpperCase(java.util.Locale.ROOT);
+            if(!Objects.equals(existing.getShipmentId(), shipmentId)
+                    || !Objects.equals(existing.getProductId(), request.productId())
+                    || !Objects.equals(existing.getWarehouseId(), request.warehouseId())
+                    || !Objects.equals(existing.getQuantity(), request.quantity())
+                    || !Objects.equals(existing.getDisposition(), requestedDisposition)
+                    || !Objects.equals(existing.getReason(), request.reason()==null?null:request.reason().trim()))
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Return reference was already used with different return details.");
             return view(existing);
         }
         Shipment shipment=shipments.findByIdAndTenantId(shipmentId,TENANT_ID)
