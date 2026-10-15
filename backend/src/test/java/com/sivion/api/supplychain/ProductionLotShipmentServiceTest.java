@@ -34,7 +34,7 @@ class ProductionLotShipmentServiceTest {
         when(productionLots.findByLotCodeAndTenantId("FG-LOT-1",1L)).thenReturn(Optional.of(lot));
         when(shipments.findByIdAndTenantId(40L,1L)).thenReturn(Optional.of(shipment));
         when(dispatches.findByIdAndTenantId(30L,1L)).thenReturn(Optional.of(new Dispatch()));
-        when(links.findByTenantIdAndProductionLotIdAndShipmentId(1L,null,40L)).thenReturn(Optional.empty());
+        when(links.findByTenantIdAndProductionLotIdAndShipmentId(1L,null,null)).thenReturn(Optional.empty());
         when(inspections.findByTenantIdAndLotCodeOrderByInspectedAtAsc(1L,"FG-LOT-1")).thenReturn(java.util.List.of());
 
         ProductionLotShipmentService service=new ProductionLotShipmentService(productionLots,links,shipments,
