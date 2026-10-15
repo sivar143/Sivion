@@ -26,6 +26,12 @@ export class SupplyChainComponent implements OnInit {
   remarksDraft = '';
   inspectionDraft = { lotCode: '', acceptedQuantity: 0, rejectedQuantity: 0, notes: '' };
   returnDraft = { returnReference: '', productId: 0, warehouseId: 0, quantity: 0, disposition: 'QUARANTINE' as 'RESTOCK' | 'QUARANTINE' | 'SCRAP', reason: '' };
+  materialLotDraft = { lotCode: '', materialId: 0, supplierId: null as number | null, supplierName: '', supplierLotCode: '', shipmentId: null as number | null, purchaseOrderId: null as number | null, goodsReceiptReference: '', warehouseId: null as number | null, receivedQuantity: 0, acceptedQuantity: 0, rejectedQuantity: 0 };
+  productionLotDraft = { lotCode: '', productId: 0, manufacturingOrderId: 0, producedQuantity: 0, rejectedQuantity: 0, warehouseId: null as number | null };
+  consumptionDraft = { materialLotId: 0, productionLotId: 0, manufacturingOrderId: 0, quantityConsumed: 0, unit: 'EA', remarks: '' };
+  manufacturingOrderDraft = { orderNumber: '', productId: 0, plannedQuantity: 0 };
+  genealogyLotCode = '';
+  genealogyResult: unknown = null;
 
   draft: CreateShipment = {
     shipmentNumber: '',
@@ -126,6 +132,105 @@ export class SupplyChainComponent implements OnInit {
     } finally {
       this.saving = false;
       this.changeDetector.markForCheck();
+    }
+  }
+
+  async receiveMaterialLot(): Promise<void> {
+    this.saving = true;
+    this.error = '';
+    this.success = '';
+    try {
+      await this.api.receiveMaterialLot({
+        ...this.materialLotDraft,
+        lotCode: this.materialLotDraft.lotCode.trim(),
+        materialId: Number(this.materialLotDraft.materialId),
+        receivedQuantity: Number(this.materialLotDraft.receivedQuantity),
+        acceptedQuantity: Number(this.materialLotDraft.acceptedQuantity),
+        rejectedQuantity: Number(this.materialLotDraft.rejectedQuantity)
+      });
+      this.success = 'Raw-material lot recorded and linked to the validated goods receipt.';
+      this.materialLotDraft = { lotCode: '', materialId: 0, supplierId: null, supplierName: '', supplierLotCode: '', shipmentId: null, purchaseOrderId: null, goodsReceiptReference: '', warehouseId: null, receivedQuantity: 0, acceptedQuantity: 0, rejectedQuantity: 0 };
+    } catch (error) {
+      this.error = this.errorMessage(error, 'Unable to receive raw-material lot.');
+    } finally {
+      this.saving = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  async createManufacturingOrder(): Promise<void> {
+    this.saving = true;
+    this.error = '';
+    this.success = '';
+    try {
+      await this.api.createManufacturingOrder({
+        ...this.manufacturingOrderDraft,
+        orderNumber: this.manufacturingOrderDraft.orderNumber.trim(),
+        productId: Number(this.manufacturingOrderDraft.productId),
+        plannedQuantity: Number(this.manufacturingOrderDraft.plannedQuantity)
+      });
+      this.success = 'Manufacturing order created.';
+      this.manufacturingOrderDraft = { orderNumber: '', productId: 0, plannedQuantity: 0 };
+    } catch (error) {
+      this.error = this.errorMessage(error, 'Unable to create manufacturing order.');
+    } finally {
+      this.saving = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  async recordProductionLot(): Promise<void> {
+    this.saving = true;
+    this.error = '';
+    this.success = '';
+    try {
+      await this.api.recordProductionLot({
+        ...this.productionLotDraft,
+        lotCode: this.productionLotDraft.lotCode.trim(),
+        productId: Number(this.productionLotDraft.productId),
+        manufacturingOrderId: Number(this.productionLotDraft.manufacturingOrderId),
+        producedQuantity: Number(this.productionLotDraft.producedQuantity),
+        rejectedQuantity: Number(this.productionLotDraft.rejectedQuantity)
+      });
+      this.success = 'Finished-product lot recorded against the manufacturing order.';
+      this.productionLotDraft = { lotCode: '', productId: 0, manufacturingOrderId: 0, producedQuantity: 0, rejectedQuantity: 0, warehouseId: null };
+    } catch (error) {
+      this.error = this.errorMessage(error, 'Unable to record finished-product lot.');
+    } finally {
+      this.saving = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  async recordConsumption(): Promise<void> {
+    this.saving = true;
+    this.error = '';
+    this.success = '';
+    try {
+      await this.api.recordConsumption({
+        ...this.consumptionDraft,
+        quantityConsumed: Number(this.consumptionDraft.quantityConsumed),
+        unit: this.consumptionDraft.unit.trim(),
+        remarks: this.consumptionDraft.remarks || undefined
+      });
+      this.success = 'Material consumption linked to the finished-product lot.';
+      this.consumptionDraft = { materialLotId: 0, productionLotId: 0, manufacturingOrderId: 0, quantityConsumed: 0, unit: 'EA', remarks: '' };
+    } catch (error) {
+      this.error = this.errorMessage(error, 'Unable to record material consumption.');
+    } finally {
+      this.saving = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  async lookupGenealogy(): Promise<void> {
+    this.error = '';
+    this.success = '';
+    this.genealogyResult = null;
+    try {
+      this.genealogyResult = await this.api.genealogy(this.genealogyLotCode.trim());
+    } catch (error) {
+      this.error = this.errorMessage(error, 'Unable to load lot genealogy.');
     }
   }
 
