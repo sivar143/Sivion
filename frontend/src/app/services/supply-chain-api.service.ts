@@ -98,4 +98,27 @@ export class SupplyChainApi {
       idempotencyKey: crypto.randomUUID()
     }, await this.options()));
   }
+
+  async inspectLot(lotCode: string, request: QualityInspectionRequest): Promise<unknown> {
+    return firstValueFrom(this.http.post(`${this.base}/lots/${encodeURIComponent(lotCode)}/inspection`, request, await this.options()));
+  }
+
+  async recordReturn(shipmentId: number, request: ShipmentReturnRequest): Promise<unknown> {
+    return firstValueFrom(this.http.post(`${this.base}/shipments/${shipmentId}/returns`, request, await this.options()));
+  }
+}
+
+export interface QualityInspectionRequest {
+  acceptedQuantity: number;
+  rejectedQuantity: number;
+  notes?: string;
+}
+
+export interface ShipmentReturnRequest {
+  returnReference: string;
+  productId: number;
+  warehouseId: number;
+  quantity: number;
+  disposition: 'RESTOCK' | 'QUARANTINE' | 'SCRAP';
+  reason: string;
 }
