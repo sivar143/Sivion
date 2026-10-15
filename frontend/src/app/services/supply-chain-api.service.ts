@@ -99,6 +99,26 @@ export class SupplyChainApi {
     }, await this.options()));
   }
 
+  async receiveMaterialLot(request: MaterialLotRequest): Promise<unknown> {
+    return firstValueFrom(this.http.post(`${this.base}/material-lots`, request, await this.options()));
+  }
+
+  async recordProductionLot(request: ProductionLotRequest): Promise<unknown> {
+    return firstValueFrom(this.http.post(`${this.base}/production-lots`, request, await this.options()));
+  }
+
+  async recordConsumption(request: LotConsumptionRequest): Promise<unknown> {
+    return firstValueFrom(this.http.post(`${this.base}/lot-consumptions`, request, await this.options()));
+  }
+
+  async genealogy(lotCode: string): Promise<unknown> {
+    return firstValueFrom(this.http.get(`${this.base}/lots/${encodeURIComponent(lotCode)}/genealogy`, await this.options()));
+  }
+
+  async createManufacturingOrder(request: ManufacturingOrderRequest): Promise<unknown> {
+    return firstValueFrom(this.http.post(`${this.base}/manufacturing-orders`, request, await this.options()));
+  }
+
   async inspectLot(lotCode: string, request: QualityInspectionRequest): Promise<unknown> {
     return firstValueFrom(this.http.post(`${this.base}/lots/${encodeURIComponent(lotCode)}/inspection`, request, await this.options()));
   }
@@ -121,4 +141,46 @@ export interface ShipmentReturnRequest {
   quantity: number;
   disposition: 'RESTOCK' | 'QUARANTINE' | 'SCRAP';
   reason: string;
+}
+
+export interface MaterialLotRequest {
+  lotCode: string;
+  materialId: number;
+  supplierId?: number | null;
+  supplierName?: string;
+  supplierLotCode?: string;
+  shipmentId?: number | null;
+  purchaseOrderId?: number | null;
+  goodsReceiptReference?: string;
+  warehouseId?: number | null;
+  receivedQuantity: number;
+  acceptedQuantity?: number;
+  rejectedQuantity?: number;
+  manufacturedAt?: string;
+  expiresAt?: string;
+}
+
+export interface ProductionLotRequest {
+  lotCode: string;
+  productId: number;
+  manufacturingOrderId: number;
+  producedQuantity: number;
+  rejectedQuantity?: number;
+  warehouseId?: number | null;
+  producedAt?: string;
+}
+
+export interface LotConsumptionRequest {
+  materialLotId: number;
+  productionLotId: number;
+  manufacturingOrderId: number;
+  quantityConsumed: number;
+  unit: string;
+  remarks?: string;
+}
+
+export interface ManufacturingOrderRequest {
+  orderNumber: string;
+  productId: number;
+  plannedQuantity: number;
 }
