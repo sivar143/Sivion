@@ -40,9 +40,9 @@
   </table>
 </section>
 
-<div *ngIf="formOpen" class="modal attendance-modal">
-  <form class="attendance-form" (ngSubmit)="saveAttendance()">
-    <h2>Record attendance</h2>
+<div *ngIf="formOpen" class="modal attendance-modal" role="presentation">
+  <form class="attendance-form" role="dialog" aria-modal="true" aria-labelledby="attendance-dialog-title" (ngSubmit)="saveAttendance()">
+    <h2 id="attendance-dialog-title">Record attendance</h2>
 
     <p *ngIf="actionError" class="form-error" role="alert">{{ actionError }}</p>
 
