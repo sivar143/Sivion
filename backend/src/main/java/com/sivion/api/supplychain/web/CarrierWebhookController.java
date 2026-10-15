@@ -55,7 +55,7 @@ public class CarrierWebhookController {
             @RequestHeader(name = "X-Carrier-Signature", required = false) String signature,
             @RequestHeader(name = "X-API-Key", required = false) String apiKey,
             @RequestBody byte[] rawBody) {
-        if (provider == null || !provider.matches("[a-zA-Z0-9_-]{2,40}")) {
+        if (provider == null || !provider.matches("[a-zA-Z0-9_-]{2,24}")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A valid X-Carrier-Provider header is required.");
         }
         String normalizedProvider = provider.toLowerCase(java.util.Locale.ROOT);
@@ -98,7 +98,8 @@ public class CarrierWebhookController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Carrier webhook body is not valid JSON.");
         }
         if (event == null || event.status() == null || event.status().isBlank()
-                || event.externalEventId() == null || event.externalEventId().isBlank()) {
+                || event.externalEventId() == null || event.externalEventId().isBlank()
+                || event.externalEventId().trim().length() > 80) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Carrier event status and externalEventId are required.");
         }
