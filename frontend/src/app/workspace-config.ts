@@ -43,6 +43,7 @@ export const WORKSPACES: Record<WorkspaceId, WorkspaceDefinition> = {
       { id: 'marketing', label: 'Marketing', description: 'Campaigns, marketing leads and analytics' },
       { id: 'sales', label: 'Sales', description: 'Customers, leads, opportunities and orders' },
       { id: 'inventory', label: 'Inventory', description: 'Materials, stock, dispatch and history' },
+      { id: 'supply-chain', label: 'Supply Chain Tracking', description: 'Supplier shipments, production traceability and customer deliveries' },
       { id: 'procurement', label: 'Procurement', description: 'Suppliers, purchasing and goods received' },
       { id: 'finance', label: 'Finance', description: 'Invoices, payments, expenses and reports' }
     ]
@@ -95,6 +96,7 @@ export const WORKSPACES: Record<WorkspaceId, WorkspaceDefinition> = {
       { id: 'dispatch', label: 'Dispatch', description: 'Dispatch materials to customers' },
       { id: 'customers', label: 'Customers', description: 'Customer delivery destinations' },
       { id: 'dispatch-history', label: 'Dispatch History', description: 'Completed dispatches' },
+      { id: 'supply-chain', label: 'Supply Chain Tracking', description: 'Supplier shipments and delivery status' },
       { id: 'reports', label: 'Reports', description: 'Inventory reports' }
     ]
   },
