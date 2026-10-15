@@ -27,7 +27,7 @@ class DomainNotificationListenerTest {
             .thenReturn(List.of(warehouseUser, salesUser));
 
         new DomainNotificationListener(repository, notifications).onDomainEvent(
-            "supply-chain.shipment.status", Map.of("shipmentNumber", "DSP-100", "status", "IN_TRANSIT")
+            "supply-chain.shipment.status", Map.of("eventId", 88L, "shipmentId", 5L, "shipmentNumber", "DSP-100", "status", "IN_TRANSIT")
         );
 
         verify(notifications).send(1L, "warehouse-user", "Shipment status updated",
@@ -71,7 +71,7 @@ class DomainNotificationListenerTest {
             "sales.order.confirmed", Map.of("salesOrderId", 42L)
         );
 
-        verify(notifications).send(1L, "stock-user", "Sales order confirmed",
+        verify(notifications).sendOnce(1L, "sales.order.confirmed:salesOrderId:42", "stock-user", "Sales order confirmed",
             "salesOrderId #42 is confirmed and ready for inventory processing.");
         org.mockito.Mockito.verifyNoMoreInteractions(notifications);
     }
