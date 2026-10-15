@@ -60,8 +60,10 @@
     </table>
   </div>
 
-  <form class="campaign-form" *ngIf="formOpen" (ngSubmit)="save()">
-    <h3>{{ editingId ? 'Edit campaign' : 'New campaign' }}</h3>
+  <div class="campaign-modal" *ngIf="formOpen" role="presentation">
+  <form class="campaign-form" role="dialog" aria-modal="true" aria-labelledby="campaign-dialog-title" (ngSubmit)="save()">
+    <h3 id="campaign-dialog-title">{{ editingId ? 'Edit campaign' : 'New campaign' }}</h3>
+    <p class="campaign-message error" *ngIf="error" role="alert">{{ error }}</p>
     <div class="form-grid">
       <label>
         Campaign name
@@ -111,4 +113,5 @@
       <button type="submit" [disabled]="saving">{{ editingId ? 'Save changes' : 'Create campaign' }}</button>
     </div>
   </form>
+</div>
 </section>
