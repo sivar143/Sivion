@@ -62,7 +62,7 @@
 
   <div class="campaign-modal" *ngIf="formOpen" role="presentation">
   <form class="campaign-form" role="dialog" aria-modal="true" aria-labelledby="campaign-dialog-title" (ngSubmit)="save()">
-    <h3 id="campaign-dialog-title">{{ editingId ? 'Edit campaign' : 'New campaign' }}</h3>
+    <h2 id="campaign-dialog-title">{{ editingId ? 'Edit campaign' : 'New campaign' }}</h2>
     <p class="campaign-message error" *ngIf="error" role="alert">{{ error }}</p>
     <div class="form-grid">
       <label>
