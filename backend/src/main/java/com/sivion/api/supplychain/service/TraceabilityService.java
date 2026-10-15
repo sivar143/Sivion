@@ -31,7 +31,7 @@ public class TraceabilityService {
             LotConsumptionRepository consumptions, ShipmentRepository shipments,
             ProofOfDeliveryRepository proofs, ShipmentEventRepository events, InventoryService inventory, DomainEventPublisher domainEvents) {
         this.materialLots=materialLots; this.productionLots=productionLots; this.consumptions=consumptions;
-        this.shipments=shipments; this.proofs=proofs; this.events=events;
+        this.shipments=shipments; this.proofs=proofs; this.events=events; this.inventory=inventory; this.domainEvents=domainEvents;
     }
 
     @Transactional
