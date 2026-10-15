@@ -1,6 +1,7 @@
 package com.sivion.api.supplychain.service;
 
 import com.sivion.api.supplychain.domain.*;
+import com.sivion.api.inventory.service.InventoryService;
 import com.sivion.api.supplychain.repo.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -22,10 +23,11 @@ public class TraceabilityService {
     private final ShipmentRepository shipments;
     private final ProofOfDeliveryRepository proofs;
     private final ShipmentEventRepository events;
+    private final InventoryService inventory;
 
     public TraceabilityService(MaterialLotRepository materialLots, ProductionLotRepository productionLots,
             LotConsumptionRepository consumptions, ShipmentRepository shipments,
-            ProofOfDeliveryRepository proofs, ShipmentEventRepository events) {
+            ProofOfDeliveryRepository proofs, ShipmentEventRepository events, InventoryService inventory) {
         this.materialLots=materialLots; this.productionLots=productionLots; this.consumptions=consumptions;
         this.shipments=shipments; this.proofs=proofs; this.events=events;
     }
@@ -50,7 +52,13 @@ public class TraceabilityService {
         lot.setQualityStatus(rejected.signum()>0 ? (accepted.signum()>0 ? "PARTIALLY_REJECTED" : "REJECTED")
             : accepted.compareTo(r.receivedQuantity())==0 ? "ACCEPTED" : "PENDING_INSPECTION");
         lot.setManufacturedAt(r.manufacturedAt()); lot.setExpiresAt(r.expiresAt());
-        return materialView(materialLots.save(lot));
+        MaterialLot saved = materialLots.save(lot);
+        // Accepted material enters stock through the existing inventory transaction ledger.
+        if (accepted.signum() > 0 && saved.getWarehouseId() != null) {
+            inventory.stock(saved.getMaterialId(), saved.getWarehouseId(), accepted,
+                "STOCK_IN", "MATERIAL_LOT", saved.getId());
+        }
+        return materialView(saved);
     }
 
     @Transactional
