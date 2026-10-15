@@ -49,6 +49,10 @@ export interface CreateShipment {
   shipmentNumber: string;
   direction: Shipment['direction'];
   referenceNumber?: string;
+  purchaseOrderId?: number | null;
+  goodsReceiptReference?: string;
+  salesOrderId?: number | null;
+  dispatchId?: number | null;
   supplierName?: string;
   customerName?: string;
   carrierName?: string;
