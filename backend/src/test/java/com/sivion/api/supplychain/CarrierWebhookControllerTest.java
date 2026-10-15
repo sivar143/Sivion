@@ -17,7 +17,7 @@ class CarrierWebhookControllerTest {
     @Test void refusesWebhooksWhenSecretIsNotConfigured() {
         CarrierWebhookController controller = new CarrierWebhookController(mock(ShipmentService.class), "");
         ResponseStatusException error = assertThrows(ResponseStatusException.class,
-                () -> controller.accept(1L, "test-carrier", "sha256=bad",
+                () -> controller.accept(1L, "test-carrier", "sha256=bad", null,
                         "{}".getBytes(StandardCharsets.UTF_8)));
         assertEquals(503, error.getStatusCode().value());
     }
@@ -26,7 +26,7 @@ class CarrierWebhookControllerTest {
         CarrierWebhookController controller = new CarrierWebhookController(mock(ShipmentService.class), "configured-secret");
         byte[] body = "{\"externalEventId\":\"evt-1\",\"status\":\"IN_TRANSIT\"}".getBytes(StandardCharsets.UTF_8);
         ResponseStatusException error = assertThrows(ResponseStatusException.class,
-                () -> controller.accept(1L, "test-carrier", "sha256=wrong", body));
+                () -> controller.accept(1L, "test-carrier", "sha256=wrong", null, body));
         assertEquals(401, error.getStatusCode().value());
     }
 
@@ -39,7 +39,7 @@ class CarrierWebhookControllerTest {
         mac.init(new SecretKeySpec("configured-secret".getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
         String signature = "sha256=" + HexFormat.of().formatHex(mac.doFinal(body));
 
-        controller.accept(7L, "test-carrier", signature, body);
+        controller.accept(7L, "test-carrier", signature, null, body);
 
         org.mockito.Mockito.verify(shipments).updateStatus(org.mockito.ArgumentMatchers.eq(7L),
             org.mockito.ArgumentMatchers.argThat((StatusUpdate update) ->
@@ -48,10 +48,25 @@ class CarrierWebhookControllerTest {
                     && update.status().equals("IN_TRANSIT")));
     }
 
+    @Test void acceptsShiprocketApiKeyAndMapsItsTrackingPayload() {
+        ShipmentService shipments = mock(ShipmentService.class);
+        CarrierWebhookController controller = new CarrierWebhookController(shipments, "shiprocket-secret");
+        byte[] body = "{\"awb\":\"AWB123\",\"current_status\":\"IN TRANSIT\",\"current_status_id\":20,\"current_timestamp\":\"15 10 2026 12:00:00\",\"location\":\"Hyderabad\"}"
+            .getBytes(StandardCharsets.UTF_8);
+
+        controller.accept(9L, "shiprocket", null, "shiprocket-secret", body);
+
+        org.mockito.Mockito.verify(shipments).updateStatus(org.mockito.ArgumentMatchers.eq(9L),
+            org.mockito.ArgumentMatchers.argThat((StatusUpdate update) ->
+                update.status().equals("IN_TRANSIT")
+                    && update.sourceType().equals("CARRIER:SHIPROCKET")
+                    && update.idempotencyKey().startsWith("carrier:shiprocket:AWB123:20")));
+    }
+
     @Test void refusesInvalidProviderName() {
         CarrierWebhookController controller = new CarrierWebhookController(mock(ShipmentService.class), "configured-secret");
         ResponseStatusException error = assertThrows(ResponseStatusException.class,
-                () -> controller.accept(1L, "../bad", "sha256=wrong", "{}".getBytes(StandardCharsets.UTF_8)));
+                () -> controller.accept(1L, "../bad", "sha256=wrong", null, "{}".getBytes(StandardCharsets.UTF_8)));
         assertEquals(400, error.getStatusCode().value());
     }
 }
