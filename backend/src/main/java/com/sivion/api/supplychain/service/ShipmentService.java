@@ -100,6 +100,28 @@ public class ShipmentService {
         return detail(saved.getId());
     }
 
+    /**
+     * Creates a customer shipment automatically after the inventory dispatch event.
+     * Re-delivered events return the same shipment rather than creating duplicates.
+     */
+    @Transactional
+    public ShipmentDetail createForDispatch(long dispatchId) {
+        Shipment existing = shipments.findByDispatchIdAndTenantId(dispatchId, TENANT_ID).orElse(null);
+        if (existing != null) return detail(existing.getId());
+        com.sivion.api.inventory.domain.Dispatch dispatch = referenceValidator.findDispatchForTenant(dispatchId);
+        CreateShipment request = new CreateShipment("DSP-" + dispatch.getDispatchNumber(), "OUTBOUND",
+            dispatch.getReferenceNumber(), null, null, dispatch.getSalesOrderId(), dispatch.getId(),
+            null, "Customer #" + dispatch.getCustomerId(), null, null, null,
+            dispatch.getDeliveryAddress(), dispatch.getDispatchDate(), null, dispatch.getNotes());
+        ShipmentDetail created = create(request);
+        updateStatus(created.shipment().id(), new StatusUpdate("READY_FOR_DISPATCH", dispatch.getDispatchDate(),
+            null, "Automatically linked to inventory dispatch " + dispatch.getDispatchNumber(),
+            "dispatch:" + dispatchId + ":ready", "SYSTEM"));
+        return updateStatus(created.shipment().id(), new StatusUpdate("DISPATCHED", dispatch.getDispatchDate(),
+            null, "Dispatch completed in inventory; shipment tracking opened.",
+            "dispatch:" + dispatchId + ":dispatched", "SYSTEM"));
+    }
+
     @Transactional
     public ShipmentDetail updateStatus(long id, StatusUpdate request) {
         Shipment shipment = findShipment(id);
