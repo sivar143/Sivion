@@ -8,6 +8,7 @@ import com.sivion.api.procurement.repo.GoodsReceiptRepository;
 import com.sivion.api.procurement.repo.PurchaseOrderItemRepository;
 import com.sivion.api.procurement.repo.PurchaseOrderRepository;
 import com.sivion.api.sales.repo.SalesOrderRepository;
+import com.sivion.api.sales.domain.SalesOrder;
 import com.sivion.api.supplychain.service.SupplyChainReferenceValidator;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,9 +46,10 @@ class SupplyChainReferenceValidatorTest {
     }
 
     @Test void rejectsInboundShipmentLinkedToSalesOrder() {
+        when(salesOrders.findByIdAndTenantId(91L,1L)).thenReturn(Optional.of(new SalesOrder()));
         ResponseStatusException error=assertThrows(ResponseStatusException.class,
             ()->validator.validateShipment("INBOUND",null,null,91L,null));
-        assertEquals(404,error.getStatusCode().value());
+        assertEquals(400,error.getStatusCode().value());
         verify(salesOrders).findByIdAndTenantId(91L,1L);
     }
 }
