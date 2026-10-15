@@ -10,6 +10,7 @@ import com.sivion.api.procurement.domain.PurchaseOrderItem;
 import com.sivion.api.procurement.repo.GoodsReceiptRepository;
 import com.sivion.api.procurement.repo.PurchaseOrderItemRepository;
 import com.sivion.api.procurement.repo.PurchaseOrderRepository;
+import com.sivion.api.integration.DomainEventPublisher;
 import com.sivion.api.supplychain.domain.InboundShipmentReceipt;
 import com.sivion.api.supplychain.domain.Shipment;
 import com.sivion.api.supplychain.repo.InboundShipmentReceiptRepository;
@@ -44,7 +45,7 @@ class InboundShipmentReceivingServiceTest {
         traceability=mock(TraceabilityService.class);
         shipmentService=mock(ShipmentService.class);
         service=new InboundShipmentReceivingService(shipments,receiptLinks,goodsReceipts,purchaseOrders,
-            orderItems,traceability,shipmentService);
+            orderItems,traceability,shipmentService,mock(DomainEventPublisher.class));
 
         shipment=new Shipment();
         shipment.setDirection("INBOUND");
