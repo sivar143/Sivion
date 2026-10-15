@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ShipmentReturnRepository extends JpaRepository<ShipmentReturn, Long> {
     boolean existsByTenantIdAndReturnReference(Long tenantId, String returnReference);
     Optional<ShipmentReturn> findByTenantIdAndReturnReference(Long tenantId, String returnReference);
+    java.util.List<ShipmentReturn> findAllByTenantIdAndShipmentId(Long tenantId, Long shipmentId);
 }
