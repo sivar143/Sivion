@@ -1,14 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SupplyChainComponent } from './supply-chain.component';
 import { SupplyChainApi } from '../services/supply-chain-api.service';
 
 describe('SupplyChainComponent', () => {
   let fixture: ComponentFixture<SupplyChainComponent>;
   const api = {
-    shipments: jasmine.createSpy('shipments').and.resolveTo([]),
-    detail: jasmine.createSpy('detail'),
-    create: jasmine.createSpy('create'),
-    updateStatus: jasmine.createSpy('updateStatus')
+    shipments: vi.fn().mockResolvedValue([]),
+    detail: vi.fn(),
+    create: vi.fn(),
+    updateStatus: vi.fn()
   };
 
   beforeEach(async () => {
@@ -26,7 +27,7 @@ describe('SupplyChainComponent', () => {
   });
 
   it('shows an actionable message when shipment loading fails', async () => {
-    api.shipments.and.rejectWith(new Error('Network unavailable'));
+    api.shipments.mockRejectedValueOnce(new Error('Network unavailable'));
     await fixture.componentInstance.reload();
     expect(fixture.componentInstance.error).toContain('Network unavailable');
   });
