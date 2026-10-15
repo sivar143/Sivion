@@ -89,7 +89,9 @@
       <label>Quantity shipped from this lot<input type="number" name="allocatedShipmentQuantity" min="0.0001" step="0.0001" required [(ngModel)]="lotShipmentDraft.quantity"></label>
     </div>
     <button type="submit" [disabled]="saving || !lotShipmentDraft.lotCode.trim() || lotShipmentDraft.shipmentId <= 0 || lotShipmentDraft.quantity <= 0">Allocate lot quantity</button>
+    <button type="button" class="secondary" (click)="loadLotShipmentAllocations()" [disabled]="!lotShipmentDraft.lotCode.trim()">View existing allocations</button>
   </form>
+  <pre class="genealogy-result" *ngIf="lotShipmentAllocations">{{ lotShipmentAllocations | json }}</pre>
 
   <form class="create-form" (ngSubmit)="lookupGenealogy()">
     <h3>Lot genealogy</h3>
