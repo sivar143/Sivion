@@ -2,6 +2,7 @@ package com.sivion.api.supplychain.service;
 
 import com.sivion.api.supplychain.domain.*;
 import com.sivion.api.inventory.service.InventoryService;
+import com.sivion.api.integration.DomainEventPublisher;
 import com.sivion.api.supplychain.repo.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,10 +25,11 @@ public class TraceabilityService {
     private final ProofOfDeliveryRepository proofs;
     private final ShipmentEventRepository events;
     private final InventoryService inventory;
+    private final DomainEventPublisher domainEvents;
 
     public TraceabilityService(MaterialLotRepository materialLots, ProductionLotRepository productionLots,
             LotConsumptionRepository consumptions, ShipmentRepository shipments,
-            ProofOfDeliveryRepository proofs, ShipmentEventRepository events, InventoryService inventory) {
+            ProofOfDeliveryRepository proofs, ShipmentEventRepository events, InventoryService inventory, DomainEventPublisher domainEvents) {
         this.materialLots=materialLots; this.productionLots=productionLots; this.consumptions=consumptions;
         this.shipments=shipments; this.proofs=proofs; this.events=events;
     }
@@ -60,6 +62,7 @@ public class TraceabilityService {
             inventory.stock(saved.getMaterialId(), saved.getWarehouseId(), accepted,
                 "STOCK_IN", "MATERIAL_LOT", saved.getId());
         }
+        domainEvents.publish("supply-chain.material-lot.received", Map.of("lotId", saved.getId(), "lotCode", saved.getLotCode(), "materialId", saved.getMaterialId(), "qualityStatus", saved.getQualityStatus(), "tenantId", TENANT));
         return materialView(saved);
     }
 
@@ -80,7 +83,9 @@ public class TraceabilityService {
         lot.setQualityStatus(rejected.compareTo(r.producedQuantity())==0 ? "REJECTED" :
             rejected.signum()>0 ? "PARTIALLY_REJECTED" : "PENDING_INSPECTION");
         lot.setWarehouseId(r.warehouseId()); lot.setProducedAt(r.producedAt()==null?Instant.now():r.producedAt());
-        return productionView(productionLots.save(lot));
+        ProductionLot saved = productionLots.save(lot);
+        domainEvents.publish("supply-chain.production-lot.created", Map.of("lotId", saved.getId(), "lotCode", saved.getLotCode(), "manufacturingOrderId", saved.getManufacturingOrderId(), "qualityStatus", saved.getQualityStatus(), "tenantId", TENANT));
+        return productionView(saved);
     }
 
     @Transactional
@@ -102,6 +107,7 @@ public class TraceabilityService {
         if(r.unit()==null||r.unit().isBlank()) throw bad("Consumption unit is required.");
         LotConsumption edge=consumptions.save(new LotConsumption(material,output,r.manufacturingOrderId(),
             r.quantityConsumed(),r.unit().trim(),trim(r.remarks())));
+        domainEvents.publish("supply-chain.material.consumed", Map.of("consumptionId", edge.getId(), "materialLotCode", material.getLotCode(), "productionLotCode", output.getLotCode(), "manufacturingOrderId", edge.getManufacturingOrderId(), "quantity", edge.getQuantityConsumed(), "tenantId", TENANT));
         return new ConsumptionView(edge.getId(),material.getLotCode(),output.getLotCode(),
             edge.getManufacturingOrderId(),edge.getQuantityConsumed(),edge.getUnit(),edge.getRecordedAt(),edge.getRemarks());
     }
@@ -133,6 +139,7 @@ public class TraceabilityService {
         String actor=Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).map(Authentication::getName).orElse("system");
         ProofOfDelivery proof=proofs.save(new ProofOfDelivery(shipment,r.recipientName().trim(),r.deliveredAt(),
             trim(r.notes()),trim(r.documentReference()),actor));
+        domainEvents.publish("supply-chain.delivery.proof-recorded", Map.of("proofId", proof.getId(), "shipmentId", shipmentId, "recipientName", proof.getRecipientName(), "tenantId", TENANT));
         return new ProofView(proof.getId(),shipmentId,proof.getRecipientName(),proof.getDeliveredAt(),proof.getNotes(),proof.getDocumentReference(),proof.getRecordedBy(),proof.getRecordedAt());
     }
 
