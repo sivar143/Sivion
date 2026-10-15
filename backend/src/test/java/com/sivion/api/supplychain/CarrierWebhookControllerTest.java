@@ -5,6 +5,10 @@ import static org.mockito.Mockito.*;
 
 import com.sivion.api.supplychain.service.ShipmentService;
 import com.sivion.api.supplychain.web.CarrierWebhookController;
+import com.sivion.api.supplychain.service.ShipmentService.StatusUpdate;
+import java.util.HexFormat;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,6 +28,24 @@ class CarrierWebhookControllerTest {
         ResponseStatusException error = assertThrows(ResponseStatusException.class,
                 () -> controller.accept(1L, "test-carrier", "sha256=wrong", body));
         assertEquals(401, error.getStatusCode().value());
+    }
+
+    @Test void acceptsAValidProviderSpecificHmacSignatureAndTagsCarrierSource() throws Exception {
+        ShipmentService shipments = mock(ShipmentService.class);
+        CarrierWebhookController controller = new CarrierWebhookController(shipments, "configured-secret");
+        byte[] body = "{\"externalEventId\":\"evt-42\",\"status\":\"IN_TRANSIT\",\"location\":\"Hub A\"}"
+            .getBytes(StandardCharsets.UTF_8);
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec("configured-secret".getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        String signature = "sha256=" + HexFormat.of().formatHex(mac.doFinal(body));
+
+        controller.accept(7L, "test-carrier", signature, body);
+
+        org.mockito.Mockito.verify(shipments).updateStatus(org.mockito.ArgumentMatchers.eq(7L),
+            org.mockito.ArgumentMatchers.argThat((StatusUpdate update) ->
+                update.idempotencyKey().equals("carrier:test-carrier:evt-42")
+                    && update.sourceType().equals("CARRIER:TEST-CARRIER")
+                    && update.status().equals("IN_TRANSIT")));
     }
 
     @Test void refusesInvalidProviderName() {
