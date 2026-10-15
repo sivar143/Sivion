@@ -29,16 +29,18 @@ public class TraceabilityService {
     private final DomainEventPublisher domainEvents;
     private final SupplyChainReferenceValidator referenceValidator;
     private final QualityInspectionRepository inspections;
+    private final ManufacturingOrderRepository manufacturingOrders;
 
     @Autowired
     public TraceabilityService(MaterialLotRepository materialLots, ProductionLotRepository productionLots,
             LotConsumptionRepository consumptions, ShipmentRepository shipments,
             ProofOfDeliveryRepository proofs, ShipmentEventRepository events, InventoryService inventory,
             DomainEventPublisher domainEvents, SupplyChainReferenceValidator referenceValidator,
-            QualityInspectionRepository inspections) {
+            QualityInspectionRepository inspections, ManufacturingOrderRepository manufacturingOrders) {
         this.materialLots=materialLots; this.productionLots=productionLots; this.consumptions=consumptions;
         this.shipments=shipments; this.proofs=proofs; this.events=events; this.inventory=inventory;
         this.domainEvents=domainEvents; this.referenceValidator=referenceValidator; this.inspections=inspections;
+        this.manufacturingOrders=manufacturingOrders;
     }
 
     /** Constructor retained for focused service unit tests that do not exercise reference validation. */
@@ -46,7 +48,7 @@ public class TraceabilityService {
             LotConsumptionRepository consumptions, ShipmentRepository shipments,
             ProofOfDeliveryRepository proofs, ShipmentEventRepository events, InventoryService inventory,
             DomainEventPublisher domainEvents) {
-        this(materialLots, productionLots, consumptions, shipments, proofs, events, inventory, domainEvents, null, null);
+        this(materialLots, productionLots, consumptions, shipments, proofs, events, inventory, domainEvents, null, null, null);
     }
 
     @Transactional
@@ -97,6 +99,18 @@ public class TraceabilityService {
         BigDecimal rejected=nz(r.rejectedQuantity());
         if(rejected.signum()<0||rejected.compareTo(r.producedQuantity())>0)
             throw bad("Rejected quantity must be between zero and produced quantity.");
+        if (manufacturingOrders != null) {
+            com.sivion.api.supplychain.domain.ManufacturingOrder order = manufacturingOrders.findByIdAndTenantId(r.manufacturingOrderId(), TENANT)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Manufacturing order was not found."));
+            if (!Objects.equals(order.getProductId(), r.productId()))
+                throw bad("Finished product does not match the manufacturing order.");
+            if (!Set.of("PLANNED", "IN_PROGRESS").contains(order.getStatus()))
+                throw conflict("Only planned or in-progress manufacturing orders can receive production lots.");
+            BigDecimal previouslyProduced = productionLots.findAllByManufacturingOrderIdAndTenantId(order.getId(), TENANT)
+                .stream().map(ProductionLot::getProducedQuantity).reduce(BigDecimal.ZERO, BigDecimal::add);
+            if (previouslyProduced.add(r.producedQuantity()).compareTo(order.getPlannedQuantity()) > 0)
+                throw conflict("Recorded production would exceed the manufacturing order's planned quantity.");
+        }
         if(productionLots.existsByLotCodeAndTenantId(r.lotCode().trim(),TENANT))
             throw conflict("This production lot code already exists.");
         ProductionLot lot=new ProductionLot(); lot.setLotCode(r.lotCode().trim());
