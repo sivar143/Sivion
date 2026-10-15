@@ -34,7 +34,7 @@ public class SupplyChainReferenceValidator {
         this.dispatches = dispatches;
     }
 
-    public void validateShipment(String direction, Long purchaseOrderId, String goodsReceiptReference,
+    public ResolvedReferences validateShipment(String direction, Long purchaseOrderId, String goodsReceiptReference,
             Long salesOrderId, Long dispatchId) {
         PurchaseOrder order = null;
         if (purchaseOrderId != null) {
@@ -72,7 +72,7 @@ public class SupplyChainReferenceValidator {
                 throw bad("The dispatch belongs to a different sales order.");
             }
             if (salesOrder == null && dispatch.getSalesOrderId() != null) {
-                salesOrders.findByIdAndTenantId(dispatch.getSalesOrderId(), TENANT_ID)
+                salesOrder = salesOrders.findByIdAndTenantId(dispatch.getSalesOrderId(), TENANT_ID)
                         .orElseThrow(() -> notFound("Sales order for dispatch"));
             }
         }
@@ -82,7 +82,13 @@ public class SupplyChainReferenceValidator {
         if ("OUTBOUND".equalsIgnoreCase(direction) && (purchaseOrderId != null || goodsReceiptReference != null)) {
             throw bad("Outbound shipments cannot be linked to inbound purchase orders or goods receipts.");
         }
+        return new ResolvedReferences(order == null ? null : order.getId(),
+                receipt == null ? goodsReceiptReference : receipt.getReceiptNumber(),
+                salesOrder == null ? null : salesOrder.getId(), dispatchId);
     }
+
+    public record ResolvedReferences(Long purchaseOrderId, String goodsReceiptReference,
+            Long salesOrderId, Long dispatchId) {}
 
     public GoodsReceipt validateMaterialReceipt(Long purchaseOrderId, String goodsReceiptReference,
             Long materialId, Long supplierId, Long warehouseId) {
