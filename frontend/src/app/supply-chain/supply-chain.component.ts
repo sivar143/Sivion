@@ -63,9 +63,14 @@ export class SupplyChainComponent implements OnInit {
 
   openCreateShipment(): void {
     this.activeSection = 'shipments';
-    this.showCreate = !this.showCreate;
+    this.showCreate = true;
     this.error = '';
     this.success = '';
+  }
+
+  closeCreateShipment(): void {
+    if (this.saving) return;
+    this.showCreate = false;
   }
 
   async reload(): Promise<void> {
