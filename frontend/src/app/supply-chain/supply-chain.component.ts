@@ -22,6 +22,7 @@ export class SupplyChainComponent implements OnInit {
   success = '';
   showCreate = false;
   activeSection: 'shipments' | 'receiving' | 'production' | 'traceability' = 'shipments';
+  activeDialog: 'inspection' | 'material-lot' | 'manufacturing-order' | 'production-lot' | 'consumption' | 'allocation' | 'genealogy' | null = null;
   statusDraft = '';
   locationDraft = '';
   remarksDraft = '';
@@ -58,7 +59,20 @@ export class SupplyChainComponent implements OnInit {
 
   selectSection(section: 'shipments' | 'receiving' | 'production' | 'traceability'): void {
     this.activeSection = section;
+    this.activeDialog = null;
     if (section !== 'shipments') this.showCreate = false;
+  }
+
+  openWorkflowDialog(dialog: NonNullable<SupplyChainComponent['activeDialog']>): void {
+    this.showCreate = false;
+    this.activeDialog = dialog;
+    this.error = '';
+    this.success = '';
+  }
+
+  closeWorkflowDialog(): void {
+    if (this.saving) return;
+    this.activeDialog = null;
   }
 
   openCreateShipment(): void {
@@ -171,6 +185,7 @@ export class SupplyChainComponent implements OnInit {
         rejectedQuantity: Number(this.materialLotDraft.rejectedQuantity)
       });
       this.success = 'Raw-material lot recorded and linked to the validated goods receipt.';
+      this.activeDialog = null;
       this.materialLotDraft = { lotCode: '', materialId: 0, supplierId: null, supplierName: '', supplierLotCode: '', shipmentId: null, purchaseOrderId: null, goodsReceiptReference: '', warehouseId: null, receivedQuantity: 0, acceptedQuantity: 0, rejectedQuantity: 0 };
     } catch (error) {
       this.error = this.errorMessage(error, 'Unable to receive raw-material lot.');
@@ -192,6 +207,7 @@ export class SupplyChainComponent implements OnInit {
         plannedQuantity: Number(this.manufacturingOrderDraft.plannedQuantity)
       });
       this.success = 'Manufacturing order created.';
+      this.activeDialog = null;
       this.manufacturingOrderDraft = { orderNumber: '', productId: 0, plannedQuantity: 0 };
     } catch (error) {
       this.error = this.errorMessage(error, 'Unable to create manufacturing order.');
@@ -215,6 +231,7 @@ export class SupplyChainComponent implements OnInit {
         rejectedQuantity: Number(this.productionLotDraft.rejectedQuantity)
       });
       this.success = 'Finished-product lot recorded against the manufacturing order.';
+      this.activeDialog = null;
       this.productionLotDraft = { lotCode: '', productId: 0, manufacturingOrderId: 0, producedQuantity: 0, rejectedQuantity: 0, warehouseId: null };
     } catch (error) {
       this.error = this.errorMessage(error, 'Unable to record finished-product lot.');
@@ -236,6 +253,7 @@ export class SupplyChainComponent implements OnInit {
         remarks: this.consumptionDraft.remarks || undefined
       });
       this.success = 'Material consumption linked to the finished-product lot.';
+      this.activeDialog = null;
       this.consumptionDraft = { materialLotId: 0, productionLotId: 0, manufacturingOrderId: 0, quantityConsumed: 0, unit: 'EA', remarks: '' };
     } catch (error) {
       this.error = this.errorMessage(error, 'Unable to record material consumption.');
@@ -298,6 +316,7 @@ export class SupplyChainComponent implements OnInit {
       });
       this.lotShipmentAllocations = await this.api.lotShipmentAllocations(lotCode);
       this.success = 'Finished-product lot quantity allocated to the outbound shipment.';
+      this.activeDialog = null;
       this.lotShipmentDraft = { lotCode: '', shipmentId: 0, quantity: 0 };
     } catch (error) {
       this.error = this.errorMessage(error, 'Unable to allocate finished-product lot to shipment.');
@@ -323,6 +342,8 @@ export class SupplyChainComponent implements OnInit {
     this.genealogyResult = null;
     try {
       this.genealogyResult = await this.api.genealogy(this.genealogyLotCode.trim());
+      this.activeDialog = null;
+      this.success = 'Lot genealogy loaded.';
     } catch (error) {
       this.error = this.errorMessage(error, 'Unable to load lot genealogy.');
     }
@@ -356,6 +377,7 @@ export class SupplyChainComponent implements OnInit {
         notes: this.inspectionDraft.notes || undefined
       });
       this.success = 'Quality inspection recorded and accepted quantity reconciled to inventory.';
+      this.activeDialog = null;
       this.inspectionDraft = { lotCode: '', acceptedQuantity: 0, rejectedQuantity: 0, notes: '' };
     } catch (error) {
       this.error = this.errorMessage(error, 'Unable to record quality inspection.');
