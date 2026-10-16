@@ -13,6 +13,41 @@
   <p class="message error" role="alert" *ngIf="error">{{ error }}</p>
   <p class="message success" role="status" *ngIf="success">{{ success }}</p>
 
+  <div class="dialog-backdrop" *ngIf="showCreate" (click)="closeCreateShipment()" (keydown.escape)="closeCreateShipment()">
+    <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="create-shipment-title" (click)="$event.stopPropagation()">
+      <header class="dialog-header">
+        <div>
+          <h3 id="create-shipment-title">Create shipment</h3>
+          <p class="muted">Add shipment details without changing the tracking workspace layout.</p>
+        </div>
+        <button type="button" class="dialog-close secondary" aria-label="Close create shipment dialog" (click)="closeCreateShipment()" [disabled]="saving">×</button>
+      </header>
+      <form class="create-form dialog-form" (ngSubmit)="createShipment()">
+        <div class="form-grid">
+          <label>Shipment number<input name="shipmentNumber" required maxlength="60" [(ngModel)]="draft.shipmentNumber"></label>
+          <label>Journey type<select name="direction" [(ngModel)]="draft.direction"><option value="INBOUND">Inbound raw materials</option><option value="OUTBOUND">Outbound customer delivery</option><option value="TRANSFER">Inter-site transfer</option></select></label>
+          <label>Reference / order number<input name="referenceNumber" maxlength="100" [(ngModel)]="draft.referenceNumber"></label>
+          <label>Purchase order ID<input type="number" min="1" name="purchaseOrderId" [(ngModel)]="draft.purchaseOrderId"></label>
+          <label>Goods receipt reference<input name="goodsReceiptReference" maxlength="100" [(ngModel)]="draft.goodsReceiptReference"></label>
+          <label>Sales order ID<input type="number" min="1" name="salesOrderId" [(ngModel)]="draft.salesOrderId"></label>
+          <label>Dispatch ID<input type="number" min="1" name="dispatchId" [(ngModel)]="draft.dispatchId"></label>
+          <label>Supplier<input name="supplierName" maxlength="180" [(ngModel)]="draft.supplierName"></label>
+          <label>Customer / destination party<input name="customerName" maxlength="180" [(ngModel)]="draft.customerName"></label>
+          <label>Carrier<input name="carrierName" maxlength="120" [(ngModel)]="draft.carrierName"></label>
+          <label>Carrier tracking number<input name="carrierTrackingNumber" maxlength="160" [(ngModel)]="draft.carrierTrackingNumber"></label>
+          <label>Origin<input name="originLocation" maxlength="250" [(ngModel)]="draft.originLocation"></label>
+          <label>Destination<input name="destinationLocation" maxlength="250" [(ngModel)]="draft.destinationLocation"></label>
+          <label>Estimated arrival<input type="datetime-local" name="estimatedArrivalAt" [(ngModel)]="draft.estimatedArrivalAt"></label>
+          <label class="wide">Notes<textarea name="notes" maxlength="1000" rows="2" [(ngModel)]="draft.notes"></textarea></label>
+        </div>
+        <footer class="dialog-actions">
+          <button type="button" class="secondary" (click)="closeCreateShipment()" [disabled]="saving">Cancel</button>
+          <button type="submit" [disabled]="saving || !draft.shipmentNumber.trim()">{{ saving ? 'Saving…' : 'Create shipment' }}</button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
   <nav class="workflow-nav" aria-label="Supply chain workflows">
     <button type="button" [class.active]="activeSection === 'shipments'" (click)="selectSection('shipments')">Shipments</button>
     <button type="button" [class.active]="activeSection === 'receiving'" (click)="selectSection('receiving')">Receiving &amp; quality</button>
@@ -118,30 +153,7 @@
 
   </section>
 
-  <section *ngIf="activeSection === 'shipments'" class="workflow-panel">
-  <form class="create-form" *ngIf="showCreate" (ngSubmit)="createShipment()">
-    <h3>Create shipment</h3>
-    <div class="form-grid">
-      <label>Shipment number<input name="shipmentNumber" required maxlength="60" [(ngModel)]="draft.shipmentNumber"></label>
-      <label>Journey type<select name="direction" [(ngModel)]="draft.direction"><option value="INBOUND">Inbound raw materials</option><option value="OUTBOUND">Outbound customer delivery</option><option value="TRANSFER">Inter-site transfer</option></select></label>
-      <label>Reference / order number<input name="referenceNumber" maxlength="100" [(ngModel)]="draft.referenceNumber"></label>
-      <label>Purchase order ID<input type="number" min="1" name="purchaseOrderId" [(ngModel)]="draft.purchaseOrderId"></label>
-      <label>Goods receipt reference<input name="goodsReceiptReference" maxlength="100" [(ngModel)]="draft.goodsReceiptReference"></label>
-      <label>Sales order ID<input type="number" min="1" name="salesOrderId" [(ngModel)]="draft.salesOrderId"></label>
-      <label>Dispatch ID<input type="number" min="1" name="dispatchId" [(ngModel)]="draft.dispatchId"></label>
-      <label>Supplier<input name="supplierName" maxlength="180" [(ngModel)]="draft.supplierName"></label>
-      <label>Customer / destination party<input name="customerName" maxlength="180" [(ngModel)]="draft.customerName"></label>
-      <label>Carrier<input name="carrierName" maxlength="120" [(ngModel)]="draft.carrierName"></label>
-      <label>Carrier tracking number<input name="carrierTrackingNumber" maxlength="160" [(ngModel)]="draft.carrierTrackingNumber"></label>
-      <label>Origin<input name="originLocation" maxlength="250" [(ngModel)]="draft.originLocation"></label>
-      <label>Destination<input name="destinationLocation" maxlength="250" [(ngModel)]="draft.destinationLocation"></label>
-      <label>Estimated arrival<input type="datetime-local" name="estimatedArrivalAt" [(ngModel)]="draft.estimatedArrivalAt"></label>
-      <label class="wide">Notes<textarea name="notes" maxlength="1000" rows="2" [(ngModel)]="draft.notes"></textarea></label>
-    </div>
-    <button type="submit" [disabled]="saving || !draft.shipmentNumber.trim()">{{ saving ? 'Saving…' : 'Create shipment' }}</button>
-  </form>
-
-  </section>
+  <section *ngIf="activeSection === 'shipments'" class="workflow-panel"></section>
 
   <div class="tracking-layout">
     <section class="shipment-list" aria-label="Shipment list">
