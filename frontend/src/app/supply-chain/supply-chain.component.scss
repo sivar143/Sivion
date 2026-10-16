@@ -43,7 +43,14 @@ input, select, textarea { width: 100%; min-width: 0; box-sizing: border-box; pad
 .timeline time { color: #667085; font-size: 12px; }
 .timeline p { margin: 6px 0 0; overflow-wrap: anywhere; }
 .genealogy-result { margin: 0; padding: 12px; border-radius: 8px; background: #f9fafb; border: 1px solid #eaecf0; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; font-size: 12px; }
+.dialog-backdrop { position: fixed; inset: 0; z-index: 1200; display: grid; place-items: center; padding: 20px; background: rgb(16 24 40 / 58%); overflow-y: auto; }
+.shipment-dialog { width: min(900px, 100%); max-height: min(90vh, 900px); display: grid; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; background: #fff; border-radius: 14px; box-shadow: 0 24px 64px rgb(16 24 40 / 28%); }
+.dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 22px 12px; border-bottom: 1px solid #eaecf0; }
+.dialog-header p { margin: 6px 0 0; }
+.dialog-close { flex: 0 0 auto; min-width: 40px; padding: 6px 12px; font-size: 24px; line-height: 1.2; }
+.dialog-form { overflow-y: auto; overscroll-behavior: contain; border: 0; border-radius: 0; padding: 18px 22px 22px; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
 .message { padding: 10px 12px; border-radius: 8px; margin: 0; }
 .error { background: #fef3f2; color: #b42318; }
 .success { background: #ecfdf3; color: #027a48; }
-@media (max-width: 760px) { .tracking-layout { grid-template-columns: minmax(0, 1fr); } .toolbar { align-items: flex-start; flex-direction: column; } .form-grid, .summary-grid { grid-template-columns: minmax(0, 1fr); } .wide { grid-column: auto; } .actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; } }
+@media (max-width: 760px) { .dialog-backdrop { align-items: end; padding: 0; } .shipment-dialog { width: 100%; max-height: 94dvh; border-radius: 14px 14px 0 0; } .dialog-header { padding: 16px 16px 10px; } .dialog-form { padding: 14px 16px 20px; } .tracking-layout { grid-template-columns: minmax(0, 1fr); } .toolbar { align-items: flex-start; flex-direction: column; } .form-grid, .summary-grid { grid-template-columns: minmax(0, 1fr); } .wide { grid-column: auto; } .actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; } }
