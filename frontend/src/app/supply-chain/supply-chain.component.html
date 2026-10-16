@@ -17,7 +17,7 @@
     <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="create-shipment-title" (click)="$event.stopPropagation()">
       <header class="dialog-header">
         <div>
-          <h3 id="create-shipment-title">Create shipment</h3>
+          <h2 id="create-shipment-title">Create shipment</h2>
           <p class="muted">Add shipment details without changing the tracking workspace layout.</p>
         </div>
         <button type="button" class="dialog-close secondary" aria-label="Close create shipment dialog" (click)="closeCreateShipment()" [disabled]="saving">×</button>
@@ -52,7 +52,7 @@
   <div class="dialog-backdrop" *ngIf="activeDialog === 'inspection'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
     <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="inspection-dialog-title" (click)="$event.stopPropagation()">
       <header class="dialog-header">
-        <div><h3 id="inspection-dialog-title">Record inspection</h3><p class="muted">Record accepted and rejected quantities and reconcile eligible inventory.</p></div>
+        <div><h2 id="inspection-dialog-title">Record inspection</h2><p class="muted">Record accepted and rejected quantities and reconcile eligible inventory.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Record inspection dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
       <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
@@ -76,7 +76,7 @@
   <div class="dialog-backdrop" *ngIf="activeDialog === 'material-lot'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
     <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="material-lot-dialog-title" (click)="$event.stopPropagation()">
       <header class="dialog-header">
-        <div><h3 id="material-lot-dialog-title">Receive raw-material lot</h3><p class="muted">Register incoming material and link its supplier, purchase order, receipt and warehouse.</p></div>
+        <div><h2 id="material-lot-dialog-title">Receive raw-material lot</h2><p class="muted">Register incoming material and link its supplier, purchase order, receipt and warehouse.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Receive raw-material lot dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
       <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
@@ -107,7 +107,7 @@
   <div class="dialog-backdrop" *ngIf="activeDialog === 'manufacturing-order'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
     <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="manufacturing-order-dialog-title" (click)="$event.stopPropagation()">
       <header class="dialog-header">
-        <div><h3 id="manufacturing-order-dialog-title">Manufacturing order</h3><p class="muted">Create a production order for a finished product.</p></div>
+        <div><h2 id="manufacturing-order-dialog-title">Manufacturing order</h2><p class="muted">Create a production order for a finished product.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Manufacturing order dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
       <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
@@ -129,7 +129,7 @@
   <div class="dialog-backdrop" *ngIf="activeDialog === 'production-lot'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
     <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="production-lot-dialog-title" (click)="$event.stopPropagation()">
       <header class="dialog-header">
-        <div><h3 id="production-lot-dialog-title">Record finished-product lot</h3><p class="muted">Record produced quantities and link them to a manufacturing order.</p></div>
+        <div><h2 id="production-lot-dialog-title">Record finished-product lot</h2><p class="muted">Record produced quantities and link them to a manufacturing order.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Record finished-product lot dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
       <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
@@ -154,7 +154,7 @@
   <div class="dialog-backdrop" *ngIf="activeDialog === 'consumption'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
     <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="consumption-dialog-title" (click)="$event.stopPropagation()">
       <header class="dialog-header">
-        <div><h3 id="consumption-dialog-title">Link material consumption to production</h3><p class="muted">Record the quantity of raw material consumed by a production lot.</p></div>
+        <div><h2 id="consumption-dialog-title">Link material consumption to production</h2><p class="muted">Record the quantity of raw material consumed by a production lot.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Link material consumption to production dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
       <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
@@ -179,7 +179,7 @@
   <div class="dialog-backdrop" *ngIf="activeDialog === 'allocation'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
     <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="allocation-dialog-title" (click)="$event.stopPropagation()">
       <header class="dialog-header">
-        <div><h3 id="allocation-dialog-title">Allocate finished-product lot to shipment</h3><p class="muted">Allocate accepted finished-product quantity to an outbound shipment.</p></div>
+        <div><h2 id="allocation-dialog-title">Allocate finished-product lot to shipment</h2><p class="muted">Allocate accepted finished-product quantity to an outbound shipment.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Allocate finished-product lot to shipment dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
       <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
@@ -203,7 +203,7 @@
   <div class="dialog-backdrop" *ngIf="activeDialog === 'genealogy'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
     <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="genealogy-dialog-title" (click)="$event.stopPropagation()">
       <header class="dialog-header">
-        <div><h3 id="genealogy-dialog-title">Lot genealogy</h3><p class="muted">Trace a raw-material or finished-product lot through production and shipment.</p></div>
+        <div><h2 id="genealogy-dialog-title">Lot genealogy</h2><p class="muted">Trace a raw-material or finished-product lot through production and shipment.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Lot genealogy dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
       <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
