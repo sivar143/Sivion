@@ -22,6 +22,7 @@
         </div>
         <button type="button" class="dialog-close secondary" aria-label="Close create shipment dialog" (click)="closeCreateShipment()" [disabled]="saving">×</button>
       </header>
+      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
       <form class="create-form dialog-form" (ngSubmit)="createShipment()">
         <div class="form-grid">
           <label>Shipment number<input name="shipmentNumber" required maxlength="60" [(ngModel)]="draft.shipmentNumber"></label>
@@ -54,6 +55,7 @@
         <div><h3 id="inspection-dialog-title">Record inspection</h3><p class="muted">Record accepted and rejected quantities and reconcile eligible inventory.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Record inspection dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
+      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
       <form class="create-form dialog-form" (ngSubmit)="inspectLot()">
     <p class="muted">Record incremental accepted/rejected quantities for a raw-material or finished-product lot. Accepted quantities are posted to inventory; rejected quantities remain excluded.</p>
     <div class="form-grid">
@@ -77,6 +79,7 @@
         <div><h3 id="material-lot-dialog-title">Receive raw-material lot</h3><p class="muted">Register incoming material and link its supplier, purchase order, receipt and warehouse.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Receive raw-material lot dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
+      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
       <form class="create-form dialog-form" (ngSubmit)="receiveMaterialLot()">
     <div class="form-grid">
       <label>Lot code<input name="materialLotCode" required maxlength="80" [(ngModel)]="materialLotDraft.lotCode"></label>
@@ -107,6 +110,7 @@
         <div><h3 id="manufacturing-order-dialog-title">Manufacturing order</h3><p class="muted">Create a production order for a finished product.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Manufacturing order dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
+      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
       <form class="create-form dialog-form" (ngSubmit)="createManufacturingOrder()">
     <div class="form-grid">
       <label>Order number<input name="manufacturingOrderNumber" required maxlength="80" [(ngModel)]="manufacturingOrderDraft.orderNumber"></label>
@@ -128,6 +132,7 @@
         <div><h3 id="production-lot-dialog-title">Record finished-product lot</h3><p class="muted">Record produced quantities and link them to a manufacturing order.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Record finished-product lot dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
+      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
       <form class="create-form dialog-form" (ngSubmit)="recordProductionLot()">
     <div class="form-grid">
       <label>Lot code<input name="productionLotCode" required maxlength="80" [(ngModel)]="productionLotDraft.lotCode"></label>
@@ -152,6 +157,7 @@
         <div><h3 id="consumption-dialog-title">Link material consumption to production</h3><p class="muted">Record the quantity of raw material consumed by a production lot.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Link material consumption to production dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
+      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
       <form class="create-form dialog-form" (ngSubmit)="recordConsumption()">
     <div class="form-grid">
       <label>Material lot database ID<input type="number" name="consumedMaterialLotId" min="1" required [(ngModel)]="consumptionDraft.materialLotId"></label>
@@ -176,6 +182,7 @@
         <div><h3 id="allocation-dialog-title">Allocate finished-product lot to shipment</h3><p class="muted">Allocate accepted finished-product quantity to an outbound shipment.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Allocate finished-product lot to shipment dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
+      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
       <form class="create-form dialog-form" (ngSubmit)="allocateProductionLot()">
     <p class="muted">Only quality-accepted quantities can be allocated, and cumulative lot allocations cannot exceed the linked inventory dispatch.</p>
     <div class="form-grid">
@@ -199,6 +206,7 @@
         <div><h3 id="genealogy-dialog-title">Lot genealogy</h3><p class="muted">Trace a raw-material or finished-product lot through production and shipment.</p></div>
         <button type="button" class="dialog-close secondary" aria-label="Close Lot genealogy dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
       </header>
+      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
       <form class="create-form dialog-form" (ngSubmit)="lookupGenealogy()">
     <div class="form-grid">
       <label>Raw-material or finished-product lot code<input name="genealogyLotCode" required maxlength="80" [(ngModel)]="genealogyLotCode"></label>
