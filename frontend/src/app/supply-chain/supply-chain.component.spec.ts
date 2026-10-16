@@ -45,7 +45,19 @@ describe('SupplyChainComponent', () => {
 
     expect(component.activeSection).toBe('shipments');
     expect(component.showCreate).toBe(true);
-    expect(fixture.nativeElement.querySelector('form.create-form h3')?.textContent).toContain('Create shipment');
+    expect(fixture.nativeElement.querySelector('[role="dialog"] #create-shipment-title')?.textContent).toContain('Create shipment');
+    expect(fixture.nativeElement.querySelector('.workflow-panel form.create-form')).toBeNull();
+  });
+
+  it('closes the create shipment dialog without affecting the tracking workspace', () => {
+    const component = fixture.componentInstance;
+    component.openCreateShipment();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="dialog"]')).toBeTruthy();
+    component.closeCreateShipment();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="dialog"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.tracking-layout')).toBeTruthy();
   });
 
   it('keeps workflow forms separated instead of rendering every form together', () => {
