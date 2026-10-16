@@ -65,11 +65,32 @@ describe('SupplyChainComponent', () => {
     component.selectSection('production');
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.workflow-panel h3')?.textContent).toContain('Manufacturing order');
+    expect(fixture.nativeElement.querySelector('.workflow-panel .workflow-action strong')?.textContent).toContain('Manufacturing order');
     expect(fixture.nativeElement.querySelectorAll('.workflow-panel').length).toBe(1);
   });
 
 
+
+  it('opens each workflow action in its own named dialog without embedding forms in the page', () => {
+    const component = fixture.componentInstance;
+    const cases = [
+      ['inspection', 'Record inspection'],
+      ['material-lot', 'Receive raw-material lot'],
+      ['manufacturing-order', 'Manufacturing order'],
+      ['production-lot', 'Record finished-product lot'],
+      ['consumption', 'Link material consumption to production'],
+      ['allocation', 'Allocate finished-product lot to shipment'],
+      ['genealogy', 'Lot genealogy']
+    ] as const;
+    for (const [dialog, title] of cases) {
+      component.openWorkflowDialog(dialog);
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('[role="dialog"] h3')?.textContent).toContain(title);
+      expect(fixture.nativeElement.querySelectorAll('.workflow-panel form').length).toBe(0);
+      component.closeWorkflowDialog();
+      fixture.detectChanges();
+    }
+  });
 
   it('records a partial inbound receipt against the selected purchase-order shipment', async () => {
     fixture.componentInstance.selected = {
