@@ -54,3 +54,12 @@ input, select, textarea { width: 100%; min-width: 0; box-sizing: border-box; pad
 .error { background: #fef3f2; color: #b42318; }
 .success { background: #ecfdf3; color: #027a48; }
 @media (max-width: 760px) { .dialog-backdrop { align-items: end; padding: 0; } .shipment-dialog { width: 100%; max-height: 94dvh; border-radius: 14px 14px 0 0; } .dialog-header { padding: 16px 16px 10px; } .dialog-form { padding: 14px 16px 20px; } .tracking-layout { grid-template-columns: minmax(0, 1fr); } .toolbar { align-items: flex-start; flex-direction: column; } .form-grid, .summary-grid { grid-template-columns: minmax(0, 1fr); } .wide { grid-column: auto; } .actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; } }
+
+.workflow-actions-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.workflow-action { display: grid; justify-items: start; align-content: start; gap: 10px; min-height: 150px; padding: 18px; text-align: left; background: #fff; color: #101828; border: 1px solid #eaecf0; border-radius: 12px; }
+.workflow-action:hover:not(:disabled) { background: #f9fafb; border-color: #84adff; box-shadow: 0 2px 8px rgb(16 24 40 / 7%); }
+.workflow-action strong { font-size: 15px; }
+.workflow-action > span:not(.workflow-action-link) { color: #667085; font-size: 13px; line-height: 1.5; }
+.workflow-action .workflow-action-link { color: #175cd3; font-size: 13px; font-weight: 600; margin-top: auto; }
+.dialog-form { align-content: start; }
+@media (max-width: 560px) { .workflow-actions-grid { grid-template-columns: minmax(0, 1fr); } .workflow-action { min-height: 0; } }
