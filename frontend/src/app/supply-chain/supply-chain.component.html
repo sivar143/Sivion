@@ -1,361 +1,513 @@
 <section class="supply-chain">
-  <div class="toolbar">
-    <div>
-      <h2>Supply Chain Tracking</h2>
-      <p>Track supplier shipments, production movements and customer deliveries.</p>
-    </div>
-    <div class="actions">
-      <button type="button" class="secondary" (click)="reload()" [disabled]="loading">Refresh shipments</button>
-      <button type="button" (click)="openCreateShipment()" [attr.aria-expanded]="showCreate">{{ showCreate ? 'Close shipment form' : '+ New shipment' }}</button>
-    </div>
-  </div>
+	<div class="toolbar">
+		<div>
+			<h2>Supply Chain Tracking</h2>
+			<p>Track supplier shipments, production movements and customer deliveries.</p>
+		</div>
+		<div class="actions">
+			<button type="button" class="secondary" (click)="reload()" [disabled]="loading">Refresh shipments</button>
+			<button type="button" (click)="openCreateShipment()" [attr.aria-expanded]="showCreate">{{ showCreate ? 'Close
+				shipment form' : '+ New shipment' }}</button>
+		</div>
+	</div>
 
-  <p class="message error" role="alert" *ngIf="error">{{ error }}</p>
-  <p class="message success" role="status" *ngIf="success">{{ success }}</p>
+	<p class="message error" role="alert" *ngIf="error">{{ error }}</p>
+	<p class="message success" role="status" *ngIf="success">{{ success }}</p>
 
-  <div class="dialog-backdrop" *ngIf="showCreate" (click)="closeCreateShipment()" (keydown.escape)="closeCreateShipment()">
-    <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="create-shipment-title" (click)="$event.stopPropagation()">
-      <header class="dialog-header">
-        <div>
-          <h2 id="create-shipment-title">Create shipment</h2>
-          <p class="muted">Add shipment details without changing the tracking workspace layout.</p>
-        </div>
-        <button type="button" class="dialog-close secondary" aria-label="Close create shipment dialog" (click)="closeCreateShipment()" [disabled]="saving">×</button>
-      </header>
-      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
-      <form class="create-form dialog-form" (ngSubmit)="createShipment()">
-        <div class="form-grid">
-          <label>Shipment number<input name="shipmentNumber" required maxlength="60" [(ngModel)]="draft.shipmentNumber"></label>
-          <label>Journey type<select name="direction" [(ngModel)]="draft.direction"><option value="INBOUND">Inbound raw materials</option><option value="OUTBOUND">Outbound customer delivery</option><option value="TRANSFER">Inter-site transfer</option></select></label>
-          <label>Reference / order number<input name="referenceNumber" maxlength="100" [(ngModel)]="draft.referenceNumber"></label>
-          <label>Purchase order ID<input type="number" min="1" name="purchaseOrderId" [(ngModel)]="draft.purchaseOrderId"></label>
-          <label>Goods receipt reference<input name="goodsReceiptReference" maxlength="100" [(ngModel)]="draft.goodsReceiptReference"></label>
-          <label>Sales order ID<input type="number" min="1" name="salesOrderId" [(ngModel)]="draft.salesOrderId"></label>
-          <label>Dispatch ID<input type="number" min="1" name="dispatchId" [(ngModel)]="draft.dispatchId"></label>
-          <label>Supplier<input name="supplierName" maxlength="180" [(ngModel)]="draft.supplierName"></label>
-          <label>Customer / destination party<input name="customerName" maxlength="180" [(ngModel)]="draft.customerName"></label>
-          <label>Carrier<input name="carrierName" maxlength="120" [(ngModel)]="draft.carrierName"></label>
-          <label>Carrier tracking number<input name="carrierTrackingNumber" maxlength="160" [(ngModel)]="draft.carrierTrackingNumber"></label>
-          <label>Origin<input name="originLocation" maxlength="250" [(ngModel)]="draft.originLocation"></label>
-          <label>Destination<input name="destinationLocation" maxlength="250" [(ngModel)]="draft.destinationLocation"></label>
-          <label>Estimated arrival<input type="datetime-local" name="estimatedArrivalAt" [(ngModel)]="draft.estimatedArrivalAt"></label>
-          <label class="wide">Notes<textarea name="notes" maxlength="1000" rows="2" [(ngModel)]="draft.notes"></textarea></label>
-        </div>
-        <footer class="dialog-actions">
-          <button type="button" class="secondary" (click)="closeCreateShipment()" [disabled]="saving">Cancel</button>
-          <button type="submit" [disabled]="saving || !draft.shipmentNumber.trim()">{{ saving ? 'Saving…' : 'Create shipment' }}</button>
-        </footer>
-      </form>
-    </section>
-  </div>
+	<div class="dialog-backdrop" *ngIf="showCreate" (click)="closeCreateShipment()"
+		(keydown.escape)="closeCreateShipment()">
+		<section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="create-shipment-title"
+			(click)="$event.stopPropagation()">
+			<header class="dialog-header">
+				<div>
+					<h2 id="create-shipment-title">Create shipment</h2>
+					<p class="muted">Add shipment details without changing the tracking workspace layout.</p>
+				</div>
+				<button type="button" class="dialog-close secondary" aria-label="Close create shipment dialog"
+					(click)="closeCreateShipment()" [disabled]="saving">×</button>
+			</header>
+			<p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
+			<form class="create-form dialog-form" (ngSubmit)="createShipment()">
+				<div class="form-grid">
+					<label>Shipment number<input name="shipmentNumber" required maxlength="60"
+							[(ngModel)]="draft.shipmentNumber"></label>
+					<label>Journey type<select name="direction" [(ngModel)]="draft.direction">
+							<option value="INBOUND">Inbound raw materials</option>
+							<option value="OUTBOUND">Outbound customer delivery</option>
+							<option value="TRANSFER">Inter-site transfer</option>
+						</select></label>
+					<label>Reference / order number<input name="referenceNumber" maxlength="100"
+							[(ngModel)]="draft.referenceNumber"></label>
+					<label>Purchase order ID<input type="number" min="1" name="purchaseOrderId"
+							[(ngModel)]="draft.purchaseOrderId"></label>
+					<label>Goods receipt reference<input name="goodsReceiptReference" maxlength="100"
+							[(ngModel)]="draft.goodsReceiptReference"></label>
+					<label>Sales order ID<input type="number" min="1" name="salesOrderId"
+							[(ngModel)]="draft.salesOrderId"></label>
+					<label>Dispatch ID<input type="number" min="1" name="dispatchId" [(ngModel)]="draft.dispatchId"></label>
+					<label>Supplier<input name="supplierName" maxlength="180" [(ngModel)]="draft.supplierName"></label>
+					<label>Customer / destination party<input name="customerName" maxlength="180"
+							[(ngModel)]="draft.customerName"></label>
+					<label>Carrier<input name="carrierName" maxlength="120" [(ngModel)]="draft.carrierName"></label>
+					<label>Carrier tracking number<input name="carrierTrackingNumber" maxlength="160"
+							[(ngModel)]="draft.carrierTrackingNumber"></label>
+					<label>Origin<input name="originLocation" maxlength="250" [(ngModel)]="draft.originLocation"></label>
+					<label>Destination<input name="destinationLocation" maxlength="250"
+							[(ngModel)]="draft.destinationLocation"></label>
+					<label>Estimated arrival<input type="datetime-local" name="estimatedArrivalAt"
+							[(ngModel)]="draft.estimatedArrivalAt"></label>
+					<label class="wide">Notes<textarea name="notes" maxlength="1000" rows="2"
+							[(ngModel)]="draft.notes"></textarea></label>
+				</div>
+				<footer class="dialog-actions">
+					<button type="button" class="secondary" (click)="closeCreateShipment()" [disabled]="saving">Cancel</button>
+					<button type="submit" [disabled]="saving || !draft.shipmentNumber.trim()">{{ saving ? 'Saving…' : 'Create
+						shipment' }}</button>
+				</footer>
+			</form>
+		</section>
+	</div>
 
-  <div class="dialog-backdrop" *ngIf="activeDialog === 'inspection'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
-    <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="inspection-dialog-title" (click)="$event.stopPropagation()">
-      <header class="dialog-header">
-        <div><h2 id="inspection-dialog-title">Record inspection</h2><p class="muted">Record accepted and rejected quantities and reconcile eligible inventory.</p></div>
-        <button type="button" class="dialog-close secondary" aria-label="Close Record inspection dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
-      </header>
-      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
-      <form class="create-form dialog-form" (ngSubmit)="inspectLot()">
-    <p class="muted">Record incremental accepted/rejected quantities for a raw-material or finished-product lot. Accepted quantities are posted to inventory; rejected quantities remain excluded.</p>
-    <div class="form-grid">
-      <label>Lot code<input name="inspectionLotCode" required maxlength="80" [(ngModel)]="inspectionDraft.lotCode"></label>
-      <label>Accepted quantity<input type="number" name="inspectionAccepted" min="0" step="0.0001" required [(ngModel)]="inspectionDraft.acceptedQuantity"></label>
-      <label>Rejected quantity<input type="number" name="inspectionRejected" min="0" step="0.0001" required [(ngModel)]="inspectionDraft.rejectedQuantity"></label>
-      <label>Inspection notes<input name="inspectionNotes" maxlength="1000" [(ngModel)]="inspectionDraft.notes"></label>
-    </div>
-    
-    <footer class="dialog-actions">
-    <button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
-    <button type="submit" [disabled]="saving || !inspectionDraft.lotCode.trim() || (inspectionDraft.acceptedQuantity <= 0 && inspectionDraft.rejectedQuantity <= 0)">Record inspection</button>
-  </footer>
-</form>
-    </section>
-  </div>
+	<div class="dialog-backdrop" *ngIf="activeDialog === 'inspection'" (click)="closeWorkflowDialog()"
+		(keydown.escape)="closeWorkflowDialog()">
+		<section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="inspection-dialog-title"
+			(click)="$event.stopPropagation()">
+			<header class="dialog-header">
+				<div>
+					<h2 id="inspection-dialog-title">Record inspection</h2>
+					<p class="muted">Record accepted and rejected quantities and reconcile eligible inventory.</p>
+				</div>
+				<button type="button" class="dialog-close secondary" aria-label="Close Record inspection dialog"
+					(click)="closeWorkflowDialog()" [disabled]="saving">×</button>
+			</header>
+			<p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
+			<form class="create-form dialog-form" (ngSubmit)="inspectLot()">
+				<p class="muted">Record incremental accepted/rejected quantities for a raw-material or finished-product lot.
+					Accepted quantities are posted to inventory; rejected quantities remain excluded.</p>
+				<div class="form-grid">
+					<label>Lot code<input name="inspectionLotCode" required maxlength="80"
+							[(ngModel)]="inspectionDraft.lotCode"></label>
+					<label>Accepted quantity<input type="number" name="inspectionAccepted" min="0" step="0.0001" required
+							[(ngModel)]="inspectionDraft.acceptedQuantity"></label>
+					<label>Rejected quantity<input type="number" name="inspectionRejected" min="0" step="0.0001" required
+							[(ngModel)]="inspectionDraft.rejectedQuantity"></label>
+					<label>Inspection notes<input name="inspectionNotes" maxlength="1000"
+							[(ngModel)]="inspectionDraft.notes"></label>
+				</div>
 
-  <div class="dialog-backdrop" *ngIf="activeDialog === 'material-lot'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
-    <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="material-lot-dialog-title" (click)="$event.stopPropagation()">
-      <header class="dialog-header">
-        <div><h2 id="material-lot-dialog-title">Receive raw-material lot</h2><p class="muted">Register incoming material and link its supplier, purchase order, receipt and warehouse.</p></div>
-        <button type="button" class="dialog-close secondary" aria-label="Close Receive raw-material lot dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
-      </header>
-      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
-      <form class="create-form dialog-form" (ngSubmit)="receiveMaterialLot()">
-    <div class="form-grid">
-      <label>Lot code<input name="materialLotCode" required maxlength="80" [(ngModel)]="materialLotDraft.lotCode"></label>
-      <label>Material ID<input type="number" name="materialId" min="1" required [(ngModel)]="materialLotDraft.materialId"></label>
-      <label>Purchase order ID<input type="number" name="materialPoId" min="1" [(ngModel)]="materialLotDraft.purchaseOrderId"></label>
-      <label>Goods receipt number / ID<input name="materialGrn" maxlength="100" [(ngModel)]="materialLotDraft.goodsReceiptReference"></label>
-      <label>Inbound shipment ID<input type="number" name="materialShipmentId" min="1" [(ngModel)]="materialLotDraft.shipmentId"></label>
-      <label>Supplier ID<input type="number" name="materialSupplierId" min="1" [(ngModel)]="materialLotDraft.supplierId"></label>
-      <label>Supplier name<input name="materialSupplierName" maxlength="180" [(ngModel)]="materialLotDraft.supplierName"></label>
-      <label>Supplier lot code<input name="supplierLotCode" maxlength="100" [(ngModel)]="materialLotDraft.supplierLotCode"></label>
-      <label>Warehouse ID<input type="number" name="materialWarehouseId" min="1" [(ngModel)]="materialLotDraft.warehouseId"></label>
-      <label>Received quantity<input type="number" name="materialReceived" min="0.0001" step="0.0001" required [(ngModel)]="materialLotDraft.receivedQuantity"></label>
-      <label>Initially accepted<input type="number" name="materialAccepted" min="0" step="0.0001" [(ngModel)]="materialLotDraft.acceptedQuantity"></label>
-      <label>Initially rejected<input type="number" name="materialRejected" min="0" step="0.0001" [(ngModel)]="materialLotDraft.rejectedQuantity"></label>
-    </div>
-    
-    <footer class="dialog-actions">
-    <button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
-    <button type="submit" [disabled]="saving || !materialLotDraft.lotCode.trim() || materialLotDraft.materialId <= 0 || materialLotDraft.receivedQuantity <= 0">Receive material lot</button>
-  </footer>
-</form>
-    </section>
-  </div>
+				<footer class="dialog-actions">
+					<button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
+					<button type="submit"
+						[disabled]="saving || !inspectionDraft.lotCode.trim() || (inspectionDraft.acceptedQuantity <= 0 && inspectionDraft.rejectedQuantity <= 0)">Record
+						inspection</button>
+				</footer>
+			</form>
+		</section>
+	</div>
 
-  <div class="dialog-backdrop" *ngIf="activeDialog === 'manufacturing-order'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
-    <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="manufacturing-order-dialog-title" (click)="$event.stopPropagation()">
-      <header class="dialog-header">
-        <div><h2 id="manufacturing-order-dialog-title">Manufacturing order</h2><p class="muted">Create a production order for a finished product.</p></div>
-        <button type="button" class="dialog-close secondary" aria-label="Close Manufacturing order dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
-      </header>
-      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
-      <form class="create-form dialog-form" (ngSubmit)="createManufacturingOrder()">
-    <div class="form-grid">
-      <label>Order number<input name="manufacturingOrderNumber" required maxlength="80" [(ngModel)]="manufacturingOrderDraft.orderNumber"></label>
-      <label>Finished product ID<input type="number" name="manufacturingProductId" min="1" required [(ngModel)]="manufacturingOrderDraft.productId"></label>
-      <label>Planned quantity<input type="number" name="manufacturingPlannedQuantity" min="0.0001" step="0.0001" required [(ngModel)]="manufacturingOrderDraft.plannedQuantity"></label>
-    </div>
-    
-    <footer class="dialog-actions">
-    <button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
-    <button type="submit" [disabled]="saving || !manufacturingOrderDraft.orderNumber.trim() || manufacturingOrderDraft.productId <= 0 || manufacturingOrderDraft.plannedQuantity <= 0">Create manufacturing order</button>
-  </footer>
-</form>
-    </section>
-  </div>
+	<div class="dialog-backdrop" *ngIf="activeDialog === 'material-lot'" (click)="closeWorkflowDialog()"
+		(keydown.escape)="closeWorkflowDialog()">
+		<section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="material-lot-dialog-title"
+			(click)="$event.stopPropagation()">
+			<header class="dialog-header">
+				<div>
+					<h2 id="material-lot-dialog-title">Receive raw-material lot</h2>
+					<p class="muted">Register incoming material and link its supplier, purchase order, receipt and warehouse.</p>
+				</div>
+				<button type="button" class="dialog-close secondary" aria-label="Close Receive raw-material lot dialog"
+					(click)="closeWorkflowDialog()" [disabled]="saving">×</button>
+			</header>
+			<p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
+			<form class="create-form dialog-form" (ngSubmit)="receiveMaterialLot()">
+				<div class="form-grid">
+					<label>Lot code<input name="materialLotCode" required maxlength="80"
+							[(ngModel)]="materialLotDraft.lotCode"></label>
+					<label>Material ID<input type="number" name="materialId" min="1" required
+							[(ngModel)]="materialLotDraft.materialId"></label>
+					<label>Purchase order ID<input type="number" name="materialPoId" min="1"
+							[(ngModel)]="materialLotDraft.purchaseOrderId"></label>
+					<label>Goods receipt number / ID<input name="materialGrn" maxlength="100"
+							[(ngModel)]="materialLotDraft.goodsReceiptReference"></label>
+					<label>Inbound shipment ID<input type="number" name="materialShipmentId" min="1"
+							[(ngModel)]="materialLotDraft.shipmentId"></label>
+					<label>Supplier ID<input type="number" name="materialSupplierId" min="1"
+							[(ngModel)]="materialLotDraft.supplierId"></label>
+					<label>Supplier name<input name="materialSupplierName" maxlength="180"
+							[(ngModel)]="materialLotDraft.supplierName"></label>
+					<label>Supplier lot code<input name="supplierLotCode" maxlength="100"
+							[(ngModel)]="materialLotDraft.supplierLotCode"></label>
+					<label>Warehouse ID<input type="number" name="materialWarehouseId" min="1"
+							[(ngModel)]="materialLotDraft.warehouseId"></label>
+					<label>Received quantity<input type="number" name="materialReceived" min="0.0001" step="0.0001" required
+							[(ngModel)]="materialLotDraft.receivedQuantity"></label>
+					<label>Initially accepted<input type="number" name="materialAccepted" min="0" step="0.0001"
+							[(ngModel)]="materialLotDraft.acceptedQuantity"></label>
+					<label>Initially rejected<input type="number" name="materialRejected" min="0" step="0.0001"
+							[(ngModel)]="materialLotDraft.rejectedQuantity"></label>
+				</div>
+				<footer class="dialog-actions">
+					<button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
+					<button type="submit"
+						[disabled]="saving || !materialLotDraft.lotCode.trim() || materialLotDraft.materialId <= 0 || materialLotDraft.receivedQuantity <= 0">Receive
+						material lot</button>
+				</footer>
+			</form>
+		</section>
+	</div>
 
-  <div class="dialog-backdrop" *ngIf="activeDialog === 'production-lot'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
-    <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="production-lot-dialog-title" (click)="$event.stopPropagation()">
-      <header class="dialog-header">
-        <div><h2 id="production-lot-dialog-title">Record finished-product lot</h2><p class="muted">Record produced quantities and link them to a manufacturing order.</p></div>
-        <button type="button" class="dialog-close secondary" aria-label="Close Record finished-product lot dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
-      </header>
-      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
-      <form class="create-form dialog-form" (ngSubmit)="recordProductionLot()">
-    <div class="form-grid">
-      <label>Lot code<input name="productionLotCode" required maxlength="80" [(ngModel)]="productionLotDraft.lotCode"></label>
-      <label>Finished product ID<input type="number" name="productionProductId" min="1" required [(ngModel)]="productionLotDraft.productId"></label>
-      <label>Manufacturing order ID<input type="number" name="productionOrderId" min="1" required [(ngModel)]="productionLotDraft.manufacturingOrderId"></label>
-      <label>Produced quantity<input type="number" name="producedQuantity" min="0.0001" step="0.0001" required [(ngModel)]="productionLotDraft.producedQuantity"></label>
-      <label>Known rejected quantity<input type="number" name="productionRejected" min="0" step="0.0001" [(ngModel)]="productionLotDraft.rejectedQuantity"></label>
-      <label>Warehouse ID<input type="number" name="productionWarehouseId" min="1" [(ngModel)]="productionLotDraft.warehouseId"></label>
-    </div>
-    
-    <footer class="dialog-actions">
-    <button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
-    <button type="submit" [disabled]="saving || !productionLotDraft.lotCode.trim() || productionLotDraft.productId <= 0 || productionLotDraft.manufacturingOrderId <= 0 || productionLotDraft.producedQuantity <= 0">Record production lot</button>
-  </footer>
-</form>
-    </section>
-  </div>
+	<div class="dialog-backdrop" *ngIf="activeDialog === 'manufacturing-order'" (click)="closeWorkflowDialog()"
+		(keydown.escape)="closeWorkflowDialog()">
+		<section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="manufacturing-order-dialog-title"
+			(click)="$event.stopPropagation()">
+			<header class="dialog-header">
+				<div>
+					<h2 id="manufacturing-order-dialog-title">Manufacturing order</h2>
+					<p class="muted">Create a production order for a finished product.</p>
+				</div>
+				<button type="button" class="dialog-close secondary" aria-label="Close Manufacturing order dialog"
+					(click)="closeWorkflowDialog()" [disabled]="saving">×</button>
+			</header>
+			<p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
+			<form class="create-form dialog-form" (ngSubmit)="createManufacturingOrder()">
+				<div class="form-grid">
+					<label>Order number<input name="manufacturingOrderNumber" required maxlength="80"
+							[(ngModel)]="manufacturingOrderDraft.orderNumber"></label>
+					<label>Finished product ID<input type="number" name="manufacturingProductId" min="1" required
+							[(ngModel)]="manufacturingOrderDraft.productId"></label>
+					<label>Planned quantity<input type="number" name="manufacturingPlannedQuantity" min="0.0001" step="0.0001"
+							required [(ngModel)]="manufacturingOrderDraft.plannedQuantity"></label>
+				</div>
 
-  <div class="dialog-backdrop" *ngIf="activeDialog === 'consumption'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
-    <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="consumption-dialog-title" (click)="$event.stopPropagation()">
-      <header class="dialog-header">
-        <div><h2 id="consumption-dialog-title">Link material consumption to production</h2><p class="muted">Record the quantity of raw material consumed by a production lot.</p></div>
-        <button type="button" class="dialog-close secondary" aria-label="Close Link material consumption to production dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
-      </header>
-      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
-      <form class="create-form dialog-form" (ngSubmit)="recordConsumption()">
-    <div class="form-grid">
-      <label>Material lot database ID<input type="number" name="consumedMaterialLotId" min="1" required [(ngModel)]="consumptionDraft.materialLotId"></label>
-      <label>Finished-product lot database ID<input type="number" name="consumedProductionLotId" min="1" required [(ngModel)]="consumptionDraft.productionLotId"></label>
-      <label>Manufacturing order ID<input type="number" name="consumedOrderId" min="1" required [(ngModel)]="consumptionDraft.manufacturingOrderId"></label>
-      <label>Quantity consumed<input type="number" name="consumedQuantity" min="0.0001" step="0.0001" required [(ngModel)]="consumptionDraft.quantityConsumed"></label>
-      <label>Unit<input name="consumedUnit" required maxlength="20" [(ngModel)]="consumptionDraft.unit"></label>
-      <label>Remarks<input name="consumptionRemarks" maxlength="500" [(ngModel)]="consumptionDraft.remarks"></label>
-    </div>
-    
-    <footer class="dialog-actions">
-    <button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
-    <button type="submit" [disabled]="saving || consumptionDraft.materialLotId <= 0 || consumptionDraft.productionLotId <= 0 || consumptionDraft.manufacturingOrderId <= 0 || consumptionDraft.quantityConsumed <= 0 || !consumptionDraft.unit.trim()">Record consumption</button>
-  </footer>
-</form>
-    </section>
-  </div>
+				<footer class="dialog-actions">
+					<button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
+					<button type="submit"
+						[disabled]="saving || !manufacturingOrderDraft.orderNumber.trim() || manufacturingOrderDraft.productId <= 0 || manufacturingOrderDraft.plannedQuantity <= 0">
+						Create manufacturing order</button>
+				</footer>
+			</form>
+		</section>
+	</div>
 
-  <div class="dialog-backdrop" *ngIf="activeDialog === 'allocation'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
-    <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="allocation-dialog-title" (click)="$event.stopPropagation()">
-      <header class="dialog-header">
-        <div><h2 id="allocation-dialog-title">Allocate finished-product lot to shipment</h2><p class="muted">Allocate accepted finished-product quantity to an outbound shipment.</p></div>
-        <button type="button" class="dialog-close secondary" aria-label="Close Allocate finished-product lot to shipment dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
-      </header>
-      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
-      <form class="create-form dialog-form" (ngSubmit)="allocateProductionLot()">
-    <p class="muted">Only quality-accepted quantities can be allocated, and cumulative lot allocations cannot exceed the linked inventory dispatch.</p>
-    <div class="form-grid">
-      <label>Finished-product lot code<input name="allocatedLotCode" required maxlength="80" [(ngModel)]="lotShipmentDraft.lotCode"></label>
-      <label>Outbound shipment ID<input type="number" name="allocatedShipmentId" min="1" required [(ngModel)]="lotShipmentDraft.shipmentId"></label>
-      <label>Quantity shipped from this lot<input type="number" name="allocatedShipmentQuantity" min="0.0001" step="0.0001" required [(ngModel)]="lotShipmentDraft.quantity"></label>
-    </div>
-    
-    <button type="button" class="secondary" (click)="loadLotShipmentAllocations()" [disabled]="!lotShipmentDraft.lotCode.trim()">View existing allocations</button>
-    <footer class="dialog-actions">
-    <button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
-    <button type="submit" [disabled]="saving || !lotShipmentDraft.lotCode.trim() || lotShipmentDraft.shipmentId <= 0 || lotShipmentDraft.quantity <= 0">Allocate lot quantity</button>
-  </footer>
-</form>
-    </section>
-  </div>
+	<div class="dialog-backdrop" *ngIf="activeDialog === 'production-lot'" (click)="closeWorkflowDialog()"
+		(keydown.escape)="closeWorkflowDialog()">
+		<section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="production-lot-dialog-title"
+			(click)="$event.stopPropagation()">
+			<header class="dialog-header">
+				<div>
+					<h2 id="production-lot-dialog-title">Record finished-product lot</h2>
+					<p class="muted">Record produced quantities and link them to a manufacturing order.</p>
+				</div>
+				<button type="button" class="dialog-close secondary" aria-label="Close Record finished-product lot dialog"
+					(click)="closeWorkflowDialog()" [disabled]="saving">×</button>
+			</header>
+			<p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
+			<form class="create-form dialog-form" (ngSubmit)="recordProductionLot()">
+				<div class="form-grid">
+					<label>Lot code<input name="productionLotCode" required maxlength="80"
+							[(ngModel)]="productionLotDraft.lotCode"></label>
+					<label>Finished product ID<input type="number" name="productionProductId" min="1" required
+							[(ngModel)]="productionLotDraft.productId"></label>
+					<label>Manufacturing order ID<input type="number" name="productionOrderId" min="1" required
+							[(ngModel)]="productionLotDraft.manufacturingOrderId"></label>
+					<label>Produced quantity<input type="number" name="producedQuantity" min="0.0001" step="0.0001" required
+							[(ngModel)]="productionLotDraft.producedQuantity"></label>
+					<label>Known rejected quantity<input type="number" name="productionRejected" min="0" step="0.0001"
+							[(ngModel)]="productionLotDraft.rejectedQuantity"></label>
+					<label>Warehouse ID<input type="number" name="productionWarehouseId" min="1"
+							[(ngModel)]="productionLotDraft.warehouseId"></label>
+				</div>
+				<footer class="dialog-actions">
+					<button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
+					<button type="submit"
+						[disabled]="saving || !productionLotDraft.lotCode.trim() || productionLotDraft.productId <= 0 || productionLotDraft.manufacturingOrderId <= 0 || productionLotDraft.producedQuantity <= 0">
+						Record production lot</button>
+				</footer>
+			</form>
+		</section>
+	</div>
 
-  <div class="dialog-backdrop" *ngIf="activeDialog === 'genealogy'" (click)="closeWorkflowDialog()" (keydown.escape)="closeWorkflowDialog()">
-    <section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="genealogy-dialog-title" (click)="$event.stopPropagation()">
-      <header class="dialog-header">
-        <div><h2 id="genealogy-dialog-title">Lot genealogy</h2><p class="muted">Trace a raw-material or finished-product lot through production and shipment.</p></div>
-        <button type="button" class="dialog-close secondary" aria-label="Close Lot genealogy dialog" (click)="closeWorkflowDialog()" [disabled]="saving">×</button>
-      </header>
-      <p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
-      <form class="create-form dialog-form" (ngSubmit)="lookupGenealogy()">
-    <div class="form-grid">
-      <label>Raw-material or finished-product lot code<input name="genealogyLotCode" required maxlength="80" [(ngModel)]="genealogyLotCode"></label>
-    </div>
-    
-    <footer class="dialog-actions">
-    <button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
-    <button type="submit" [disabled]="!genealogyLotCode.trim()">Trace lot</button>
-  </footer>
-</form>
-    </section>
-  </div>
+	<div class="dialog-backdrop" *ngIf="activeDialog === 'consumption'" (click)="closeWorkflowDialog()"
+		(keydown.escape)="closeWorkflowDialog()">
+		<section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="consumption-dialog-title"
+			(click)="$event.stopPropagation()">
+			<header class="dialog-header">
+				<div>
+					<h2 id="consumption-dialog-title">Link material consumption to production</h2>
+					<p class="muted">Record the quantity of raw material consumed by a production lot.</p>
+				</div>
+				<button type="button" class="dialog-close secondary"
+					aria-label="Close Link material consumption to production dialog" (click)="closeWorkflowDialog()"
+					[disabled]="saving">×</button>
+			</header>
+			<p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
+			<form class="create-form dialog-form" (ngSubmit)="recordConsumption()">
+				<div class="form-grid">
+					<label>Material lot database ID<input type="number" name="consumedMaterialLotId" min="1" required
+							[(ngModel)]="consumptionDraft.materialLotId"></label>
+					<label>Finished-product lot database ID<input type="number" name="consumedProductionLotId" min="1" required
+							[(ngModel)]="consumptionDraft.productionLotId"></label>
+					<label>Manufacturing order ID<input type="number" name="consumedOrderId" min="1" required
+							[(ngModel)]="consumptionDraft.manufacturingOrderId"></label>
+					<label>Quantity consumed<input type="number" name="consumedQuantity" min="0.0001" step="0.0001" required
+							[(ngModel)]="consumptionDraft.quantityConsumed"></label>
+					<label>Unit<input name="consumedUnit" required maxlength="20" [(ngModel)]="consumptionDraft.unit"></label>
+					<label>Remarks<input name="consumptionRemarks" maxlength="500" [(ngModel)]="consumptionDraft.remarks"></label>
+				</div>
 
-  <nav class="workflow-nav" aria-label="Supply chain workflows">
-    <button type="button" [class.active]="activeSection === 'shipments'" (click)="selectSection('shipments')">Shipments</button>
-    <button type="button" [class.active]="activeSection === 'receiving'" (click)="selectSection('receiving')">Receiving &amp; quality</button>
-    <button type="button" [class.active]="activeSection === 'production'" (click)="selectSection('production')">Production</button>
-    <button type="button" [class.active]="activeSection === 'traceability'" (click)="selectSection('traceability')">Traceability</button>
-  </nav>
+				<footer class="dialog-actions">
+					<button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
+					<button type="submit"
+						[disabled]="saving || consumptionDraft.materialLotId <= 0 || consumptionDraft.productionLotId <= 0 || consumptionDraft.manufacturingOrderId <= 0 || consumptionDraft.quantityConsumed <= 0 || !consumptionDraft.unit.trim()">Record
+						consumption</button>
+				</footer>
+			</form>
+		</section>
+	</div>
 
-  <section *ngIf="activeSection === 'receiving'" class="workflow-panel">
-    <div class="workflow-actions-grid">
-    <button type="button" class="workflow-action" (click)="openWorkflowDialog('inspection')" [disabled]="saving">
-      <strong>Record inspection</strong>
-      <span>Record accepted and rejected quantities and reconcile eligible inventory.</span>
-      <span class="workflow-action-link">Open form →</span>
-    </button>
-    <button type="button" class="workflow-action" (click)="openWorkflowDialog('material-lot')" [disabled]="saving">
-      <strong>Receive raw-material lot</strong>
-      <span>Register incoming material and link its supplier, purchase order, receipt and warehouse.</span>
-      <span class="workflow-action-link">Open form →</span>
-    </button>
-    </div>
-  </section>
+	<div class="dialog-backdrop" *ngIf="activeDialog === 'allocation'" (click)="closeWorkflowDialog()"
+		(keydown.escape)="closeWorkflowDialog()">
+		<section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="allocation-dialog-title"
+			(click)="$event.stopPropagation()">
+			<header class="dialog-header">
+				<div>
+					<h2 id="allocation-dialog-title">Allocate finished-product lot to shipment</h2>
+					<p class="muted">Allocate accepted finished-product quantity to an outbound shipment.</p>
+				</div>
+				<button type="button" class="dialog-close secondary"
+					aria-label="Close Allocate finished-product lot to shipment dialog" (click)="closeWorkflowDialog()"
+					[disabled]="saving">×</button>
+			</header>
+			<p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
+			<form class="create-form dialog-form" (ngSubmit)="allocateProductionLot()">
+				<p class="muted">Only quality-accepted quantities can be allocated, and cumulative lot allocations cannot exceed
+					the linked inventory dispatch.</p>
+				<div class="form-grid">
+					<label>Finished-product lot code<input name="allocatedLotCode" required maxlength="80"
+							[(ngModel)]="lotShipmentDraft.lotCode"></label>
+					<label>Outbound shipment ID<input type="number" name="allocatedShipmentId" min="1" required
+							[(ngModel)]="lotShipmentDraft.shipmentId"></label>
+					<label>Quantity shipped from this lot<input type="number" name="allocatedShipmentQuantity" min="0.0001"
+							step="0.0001" required [(ngModel)]="lotShipmentDraft.quantity"></label>
+				</div>
 
-  <section *ngIf="activeSection === 'production'" class="workflow-panel">
-    <div class="workflow-actions-grid">
-    <button type="button" class="workflow-action" (click)="openWorkflowDialog('manufacturing-order')" [disabled]="saving">
-      <strong>Manufacturing order</strong>
-      <span>Create a production order for a finished product.</span>
-      <span class="workflow-action-link">Open form →</span>
-    </button>
-    <button type="button" class="workflow-action" (click)="openWorkflowDialog('production-lot')" [disabled]="saving">
-      <strong>Record finished-product lot</strong>
-      <span>Record produced quantities and link them to a manufacturing order.</span>
-      <span class="workflow-action-link">Open form →</span>
-    </button>
-    <button type="button" class="workflow-action" (click)="openWorkflowDialog('consumption')" [disabled]="saving">
-      <strong>Link material consumption</strong>
-      <span>Record the quantity of raw material consumed by a production lot.</span>
-      <span class="workflow-action-link">Open form →</span>
-    </button>
-    </div>
-  </section>
+				<button type="button" class="secondary" (click)="loadLotShipmentAllocations()"
+					[disabled]="!lotShipmentDraft.lotCode.trim()">View existing allocations</button>
+				<footer class="dialog-actions">
+					<button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
+					<button type="submit"
+						[disabled]="saving || !lotShipmentDraft.lotCode.trim() || lotShipmentDraft.shipmentId <= 0 || lotShipmentDraft.quantity <= 0">Allocate
+						lot quantity</button>
+				</footer>
+			</form>
+		</section>
+	</div>
 
-  <section *ngIf="activeSection === 'traceability'" class="workflow-panel">
-    <div class="workflow-actions-grid">
-    <button type="button" class="workflow-action" (click)="openWorkflowDialog('allocation')" [disabled]="saving">
-      <strong>Allocate finished-product lot</strong>
-      <span>Allocate accepted finished-product quantity to an outbound shipment.</span>
-      <span class="workflow-action-link">Open form →</span>
-    </button>
-    <button type="button" class="workflow-action" (click)="openWorkflowDialog('genealogy')" [disabled]="saving">
-      <strong>Lot genealogy</strong>
-      <span>Trace a raw-material or finished-product lot through production and shipment.</span>
-      <span class="workflow-action-link">Open form →</span>
-    </button>
-    </div>
-    <pre class="genealogy-result" *ngIf="lotShipmentAllocations">{{ lotShipmentAllocations | json }}</pre>
-    <pre class="genealogy-result" *ngIf="genealogyResult">{{ genealogyResult | json }}</pre>
-  </section>
+	<div class="dialog-backdrop" *ngIf="activeDialog === 'genealogy'" (click)="closeWorkflowDialog()"
+		(keydown.escape)="closeWorkflowDialog()">
+		<section class="shipment-dialog" role="dialog" aria-modal="true" aria-labelledby="genealogy-dialog-title"
+			(click)="$event.stopPropagation()">
+			<header class="dialog-header">
+				<div>
+					<h2 id="genealogy-dialog-title">Lot genealogy</h2>
+					<p class="muted">Trace a raw-material or finished-product lot through production and shipment.</p>
+				</div>
+				<button type="button" class="dialog-close secondary" aria-label="Close Lot genealogy dialog"
+					(click)="closeWorkflowDialog()" [disabled]="saving">×</button>
+			</header>
+			<p class="message error dialog-error" role="alert" *ngIf="error">{{ error }}</p>
+			<form class="create-form dialog-form" (ngSubmit)="lookupGenealogy()">
+				<div class="form-grid">
+					<label>Raw-material or finished-product lot code<input name="genealogyLotCode" required maxlength="80"
+							[(ngModel)]="genealogyLotCode"></label>
+				</div>
 
-  <div class="tracking-layout">
-    <section class="shipment-list" aria-label="Shipment list">
-      <div class="list-heading"><h3>Shipments</h3><span>{{ shipments.length }} total</span></div>
-      <p class="empty" *ngIf="!loading && shipments.length === 0">No shipments yet. Create one to start tracking.</p>
-      <button type="button" class="shipment-row" *ngFor="let shipment of shipments" (click)="openShipment(shipment)" [class.selected]="selected?.shipment.id === shipment.id">
-        <span class="shipment-top"><strong>{{ shipment.shipmentNumber }}</strong><span class="status">{{ shipment.status.replaceAll('_', ' ') }}</span></span>
-        <span class="muted">{{ shipment.direction }} · {{ shipment.carrierName || 'Carrier not assigned' }}</span>
-        <span class="muted">{{ shipment.originLocation || 'Origin pending' }} → {{ shipment.destinationLocation || 'Destination pending' }}</span>
-      </button>
-    </section>
+				<footer class="dialog-actions">
+					<button type="button" class="secondary" (click)="closeWorkflowDialog()" [disabled]="saving">Cancel</button>
+					<button type="submit" [disabled]="!genealogyLotCode.trim()">Trace lot</button>
+				</footer>
+			</form>
+		</section>
+	</div>
 
-    <section class="shipment-detail" *ngIf="selected as detail">
-      <h3>{{ detail.shipment.shipmentNumber }}</h3>
-      <button type="button" class="secondary" *ngIf="detail.shipment.carrierName?.toLowerCase()?.includes('shiprocket')" (click)="refreshCarrierTracking()" [disabled]="saving">Refresh from Shiprocket API</button>
-      <form class="status-form" *ngIf="detail.shipment.direction === 'INBOUND' && detail.shipment.purchaseOrderId" (ngSubmit)="receiveInboundShipment()">
-        <h4>Receive goods against purchase order</h4>
-        <p class="muted">Each receipt creates a goods-receipt record and raw-material lot. Accepted inventory is posted only after quality inspection. Use “Final receipt” only when this shipment has no more expected receipts.</p>
-        <div class="form-grid">
-          <label>Receipt reference<input name="inboundReceiptReference" required maxlength="80" [(ngModel)]="inboundReceiptDraft.receiptReference"></label>
-          <label>Raw-material lot code<input name="inboundLotCode" required maxlength="80" [(ngModel)]="inboundReceiptDraft.lotCode"></label>
-          <label>Product / material ID<input type="number" name="inboundProductId" min="1" required [(ngModel)]="inboundReceiptDraft.productId"></label>
-          <label>Receiving warehouse ID<input type="number" name="inboundWarehouseId" min="1" required [(ngModel)]="inboundReceiptDraft.warehouseId"></label>
-          <label>Received quantity<input type="number" name="inboundQuantity" min="0.0001" step="0.0001" required [(ngModel)]="inboundReceiptDraft.quantity"></label>
-          <label>Supplier name<input name="inboundSupplierName" maxlength="180" [(ngModel)]="inboundReceiptDraft.supplierName"></label>
-          <label>Supplier lot code<input name="inboundSupplierLotCode" maxlength="100" [(ngModel)]="inboundReceiptDraft.supplierLotCode"></label>
-          <label class="checkbox-label"><input type="checkbox" name="finalInboundReceipt" [(ngModel)]="inboundReceiptDraft.finalReceipt"> Final receipt for this shipment</label>
-        </div>
-        <button type="submit" [disabled]="saving || !inboundReceiptDraft.receiptReference.trim() || !inboundReceiptDraft.lotCode.trim() || inboundReceiptDraft.productId <= 0 || inboundReceiptDraft.warehouseId <= 0 || inboundReceiptDraft.quantity <= 0">Record goods receipt</button>
-        <button type="button" class="secondary" (click)="loadInboundReceiptHistory()" [disabled]="saving">Refresh receipt history</button>
-        <pre class="genealogy-result" *ngIf="inboundReceiptHistory.length">{{ inboundReceiptHistory | json }}</pre>
-      </form>
+	<nav class="workflow-nav" aria-label="Supply chain workflows">
+		<button type="button" [class.active]="activeSection === 'shipments'"
+			(click)="selectSection('shipments')">Shipments</button>
+		<button type="button" [class.active]="activeSection === 'receiving'" (click)="selectSection('receiving')">Receiving
+			&amp; quality</button>
+		<button type="button" [class.active]="activeSection === 'production'"
+			(click)="selectSection('production')">Production</button>
+		<button type="button" [class.active]="activeSection === 'traceability'"
+			(click)="selectSection('traceability')">Traceability</button>
+	</nav>
 
-      <div class="summary-grid">
-        <div><span>Current status</span><strong>{{ detail.shipment.status.replaceAll('_', ' ') }}</strong></div>
-        <div><span>Carrier</span><strong>{{ detail.shipment.carrierName || 'Not assigned' }}</strong></div>
-        <div><span>Tracking number</span><strong>{{ detail.shipment.carrierTrackingNumber || 'Not provided' }}</strong></div>
-        <div><span>Estimated arrival</span><strong>{{ detail.shipment.estimatedArrivalAt ? (detail.shipment.estimatedArrivalAt | date:'medium') : 'Not set' }}</strong></div>
-      </div>
+	<section *ngIf="activeSection === 'receiving'" class="workflow-panel">
+		<div class="workflow-actions-grid">
+			<button type="button" class="workflow-action" (click)="openWorkflowDialog('inspection')" [disabled]="saving">
+				<strong>Record inspection</strong>
+				<span>Record accepted and rejected quantities and reconcile eligible inventory.</span>
+				<span class="workflow-action-link">Open form →</span>
+			</button>
+			<button type="button" class="workflow-action" (click)="openWorkflowDialog('material-lot')" [disabled]="saving">
+				<strong>Receive raw-material lot</strong>
+				<span>Register incoming material and link its supplier, purchase order, receipt and warehouse.</span>
+				<span class="workflow-action-link">Open form →</span>
+			</button>
+		</div>
+	</section>
 
-      <form class="status-form" (ngSubmit)="updateStatus()">
-        <h4>Record status update</h4>
-        <div class="form-grid">
-          <label>New status
-            <select name="statusDraft" required [(ngModel)]="statusDraft">
-              <option *ngFor="let status of (detail.shipment.direction === 'INBOUND' ? ['READY_FOR_DISPATCH','DISPATCHED','IN_TRANSIT','ARRIVED','PARTIALLY_RECEIVED','RECEIVED','INSPECTION_PENDING','ACCEPTED','REJECTED','DELAYED','CANCELLED'] : detail.shipment.direction === 'OUTBOUND' ? ['PACKED','READY_FOR_DISPATCH','DISPATCHED','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERED','PARTIALLY_DELIVERED','DELIVERY_FAILED','RETURN_IN_TRANSIT','RETURNED','DELAYED','CANCELLED'] : ['READY_FOR_DISPATCH','DISPATCHED','IN_TRANSIT','ARRIVED','RECEIVED','DELAYED','CANCELLED'])" [value]="status">{{ status.replaceAll('_', ' ') }}</option>
-            </select>
-          </label>
-          <label>Location<input name="locationDraft" maxlength="250" [(ngModel)]="locationDraft"></label>
-          <label class="wide">Remarks<input name="remarksDraft" maxlength="1000" [(ngModel)]="remarksDraft"></label>
-        </div>
-        <button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save status update' }}</button>
-      </form>
+	<section *ngIf="activeSection === 'production'" class="workflow-panel">
+		<div class="workflow-actions-grid">
+			<button type="button" class="workflow-action" (click)="openWorkflowDialog('manufacturing-order')"
+				[disabled]="saving">
+				<strong>Manufacturing order</strong>
+				<span>Create a production order for a finished product.</span>
+				<span class="workflow-action-link">Open form →</span>
+			</button>
+			<button type="button" class="workflow-action" (click)="openWorkflowDialog('production-lot')" [disabled]="saving">
+				<strong>Record finished-product lot</strong>
+				<span>Record produced quantities and link them to a manufacturing order.</span>
+				<span class="workflow-action-link">Open form →</span>
+			</button>
+			<button type="button" class="workflow-action" (click)="openWorkflowDialog('consumption')" [disabled]="saving">
+				<strong>Link material consumption</strong>
+				<span>Record the quantity of raw material consumed by a production lot.</span>
+				<span class="workflow-action-link">Open form →</span>
+			</button>
+		</div>
+	</section>
 
-      <form class="status-form" *ngIf="detail.shipment.direction === 'OUTBOUND' && detail.shipment.status === 'RETURNED'" (ngSubmit)="recordReturn()">
-        <h4>Receive returned goods</h4>
-        <div class="form-grid">
-          <label>Return reference<input name="returnReference" required maxlength="100" [(ngModel)]="returnDraft.returnReference"></label>
-          <label>Product / material ID<input type="number" name="returnProductId" min="1" required [(ngModel)]="returnDraft.productId"></label>
-          <label>Receiving warehouse ID<input type="number" name="returnWarehouseId" min="1" required [(ngModel)]="returnDraft.warehouseId"></label>
-          <label>Return quantity<input type="number" name="returnQuantity" min="0.0001" step="0.0001" required [(ngModel)]="returnDraft.quantity"></label>
-          <label>Disposition<select name="returnDisposition" [(ngModel)]="returnDraft.disposition"><option value="QUARANTINE">Quarantine for inspection</option><option value="RESTOCK">Restock inventory</option><option value="SCRAP">Scrap</option></select></label>
-          <label>Reason<input name="returnReason" required maxlength="500" [(ngModel)]="returnDraft.reason"></label>
-        </div>
-        <button type="submit" [disabled]="saving || !returnDraft.returnReference.trim() || !returnDraft.reason.trim() || returnDraft.productId <= 0 || returnDraft.warehouseId <= 0 || returnDraft.quantity <= 0">Record return</button>
-      </form>
+	<section *ngIf="activeSection === 'traceability'" class="workflow-panel">
+		<div class="workflow-actions-grid">
+			<button type="button" class="workflow-action" (click)="openWorkflowDialog('allocation')" [disabled]="saving">
+				<strong>Allocate finished-product lot</strong>
+				<span>Allocate accepted finished-product quantity to an outbound shipment.</span>
+				<span class="workflow-action-link">Open form →</span>
+			</button>
+			<button type="button" class="workflow-action" (click)="openWorkflowDialog('genealogy')" [disabled]="saving">
+				<strong>Lot genealogy</strong>
+				<span>Trace a raw-material or finished-product lot through production and shipment.</span>
+				<span class="workflow-action-link">Open form →</span>
+			</button>
+		</div>
+		<pre class="genealogy-result" *ngIf="lotShipmentAllocations">{{ lotShipmentAllocations | json }}</pre>
+		<pre class="genealogy-result" *ngIf="genealogyResult">{{ genealogyResult | json }}</pre>
+	</section>
 
-      <h4>Shipment timeline</h4>
-      <ol class="timeline">
-        <li *ngFor="let event of detail.events">
-          <span class="timeline-dot"></span>
-          <div><strong>{{ event.newStatus.replaceAll('_', ' ') }}</strong><time>{{ event.eventTime | date:'medium' }}</time></div>
-          <p *ngIf="event.location">{{ event.location }}</p>
-          <p *ngIf="event.remarks">{{ event.remarks }}</p>
-          <small>Recorded by {{ event.actor || 'system' }}</small>
-        </li>
-      </ol>
-    </section>
-    <section class="shipment-detail empty-detail" *ngIf="!selected"><p>Select a shipment to view its timeline and update its status.</p></section>
-  </div>
+	<div class="tracking-layout">
+		<section class="shipment-list" aria-label="Shipment list">
+			<div class="list-heading">
+				<h3>Shipments</h3><span>{{ shipments.length }} total</span>
+			</div>
+			<p class="empty" *ngIf="!loading && shipments.length === 0">No shipments yet. Create one to start tracking.</p>
+			<button type="button" class="shipment-row" *ngFor="let shipment of shipments" (click)="openShipment(shipment)"
+				[class.selected]="selected?.shipment.id === shipment.id">
+				<span class="shipment-top"><strong>{{ shipment.shipmentNumber }}</strong><span class="status">{{
+						shipment.status.replaceAll('_', ' ') }}</span></span>
+				<span class="muted">{{ shipment.direction }} · {{ shipment.carrierName || 'Carrier not assigned' }}</span>
+				<span class="muted">{{ shipment.originLocation || 'Origin pending' }} → {{ shipment.destinationLocation ||
+					'Destination pending' }}</span>
+			</button>
+		</section>
+
+		<section class="shipment-detail" *ngIf="selected as detail">
+			<h3>{{ detail.shipment.shipmentNumber }}</h3>
+			<button type="button" class="secondary" *ngIf="detail.shipment.carrierName?.toLowerCase()?.includes('shiprocket')"
+				(click)="refreshCarrierTracking()" [disabled]="saving">Refresh from Shiprocket API</button>
+			<form class="status-form" *ngIf="detail.shipment.direction === 'INBOUND' && detail.shipment.purchaseOrderId"
+				(ngSubmit)="receiveInboundShipment()">
+				<h4>Receive goods against purchase order</h4>
+				<p class="muted">Each receipt creates a goods-receipt record and raw-material lot. Accepted inventory is posted
+					only after quality inspection. Use “Final receipt” only when this shipment has no more expected receipts.</p>
+				<div class="form-grid">
+					<label>Receipt reference<input name="inboundReceiptReference" required maxlength="80"
+							[(ngModel)]="inboundReceiptDraft.receiptReference"></label>
+					<label>Raw-material lot code<input name="inboundLotCode" required maxlength="80"
+							[(ngModel)]="inboundReceiptDraft.lotCode"></label>
+					<label>Product / material ID<input type="number" name="inboundProductId" min="1" required
+							[(ngModel)]="inboundReceiptDraft.productId"></label>
+					<label>Receiving warehouse ID<input type="number" name="inboundWarehouseId" min="1" required
+							[(ngModel)]="inboundReceiptDraft.warehouseId"></label>
+					<label>Received quantity<input type="number" name="inboundQuantity" min="0.0001" step="0.0001" required
+							[(ngModel)]="inboundReceiptDraft.quantity"></label>
+					<label>Supplier name<input name="inboundSupplierName" maxlength="180"
+							[(ngModel)]="inboundReceiptDraft.supplierName"></label>
+					<label>Supplier lot code<input name="inboundSupplierLotCode" maxlength="100"
+							[(ngModel)]="inboundReceiptDraft.supplierLotCode"></label>
+					<label class="checkbox-label"><input type="checkbox" name="finalInboundReceipt"
+							[(ngModel)]="inboundReceiptDraft.finalReceipt"> Final receipt for this shipment</label>
+				</div>
+				<button type="submit"
+					[disabled]="saving || !inboundReceiptDraft.receiptReference.trim() || !inboundReceiptDraft.lotCode.trim() || inboundReceiptDraft.productId <= 0 || inboundReceiptDraft.warehouseId <= 0 || inboundReceiptDraft.quantity <= 0">Record
+					goods receipt</button>
+				<button type="button" class="secondary" (click)="loadInboundReceiptHistory()" [disabled]="saving">Refresh
+					receipt history</button>
+				<pre class="genealogy-result" *ngIf="inboundReceiptHistory.length">{{ inboundReceiptHistory | json }}</pre>
+			</form>
+
+			<div class="summary-grid">
+				<div><span>Current status</span><strong>{{ detail.shipment.status.replaceAll('_', ' ') }}</strong></div>
+				<div><span>Carrier</span><strong>{{ detail.shipment.carrierName || 'Not assigned' }}</strong></div>
+				<div><span>Tracking number</span><strong>{{ detail.shipment.carrierTrackingNumber || 'Not provided' }}</strong>
+				</div>
+				<div><span>Estimated arrival</span><strong>{{ detail.shipment.estimatedArrivalAt ?
+						(detail.shipment.estimatedArrivalAt | date:'medium') : 'Not set' }}</strong></div>
+			</div>
+
+			<form class="status-form" (ngSubmit)="updateStatus()">
+				<h4>Record status update</h4>
+				<div class="form-grid">
+					<label>New status
+						<select name="statusDraft" required [(ngModel)]="statusDraft">
+							<option
+								*ngFor="let status of (detail.shipment.direction === 'INBOUND' ? ['READY_FOR_DISPATCH','DISPATCHED','IN_TRANSIT','ARRIVED','PARTIALLY_RECEIVED','RECEIVED','INSPECTION_PENDING','ACCEPTED','REJECTED','DELAYED','CANCELLED'] : detail.shipment.direction === 'OUTBOUND' ? ['PACKED','READY_FOR_DISPATCH','DISPATCHED','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERED','PARTIALLY_DELIVERED','DELIVERY_FAILED','RETURN_IN_TRANSIT','RETURNED','DELAYED','CANCELLED'] : ['READY_FOR_DISPATCH','DISPATCHED','IN_TRANSIT','ARRIVED','RECEIVED','DELAYED','CANCELLED'])"
+								[value]="status">{{ status.replaceAll('_', ' ') }}</option>
+						</select>
+					</label>
+					<label>Location<input name="locationDraft" maxlength="250" [(ngModel)]="locationDraft"></label>
+					<label class="wide">Remarks<input name="remarksDraft" maxlength="1000" [(ngModel)]="remarksDraft"></label>
+				</div>
+				<button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save status update' }}</button>
+			</form>
+
+			<form class="status-form"
+				*ngIf="detail.shipment.direction === 'OUTBOUND' && detail.shipment.status === 'RETURNED'"
+				(ngSubmit)="recordReturn()">
+				<h4>Receive returned goods</h4>
+				<div class="form-grid">
+					<label>Return reference<input name="returnReference" required maxlength="100"
+							[(ngModel)]="returnDraft.returnReference"></label>
+					<label>Product / material ID<input type="number" name="returnProductId" min="1" required
+							[(ngModel)]="returnDraft.productId"></label>
+					<label>Receiving warehouse ID<input type="number" name="returnWarehouseId" min="1" required
+							[(ngModel)]="returnDraft.warehouseId"></label>
+					<label>Return quantity<input type="number" name="returnQuantity" min="0.0001" step="0.0001" required
+							[(ngModel)]="returnDraft.quantity"></label>
+					<label>Disposition<select name="returnDisposition" [(ngModel)]="returnDraft.disposition">
+							<option value="QUARANTINE">Quarantine for inspection</option>
+							<option value="RESTOCK">Restock inventory</option>
+							<option value="SCRAP">Scrap</option>
+						</select></label>
+					<label>Reason<input name="returnReason" required maxlength="500" [(ngModel)]="returnDraft.reason"></label>
+				</div>
+				<button type="submit"
+					[disabled]="saving || !returnDraft.returnReference.trim() || !returnDraft.reason.trim() || returnDraft.productId <= 0 || returnDraft.warehouseId <= 0 || returnDraft.quantity <= 0">Record
+					return</button>
+			</form>
+
+			<h4>Shipment timeline</h4>
+			<ol class="timeline">
+				<li *ngFor="let event of detail.events">
+					<span class="timeline-dot"></span>
+					<div><strong>{{ event.newStatus.replaceAll('_', ' ') }}</strong><time>{{ event.eventTime | date:'medium'
+							}}</time></div>
+					<p *ngIf="event.location">{{ event.location }}</p>
+					<p *ngIf="event.remarks">{{ event.remarks }}</p>
+					<small>Recorded by {{ event.actor || 'system' }}</small>
+				</li>
+			</ol>
+		</section>
+		<section class="shipment-detail empty-detail" *ngIf="!selected">
+			<p>Select a shipment to view its timeline and update its status.</p>
+		</section>
+	</div>
 </section>
