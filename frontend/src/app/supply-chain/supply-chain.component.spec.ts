@@ -84,14 +84,26 @@ describe('SupplyChainComponent', () => {
       ['genealogy', 'Lot genealogy']
     ] as const;
     for (const [dialog, title] of cases) {
+      // Each iteration starts from a known closed state so a stale modal cannot
+      // make the next dialog assertion pass or fail against the wrong heading.
       component.saving = false;
+      component.closeWorkflowDialog();
+      component.showCreate = false;
+      fixture.detectChanges();
+
       component.openWorkflowDialog(dialog);
       fixture.detectChanges();
-      expect(fixture.nativeElement.querySelector('[role="dialog"] h2')?.textContent).toContain(title);
+
+      expect(component.activeDialog).toBe(dialog);
+      const dialogElement = fixture.nativeElement.querySelector('[role="dialog"]') as HTMLElement | null;
+      expect(dialogElement).toBeTruthy();
+      expect(dialogElement?.querySelector('h2')?.textContent?.trim()).toBe(title);
       expect(fixture.nativeElement.querySelectorAll('.workflow-panel form').length).toBe(0);
+
       component.saving = false;
       component.closeWorkflowDialog();
       fixture.detectChanges();
+      expect(component.activeDialog).toBeNull();
     }
   });
 
