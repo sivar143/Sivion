@@ -37,6 +37,7 @@ jobs:
       - name: Run frontend unit tests
         run: npm test
       - name: Build frontend
+        if: ${{ always() }}
         run: npm run build
 
   compose:
@@ -49,3 +50,9 @@ jobs:
         run: docker compose -f docker-compose.yml config
       - name: Build application images
         run: docker compose -f docker-compose.yml build backend frontend
+      - name: Validate production compose does not use development Keycloak mode
+        run: |
+          if grep -Eq 'command:.*start-dev|KC_HTTP_ENABLED:.*true' docker-compose.yml; then
+            echo "Production Compose contains development-only Keycloak/HTTP settings. Replace them with production hostname and TLS configuration before deployment." >&2
+            exit 1
+          fi
