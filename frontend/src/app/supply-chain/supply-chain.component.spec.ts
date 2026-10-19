@@ -84,10 +84,12 @@ describe('SupplyChainComponent', () => {
       ['genealogy', 'Lot genealogy']
     ] as const;
     for (const [dialog, title] of cases) {
+      component.saving = false;
       component.openWorkflowDialog(dialog);
       fixture.detectChanges();
       expect(fixture.nativeElement.querySelector('[role="dialog"] h2')?.textContent).toContain(title);
       expect(fixture.nativeElement.querySelectorAll('.workflow-panel form').length).toBe(0);
+      component.saving = false;
       component.closeWorkflowDialog();
       fixture.detectChanges();
     }
