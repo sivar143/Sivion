@@ -88,6 +88,7 @@ describe('SupplyChainComponent', () => {
       // make the next dialog assertion pass or fail against the wrong heading.
       component.saving = false;
       component.closeWorkflowDialog();
+      component.closeCreateShipment();
       component.showCreate = false;
       fixture.detectChanges();
 
