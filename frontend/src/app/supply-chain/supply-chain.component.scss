@@ -43,7 +43,7 @@ input, select, textarea { width: 100%; min-width: 0; box-sizing: border-box; pad
 .timeline time { color: #667085; font-size: 12px; }
 .timeline p { margin: 6px 0 0; overflow-wrap: anywhere; }
 .genealogy-result { margin: 0; padding: 12px; border-radius: 8px; background: #f9fafb; border: 1px solid #eaecf0; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; font-size: 12px; }
-.dialog-backdrop { position: fixed; inset: 0; z-index: 1200; display: grid; place-items: center; padding: 20px; background: rgb(16 24 40 / 58%); overflow-y: auto; }
+.dialog-backdrop { position: fixed; inset: 0; z-index: 1300; display: grid; place-items: center; padding: 20px; background: rgb(16 24 40 / 58%); overflow-y: auto; }
 .shipment-dialog { width: min(900px, 100%); max-height: min(90vh, 900px); display: grid; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; background: #fff; border-radius: 14px; box-shadow: 0 24px 64px rgb(16 24 40 / 28%); }
 .dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 22px 12px; border-bottom: 1px solid #eaecf0; }
 .dialog-header p { margin: 6px 0 0; }
