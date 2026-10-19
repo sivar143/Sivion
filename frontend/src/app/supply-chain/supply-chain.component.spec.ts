@@ -54,6 +54,7 @@ describe('SupplyChainComponent', () => {
     component.openCreateShipment();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('[role="dialog"]')).toBeTruthy();
+    component.saving = false;
     component.closeCreateShipment();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('[role="dialog"]')).toBeNull();
@@ -85,7 +86,7 @@ describe('SupplyChainComponent', () => {
     for (const [dialog, title] of cases) {
       component.openWorkflowDialog(dialog);
       fixture.detectChanges();
-      expect(fixture.nativeElement.querySelector('[role="dialog"] h3')?.textContent).toContain(title);
+      expect(fixture.nativeElement.querySelector('[role="dialog"] h2')?.textContent).toContain(title);
       expect(fixture.nativeElement.querySelectorAll('.workflow-panel form').length).toBe(0);
       component.closeWorkflowDialog();
       fixture.detectChanges();
